@@ -16,8 +16,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -206,7 +213,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	private void updateScoreboards() {
 
-		BottScoreboard sb = new BottScoreboard(ChatColor.GREEN.toString() + ChatColor.BOLD + "MRC");
+		BottScoreboard sb = new BottScoreboard(PREFIX + gameState.toString());
 
 		switch (gameState) {
 
@@ -232,30 +239,32 @@ public final class MRC extends JavaPlugin implements Listener {
 			sb.put(9, ChatColor.BOLD + "Timer: " + countdown);
 			sb.put(8, "");
 			sb.put(7, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
-			sb.put(6, ChatColor.RED.toString() + "Score: " + redScore);
+			sb.put(6, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + redScore);
 			sb.put(5, ChatColor.RED.toString() + "Power Cells: " + redPC);
 			sb.put(4, "");
 			sb.put(3, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
-			sb.put(2, ChatColor.BLUE.toString() + "Score: " + blueScore);
+			sb.put(2, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + blueScore);
 			sb.put(1, ChatColor.BLUE.toString() + "Power Cells: " + bluePC);
 			break;
 
 		case FINISHED:
 			if (redScore > blueScore) {
-				sb.put(9, ChatColor.RED.toString() + ChatColor.BOLD + "RED WINS!");
+				sb.put(11, ChatColor.RED.toString() + ChatColor.BOLD + "RED WINS!");
 			} else if (blueScore > redScore) {
-				sb.put(9, ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE WINS!");
+				sb.put(11, ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE WINS!");
 			} else {
-				sb.put(9, ChatColor.BOLD + "TIE!");
+				sb.put(11, ChatColor.BOLD + "TIE!");
 			}
-			sb.put(8, "");
-			sb.put(7, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
-			sb.put(6, ChatColor.RED.toString() + "Score: " + redScore);
-			sb.put(5, ChatColor.RED.toString() + "Power Cells: " + redPC);
-			sb.put(4, "");
-			sb.put(3, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
-			sb.put(2, ChatColor.BLUE.toString() + "Score: " + blueScore);
-			sb.put(1, ChatColor.BLUE.toString() + "Power Cells: " + bluePC);
+			sb.put(10, "");
+			sb.put(9, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
+			sb.put(8, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + redScore);
+			sb.put(7, ChatColor.RED.toString() + "Power Cells: " + redPC);
+			sb.put(6, ChatColor.RED.toString() + "Endgame: " + redEndgame);
+			sb.put(5, "");
+			sb.put(4, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
+			sb.put(3, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + blueScore);
+			sb.put(2, ChatColor.BLUE.toString() + "Power Cells: " + bluePC);
+			sb.put(1, ChatColor.BLUE.toString() + "Endgame: " + blueEndgame);
 			sb.put(0, "");
 			sb.put(-1, ChatColor.GREEN + "mc.bottone.io");
 			break;
@@ -286,18 +295,78 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
-		// TODO
+		
+		if (players.contains(event.getPlayer())) {
+			// Player was in game
+			players.remove(event.getPlayer());
+			
+			getServer().broadcastMessage(PREFIX + event.getPlayer().getName() + " has left the game.");
+			
+			if (players.size() < 1) {
+				getServer().broadcastMessage(PREFIX + "Match aborted due to lack of players.");
+				// TODO abort the match
+			}
+			
+			return;
+		}
+		
+		spectators.remove(event.getPlayer());
+		
+	}
+	
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent event) {
+		if (!event.getPlayer().hasPermission("bottone.mrc.build"))
+			event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onBlockPlace(BlockPlaceEvent event) {
+		if (!event.getPlayer().hasPermission("bottone.mrc.build"))
+			event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onPlayerDropItem(PlayerDropItemEvent event) {
+		if (!event.getPlayer().hasPermission("bottone.mrc.interact"))
+			event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		if (!event.getPlayer().hasPermission("bottone.mrc.interact"))
+			event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onVehicleExit(VehicleExitEvent event) {
+		if (!event.getExited().hasPermission("bottone.mrc.interact"))
+			event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onVehicleDamage(VehicleDamageEvent event) {
+		event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onVehicleDestroy(VehicleDestroyEvent event) {
+		if (!(event.getAttacker() instanceof Player) || ((Player) event.getAttacker()).getGameMode() == GameMode.CREATIVE)
+			event.setCancelled(true);
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
 		if (!(sender instanceof Player)) {
+			
 			sender.sendMessage(PREFIX + "Must be a player to do that!");
 			return true;
+			
 		}
 
 		if (label.toLowerCase().startsWith("spectate")) {
+			
 			Player player = (Player) sender;
 
 			if (joinable) {
@@ -315,6 +384,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				player.sendMessage(PREFIX + "You can't do that right now!");
 
 			}
+			
 		}
 
 		return true;
