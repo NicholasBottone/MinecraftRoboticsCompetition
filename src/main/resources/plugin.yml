@@ -1,0 +1,16 @@
+name: MRC
+version: 20.7.20
+
+description: Runs Minecraft Robotics Competition matches.
+author: Nicholas Bottone
+website: https://www.bottone.io
+
+main: io.bottone.mc.plugins.mrc.MRC
+database: false
+softdepend: [Vault]
+api-version: 1.13
+
+commands:
+  spectate:
+    description: Starts spectating the MRC match.
+    usage: /spectate

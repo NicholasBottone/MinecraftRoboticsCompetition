@@ -1,0 +1,29 @@
+package io.bottone.mc.plugins.mrc;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+
+public class BottScoreboard {
+
+	private Scoreboard s;
+	private Objective o1;
+
+	public BottScoreboard(String title) {
+		s = Bukkit.getScoreboardManager().getNewScoreboard();
+
+		o1 = s.registerNewObjective("dashboard1", "dummy", title);
+		o1.setDisplaySlot(DisplaySlot.SIDEBAR);
+	}
+
+	public void put(int line, String string) {
+		o1.getScore(string).setScore(line);
+	}
+
+	public void setScoreboard(Player p) {
+		p.setScoreboard(s);
+	}
+
+}
