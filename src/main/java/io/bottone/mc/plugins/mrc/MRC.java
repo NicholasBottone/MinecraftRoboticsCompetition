@@ -131,13 +131,38 @@ public final class MRC extends JavaPlugin implements Listener {
 						joinable = false;
 						countdown = 10;
 
-						// Teleport players to their positions
-						// TODO
-
-						// Give players their bows
+						boolean red = true;
+						int position = 1;
 						for (Player player : players) {
+							// Give players their bows
 							player.getInventory().addItem(new ItemStack(Material.BOW, 1));
+							
+							// Teleport players to their positions
+							switch (position) {
+							case 1:
+								if (red)
+									player.teleport(red1);
+								else
+									player.teleport(blue1);
+								break;
+							case 2:
+								if (red)
+									player.teleport(red2);
+								else
+									player.teleport(blue2);
+								break;
+							case 3:
+								if (red)
+									player.teleport(red3);
+								else
+									player.teleport(blue3);
+								break;
+							}
+							
+							red = !red;
+							if (red) position++;
 						}
+						
 					}
 					if (countdown > 0 && !joinable) {
 						// Show title
