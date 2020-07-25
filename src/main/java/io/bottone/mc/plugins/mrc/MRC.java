@@ -213,7 +213,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	private void updateScoreboards() {
 
-		BottScoreboard sb = new BottScoreboard(PREFIX + gameState.toString());
+		MRCScoreboard sb = new MRCScoreboard(PREFIX + gameState.toString());
 
 		switch (gameState) {
 
@@ -295,63 +295,64 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
-		
+
 		if (players.contains(event.getPlayer())) {
 			// Player was in game
 			players.remove(event.getPlayer());
-			
+
 			getServer().broadcastMessage(PREFIX + event.getPlayer().getName() + " has left the game.");
-			
+
 			if (players.size() < 1) {
 				getServer().broadcastMessage(PREFIX + "Match aborted due to lack of players.");
 				// TODO abort the match
 			}
-			
+
 			return;
 		}
-		
+
 		spectators.remove(event.getPlayer());
-		
+
 	}
-	
+
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		if (!event.getPlayer().hasPermission("bottone.mrc.build"))
 			event.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
 		if (!event.getPlayer().hasPermission("bottone.mrc.build"))
 			event.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
 		if (!event.getPlayer().hasPermission("bottone.mrc.interact"))
 			event.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (!event.getPlayer().hasPermission("bottone.mrc.interact"))
 			event.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onVehicleExit(VehicleExitEvent event) {
 		if (!event.getExited().hasPermission("bottone.mrc.interact"))
 			event.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onVehicleDamage(VehicleDamageEvent event) {
 		event.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onVehicleDestroy(VehicleDestroyEvent event) {
-		if (!(event.getAttacker() instanceof Player) || ((Player) event.getAttacker()).getGameMode() == GameMode.CREATIVE)
+		if (!(event.getAttacker() instanceof Player)
+				|| ((Player) event.getAttacker()).getGameMode() == GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
@@ -359,14 +360,14 @@ public final class MRC extends JavaPlugin implements Listener {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
 		if (!(sender instanceof Player)) {
-			
+
 			sender.sendMessage(PREFIX + "Must be a player to do that!");
 			return true;
-			
+
 		}
 
 		if (label.toLowerCase().startsWith("spectate")) {
-			
+
 			Player player = (Player) sender;
 
 			if (joinable) {
@@ -384,7 +385,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				player.sendMessage(PREFIX + "You can't do that right now!");
 
 			}
-			
+
 		}
 
 		return true;

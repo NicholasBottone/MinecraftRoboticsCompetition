@@ -6,12 +6,12 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-public class BottScoreboard {
+public class MRCScoreboard {
 
 	private Scoreboard s;
 	private Objective o1;
 
-	public BottScoreboard(String title) {
+	public MRCScoreboard(String title) {
 		s = Bukkit.getScoreboardManager().getNewScoreboard();
 
 		o1 = s.registerNewObjective("dashboard1", "dummy", title);
