@@ -13,12 +13,15 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -28,6 +31,7 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -144,7 +148,11 @@ public final class MRC extends JavaPlugin implements Listener {
 						int position = 1;
 						for (Player player : players) {
 							// Give players their bows
-							player.getInventory().addItem(new ItemStack(Material.BOW, 1));
+							ItemStack bow = new ItemStack(Material.BOW, 1);
+							ItemMeta bowMeta = bow.getItemMeta();
+							bowMeta.setUnbreakable(true);
+							bow.setItemMeta(bowMeta);
+							player.getInventory().addItem(bow);
 
 							// Teleport players to their positions
 							switch (position) {
@@ -522,8 +530,32 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
-		if (!event.getPlayer().hasPermission("bottone.mrc.interact"))
+		if (event.getItemDrop().getItemStack().getType() == Material.BOW)
 			event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onPlayerPickupArrow(EntityPickupItemEvent event) {
+		if (event.getItem().getItemStack().getType() != Material.ARROW || event.getEntity() instanceof HumanEntity)
+			return;
+
+		int arrows = 0;
+		for (ItemStack item : ((HumanEntity) event.getEntity()).getInventory().getContents()) {
+			if (item != null && item.getType() == Material.ARROW)
+				arrows += item.getAmount();
+		}
+
+		if (arrows >= 5) {
+			event.setCancelled(true);
+		} else if (arrows + event.getItem().getItemStack().getAmount() > 5) {
+			event.setCancelled(true);
+
+			ItemStack itemStack = event.getItem().getItemStack();
+			itemStack.setAmount(event.getItem().getItemStack().getAmount() - (5 - arrows));
+			event.getItem().setItemStack(itemStack);
+
+			((HumanEntity) event.getEntity()).getInventory().addItem(new ItemStack(Material.ARROW, 5 - arrows));
+		}
 	}
 
 	@EventHandler
@@ -550,9 +582,16 @@ public final class MRC extends JavaPlugin implements Listener {
 			event.setCancelled(true);
 	}
 
+	@EventHandler
 	public void onInventoryInteract(InventoryInteractEvent event) {
 		if (!joinable)
 			event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onProjectileHit(ProjectileHitEvent event) {
+		event.getHitBlock().getLocation();
+		// TODO: Check if it is scored or out of the arena
 	}
 
 	@Override
