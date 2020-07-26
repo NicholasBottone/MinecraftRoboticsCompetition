@@ -11,8 +11,13 @@ import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,6 +28,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -67,10 +73,12 @@ public final class MRC extends JavaPlugin implements Listener {
 	private int redScore = 0;
 	private int redPC = 0;
 	private int redEndgame = 0;
+	private int redBay = 5;
 
 	private int blueScore = 0;
 	private int bluePC = 0;
 	private int blueEndgame = 0;
+	private int blueBay = 5;
 
 //	private Economy econ;
 
@@ -119,9 +127,11 @@ public final class MRC extends JavaPlugin implements Listener {
 						redScore = 0;
 						redPC = 0;
 						redEndgame = 0;
+						redBay = 5;
 						blueScore = 0;
 						bluePC = 0;
 						blueEndgame = 0;
+						blueBay = 5;
 
 						getServer().broadcastMessage(PREFIX + ChatColor.BOLD + "Match starting in 30 seconds!");
 					}
@@ -159,27 +169,33 @@ public final class MRC extends JavaPlugin implements Listener {
 							case 1:
 								if (red) {
 									player.teleport(red1);
+									player.getWorld().spawnEntity(red1, EntityType.BOAT).addPassenger(player);
 									redPlayers.add(player);
 								} else {
 									player.teleport(blue1);
+									player.getWorld().spawnEntity(blue1, EntityType.BOAT).addPassenger(player);
 									bluePlayers.add(player);
 								}
 								break;
 							case 2:
 								if (red) {
 									player.teleport(red2);
+									player.getWorld().spawnEntity(red2, EntityType.BOAT).addPassenger(player);
 									redPlayers.add(player);
 								} else {
 									player.teleport(blue2);
+									player.getWorld().spawnEntity(blue2, EntityType.BOAT).addPassenger(player);
 									bluePlayers.add(player);
 								}
 								break;
 							case 3:
 								if (red) {
 									player.teleport(red3);
+									player.getWorld().spawnEntity(red3, EntityType.BOAT).addPassenger(player);
 									redPlayers.add(player);
 								} else {
 									player.teleport(blue3);
+									player.getWorld().spawnEntity(blue3, EntityType.BOAT).addPassenger(player);
 									bluePlayers.add(player);
 								}
 								break;
@@ -318,12 +334,11 @@ public final class MRC extends JavaPlugin implements Listener {
 						gameState = GameState.FINISHED;
 						countdown = 10;
 
-						for (
-
-						Player player : players) {
+						for (Player player : players) {
 							player.getInventory().clear();
 						}
 
+						// TODO: only announce final score 5 seconds after end for buzzer beaters
 						if (redScore > blueScore) {
 							getServer().broadcastMessage(
 									PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
@@ -343,7 +358,6 @@ public final class MRC extends JavaPlugin implements Listener {
 
 					}
 
-					// TODO: actual game tick goes here
 					countdown--;
 					break;
 
@@ -351,6 +365,9 @@ public final class MRC extends JavaPlugin implements Listener {
 					joinable = false;
 
 					if (countdown <= 0) {
+
+						gameState = GameState.LOBBY;
+						joinable = true;
 
 						for (Player player : players) {
 							player.chat("/hub");
@@ -360,8 +377,9 @@ public final class MRC extends JavaPlugin implements Listener {
 							player.chat("/hub");
 						}
 
-						gameState = GameState.LOBBY;
-						joinable = true;
+						resetArena();
+						break;
+
 					}
 
 					countdown--;
@@ -380,13 +398,13 @@ public final class MRC extends JavaPlugin implements Listener {
 
 			@Override
 			public void run() {
-				stadium = new Location(getServer().getWorld("MRC"), -0.5, 35.5, -1.5, 0, 0); // TODO get coords
-				red1 = new Location(getServer().getWorld("MRC"), 6, 14, -6, 90, 90);
-				red2 = new Location(getServer().getWorld("MRC"), 6, 14, -6, 90, 90);
-				red3 = new Location(getServer().getWorld("MRC"), 6, 14, -6, 90, 90);
-				blue1 = new Location(getServer().getWorld("MRC"), 6, 14, -6, 90, 90);
-				blue2 = new Location(getServer().getWorld("MRC"), 6, 14, -6, 90, 90);
-				blue3 = new Location(getServer().getWorld("MRC"), 6, 14, -6, 90, 90);
+				stadium = new Location(getServer().getWorld("MRC"), -0.5, 82, 1, 90, 0);
+				red1 = new Location(getServer().getWorld("MRC"), -38.5, 74, 16.5, 180, 0);
+				red2 = new Location(getServer().getWorld("MRC"), -32.0, 74, 16.5, 180, 0);
+				red3 = new Location(getServer().getWorld("MRC"), -25.5, 74, 16.5, 180, 0);
+				blue1 = new Location(getServer().getWorld("MRC"), -25.5, 74, -11.5, 0, 0);
+				blue2 = new Location(getServer().getWorld("MRC"), -32.0, 74, -11.5, 0, 0);
+				blue3 = new Location(getServer().getWorld("MRC"), -38.5, 74, -11.5, 0, 0);
 
 				getServer().getPluginManager().registerEvents(plugin, plugin);
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
@@ -577,8 +595,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onVehicleDestroy(VehicleDestroyEvent event) {
-		if (!(event.getAttacker() instanceof Player)
-				|| ((Player) event.getAttacker()).getGameMode() == GameMode.CREATIVE)
+		if (!joinable)
 			event.setCancelled(true);
 	}
 
@@ -589,9 +606,84 @@ public final class MRC extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler
+	public void onInventoryOpen(InventoryOpenEvent event) {
+		if (event.getInventory() instanceof Chest) {
+			if (event.getInventory().contains(Material.RED_WOOL) && redPlayers.contains(event.getPlayer())
+					&& redBay > 0) {
+				redBay--;
+				event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
+			}
+
+			if (event.getInventory().contains(Material.BLUE_WOOL) && bluePlayers.contains(event.getPlayer())
+					&& blueBay > 0) {
+				blueBay--;
+				event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
+			}
+		}
+
+		if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+			event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
 	public void onProjectileHit(ProjectileHitEvent event) {
-		event.getHitBlock().getLocation();
-		// TODO: Check if it is scored or out of the arena
+		Location loc = event.getEntity().getLocation();
+
+		// Check if scored for red alliance
+		if (loc.getZ() > 27 && loc.getX() > -39 && loc.getX() < -36 && loc.getY() > 79 && loc.getY() < 82) {
+			if (loc.getZ() > 28) {
+				// INNER PORT
+				redScore += 3;
+				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 1, 1);
+			} else {
+				// OUTER PORT
+				redScore += 2;
+				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
+			}
+			redPC++;
+			blueBay++;
+		}
+
+		// Check if scored for blue alliance
+		if (loc.getZ() < -22 && loc.getX() > -28 && loc.getX() < -25 && loc.getY() > 79 && loc.getY() < 82) {
+			if (loc.getZ() < -23) {
+				// INNER PORT
+				blueScore += 3;
+				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 1, 1);
+			} else {
+				// OUTER PORT
+				blueScore += 2;
+				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
+			}
+			bluePC++;
+			redBay++;
+		}
+
+		// Check if outside arena
+		if (loc.getY() >= 87) {
+			loc.setY(73.5);
+			event.getEntity().teleport(loc);
+		}
+
+		if (loc.getZ() <= -22) {
+			loc.setZ(-21.5);
+			event.getEntity().teleport(loc);
+		}
+		if (loc.getZ() >= 26) {
+			loc.setZ(25.5);
+			event.getEntity().teleport(loc);
+		}
+
+		if (loc.getX() >= -20) {
+			loc.setX(-20.5);
+			event.getEntity().teleport(loc);
+		}
+		if (loc.getX() <= -45) {
+			loc.setX(-44.5);
+			event.getEntity().teleport(loc);
+		}
+
 	}
 
 	@Override
@@ -631,7 +723,13 @@ public final class MRC extends JavaPlugin implements Listener {
 	}
 
 	private void resetArena() {
-		// TODO: Reset the arena at the end of the match
+		for (World w : getServer().getWorlds()) {
+			for (Entity e : w.getEntities()) {
+				if (e instanceof Player)
+					continue;
+				e.remove();
+			}
+		}
 	}
 
 }
