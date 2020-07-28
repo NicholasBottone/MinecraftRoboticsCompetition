@@ -1,5 +1,7 @@
 package io.bottone.mc.plugins.mrc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -13,7 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -27,11 +28,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
@@ -40,6 +42,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
 
 public final class MRC extends JavaPlugin implements Listener {
 
@@ -59,6 +65,13 @@ public final class MRC extends JavaPlugin implements Listener {
 	private Location blue1;
 	private Location blue2;
 	private Location blue3;
+
+	private Location redBayLoc;
+	private Location blueBayLoc;
+	private Hologram redBayHolo;
+	private Hologram blueBayHolo;
+	private TextLine redBayLine;
+	private TextLine blueBayLine;
 
 	private List<Player> players = new ArrayList<>();
 	private List<Player> spectators = new ArrayList<>();
@@ -86,6 +99,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
+		getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 		l = getLogger();
 		plugin = this;
 
@@ -122,7 +136,7 @@ public final class MRC extends JavaPlugin implements Listener {
 					if (players.size() >= 1) {
 						// We have player(s) ... start the countdown!
 						gameState = GameState.COUNTDOWN;
-						countdown = 30;
+						countdown = 5;
 
 						redScore = 0;
 						redPC = 0;
@@ -133,7 +147,8 @@ public final class MRC extends JavaPlugin implements Listener {
 						blueEndgame = 0;
 						blueBay = 5;
 
-						getServer().broadcastMessage(PREFIX + ChatColor.BOLD + "Match starting in 30 seconds!");
+						getServer().broadcastMessage(
+								PREFIX + "Match starting in 30 seconds! (temporarily 5 seconds for testing)");
 					}
 					break;
 
@@ -151,9 +166,6 @@ public final class MRC extends JavaPlugin implements Listener {
 					}
 					if (countdown <= 0 && joinable) {
 						// Game no longer joinable, assigning teams and moving to the arena.
-						joinable = false;
-						countdown = 10;
-
 						boolean red = true;
 						int position = 1;
 						for (Player player : players) {
@@ -201,16 +213,52 @@ public final class MRC extends JavaPlugin implements Listener {
 								break;
 							}
 
+							Color team;
+
+							if (red) {
+								team = Color.RED;
+							} else {
+								team = Color.BLUE;
+							}
+
+							// Give players their colored armor
+							ItemStack armor = new ItemStack(Material.LEATHER_BOOTS);
+							LeatherArmorMeta lameta = (LeatherArmorMeta) armor.getItemMeta();
+							lameta.setColor(team);
+							armor.setItemMeta(lameta);
+							player.getInventory().setBoots(armor);
+
+							armor = new ItemStack(Material.LEATHER_LEGGINGS);
+							lameta = (LeatherArmorMeta) armor.getItemMeta();
+							lameta.setColor(team);
+							armor.setItemMeta(lameta);
+							player.getInventory().setLeggings(armor);
+
+							armor = new ItemStack(Material.LEATHER_HELMET);
+							lameta = (LeatherArmorMeta) armor.getItemMeta();
+							lameta.setColor(team);
+							armor.setItemMeta(lameta);
+							player.getInventory().setHelmet(armor);
+
+							armor = new ItemStack(Material.LEATHER_CHESTPLATE);
+							lameta = (LeatherArmorMeta) armor.getItemMeta();
+							lameta.setColor(team);
+							armor.setItemMeta(lameta);
+							player.getInventory().setChestplate(armor);
+
 							red = !red;
 							if (red)
 								position++;
 						}
 
+						joinable = false;
+						countdown = 10;
+
 					}
 					if (countdown > 0 && !joinable) {
 						// Final countdown.
 						// Show title
-						showInstantTitle(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + countdown, "");
+						showInstantTitle(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + (countdown - 1), "");
 					}
 					if (countdown <= 0 && !joinable) {
 						// Match starts.
@@ -222,102 +270,63 @@ public final class MRC extends JavaPlugin implements Listener {
 						gameState = GameState.INGAME;
 						countdown = 150;
 						getServer().broadcastMessage(PREFIX + "Let the match begin!");
+						clearEntities();
 
-						int position = 1;
-						for (Player player : redPlayers) {
+						for (int position = 1; position <= redPlayers.size(); position++) {
+							Player player = redPlayers.get(position - 1);
+
 							// Give players their 3 starting arrows
 							player.getInventory().addItem(new ItemStack(Material.ARROW, 3));
-
-							// Give players their colored armor
-							ItemStack armor = new ItemStack(Material.LEATHER_BOOTS);
-							LeatherArmorMeta lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(Color.RED);
-							armor.setItemMeta(lameta);
-							player.getInventory().setBoots(armor);
-
-							armor = new ItemStack(Material.LEATHER_LEGGINGS);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(Color.RED);
-							armor.setItemMeta(lameta);
-							player.getInventory().setLeggings(armor);
-
-							armor = new ItemStack(Material.LEATHER_HELMET);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(Color.RED);
-							armor.setItemMeta(lameta);
-							player.getInventory().setHelmet(armor);
-
-							armor = new ItemStack(Material.LEATHER_CHESTPLATE);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(Color.RED);
-							armor.setItemMeta(lameta);
-							player.getInventory().setChestplate(armor);
 
 							// Teleport players to their positions
 							switch (position) {
 							case 1:
 								player.teleport(red1);
-								redPlayers.add(player);
+								player.getWorld().spawnEntity(red1, EntityType.BOAT).addPassenger(player);
 								break;
 							case 2:
 								player.teleport(red2);
-								redPlayers.add(player);
+								player.getWorld().spawnEntity(red2, EntityType.BOAT).addPassenger(player);
 								break;
 							case 3:
 								player.teleport(red3);
-								redPlayers.add(player);
+								player.getWorld().spawnEntity(red3, EntityType.BOAT).addPassenger(player);
 								break;
 							}
-							position++;
 						}
 
-						position = 1;
-						for (Player player : bluePlayers) {
+						for (int position = 1; position <= bluePlayers.size(); position++) {
+							Player player = bluePlayers.get(position - 1);
+
 							// Give players their 3 starting arrows
 							player.getInventory().addItem(new ItemStack(Material.ARROW, 3));
-
-							// Give players their colored armor
-							ItemStack armor = new ItemStack(Material.LEATHER_BOOTS);
-							LeatherArmorMeta lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(Color.BLUE);
-							armor.setItemMeta(lameta);
-							player.getInventory().setBoots(armor);
-
-							armor = new ItemStack(Material.LEATHER_LEGGINGS);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(Color.BLUE);
-							armor.setItemMeta(lameta);
-							player.getInventory().setLeggings(armor);
-
-							armor = new ItemStack(Material.LEATHER_HELMET);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(Color.BLUE);
-							armor.setItemMeta(lameta);
-							player.getInventory().setHelmet(armor);
-
-							armor = new ItemStack(Material.LEATHER_CHESTPLATE);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(Color.BLUE);
-							armor.setItemMeta(lameta);
-							player.getInventory().setChestplate(armor);
 
 							// Teleport players to their positions
 							switch (position) {
 							case 1:
 								player.teleport(blue1);
-								redPlayers.add(player);
+								player.getWorld().spawnEntity(blue1, EntityType.BOAT).addPassenger(player);
 								break;
 							case 2:
 								player.teleport(blue2);
-								redPlayers.add(player);
+								player.getWorld().spawnEntity(blue2, EntityType.BOAT).addPassenger(player);
 								break;
 							case 3:
 								player.teleport(blue3);
-								redPlayers.add(player);
+								player.getWorld().spawnEntity(blue3, EntityType.BOAT).addPassenger(player);
 								break;
 							}
-							position++;
 						}
+
+						// Setup the loading bay chest holograms
+						redBayHolo = HologramsAPI.createHologram(plugin, redBayLoc);
+						blueBayHolo = HologramsAPI.createHologram(plugin, blueBayLoc);
+
+						redBayLine = redBayHolo.appendTextLine(redBay + " Power Cells");
+						blueBayLine = blueBayHolo.appendTextLine(blueBay + " Power Cells");
+
+						redBayHolo.appendItemLine(new ItemStack(Material.ARROW));
+						blueBayHolo.appendItemLine(new ItemStack(Material.ARROW));
 
 						break;
 					}
@@ -329,6 +338,9 @@ public final class MRC extends JavaPlugin implements Listener {
 				case INGAME:
 					joinable = false;
 
+					redBayLine.setText(redBay + " Power Cells");
+					blueBayLine.setText(blueBay + " Power Cells");
+
 					if (countdown <= 0) {
 						// Match is over.
 						gameState = GameState.FINISHED;
@@ -338,7 +350,6 @@ public final class MRC extends JavaPlugin implements Listener {
 							player.getInventory().clear();
 						}
 
-						// TODO: only announce final score 5 seconds after end for buzzer beaters
 						if (redScore > blueScore) {
 							getServer().broadcastMessage(
 									PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
@@ -370,11 +381,11 @@ public final class MRC extends JavaPlugin implements Listener {
 						joinable = true;
 
 						for (Player player : players) {
-							player.chat("/hub");
+							sendToBungeeServer(player, "Hub");
 						}
 
 						for (Player player : spectators) {
-							player.chat("/hub");
+							sendToBungeeServer(player, "Hub");
 						}
 
 						resetArena();
@@ -406,6 +417,9 @@ public final class MRC extends JavaPlugin implements Listener {
 				blue2 = new Location(getServer().getWorld("MRC"), -32.0, 74, -11.5, 0, 0);
 				blue3 = new Location(getServer().getWorld("MRC"), -38.5, 74, -11.5, 0, 0);
 
+				redBayLoc = new Location(getServer().getWorld("MRC"), -37.5, 76, -21.5);
+				blueBayLoc = new Location(getServer().getWorld("MRC"), -26.5, 76, 26.5);
+
 				getServer().getPluginManager().registerEvents(plugin, plugin);
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
 			}
@@ -433,30 +447,30 @@ public final class MRC extends JavaPlugin implements Listener {
 		switch (gameState) {
 
 		case LOBBY:
-			sb.put(2, "Waiting to start the game!");
-			sb.put(1, players.size() + " players");
-			sb.put(0, "");
-			sb.put(-1, ChatColor.GREEN + "mc.bottone.io");
+			sb.put(3, "Waiting to start the game!");
+			sb.put(2, players.size() + " players");
+			sb.put(1, " ");
+			sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 			break;
 
 		case COUNTDOWN:
 			if (joinable) {
-				sb.put(2, "Match initiating in " + countdown);
+				sb.put(3, "Match initiating in " + countdown);
 			} else {
-				sb.put(2, ChatColor.BOLD + "Here we go in " + countdown);
+				sb.put(3, ChatColor.BOLD + "Here we go in " + countdown);
 			}
-			sb.put(1, players.size() + " players");
-			sb.put(0, "");
-			sb.put(-1, ChatColor.GREEN + "mc.bottone.io");
+			sb.put(2, players.size() + " players");
+			sb.put(1, " ");
+			sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 			break;
 
 		case INGAME:
 			sb.put(9, ChatColor.BOLD + "Timer: " + countdown);
-			sb.put(8, "");
+			sb.put(8, " ");
 			sb.put(7, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
 			sb.put(6, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + redScore);
 			sb.put(5, ChatColor.RED.toString() + "Power Cells: " + redPC);
-			sb.put(4, "");
+			sb.put(4, "  ");
 			sb.put(3, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
 			sb.put(2, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + blueScore);
 			sb.put(1, ChatColor.BLUE.toString() + "Power Cells: " + bluePC);
@@ -464,24 +478,24 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		case FINISHED:
 			if (redScore > blueScore) {
-				sb.put(11, ChatColor.RED.toString() + ChatColor.BOLD + "RED WINS!");
+				sb.put(12, ChatColor.RED.toString() + ChatColor.BOLD + "RED WINS!");
 			} else if (blueScore > redScore) {
-				sb.put(11, ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE WINS!");
+				sb.put(12, ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE WINS!");
 			} else {
-				sb.put(11, ChatColor.BOLD + "TIE!");
+				sb.put(12, ChatColor.BOLD + "TIE!");
 			}
-			sb.put(10, "");
-			sb.put(9, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
-			sb.put(8, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + redScore);
-			sb.put(7, ChatColor.RED.toString() + "Power Cells: " + redPC);
-			sb.put(6, ChatColor.RED.toString() + "Endgame: " + redEndgame);
-			sb.put(5, "");
-			sb.put(4, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
-			sb.put(3, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + blueScore);
-			sb.put(2, ChatColor.BLUE.toString() + "Power Cells: " + bluePC);
-			sb.put(1, ChatColor.BLUE.toString() + "Endgame: " + blueEndgame);
-			sb.put(0, "");
-			sb.put(-1, ChatColor.GREEN + "mc.bottone.io");
+			sb.put(11, " ");
+			sb.put(10, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
+			sb.put(9, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + redScore);
+			sb.put(8, ChatColor.RED.toString() + "Power Cells: " + redPC);
+			sb.put(7, ChatColor.RED.toString() + "Endgame: " + redEndgame);
+			sb.put(6, "  ");
+			sb.put(5, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
+			sb.put(4, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + blueScore);
+			sb.put(3, ChatColor.BLUE.toString() + "Power Cells: " + bluePC);
+			sb.put(2, ChatColor.BLUE.toString() + "Endgame: " + blueEndgame);
+			sb.put(1, "   ");
+			sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 			break;
 
 		}
@@ -504,9 +518,10 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		if (players.size() < 6 && joinable) {
 			players.add(event.getPlayer());
+			event.getPlayer().setAllowFlight(false);
 		} else {
 			spectators.add(event.getPlayer());
-			event.getPlayer().setGameMode(GameMode.SPECTATOR);
+			event.getPlayer().setAllowFlight(true);
 		}
 
 	}
@@ -536,25 +551,40 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (!event.getPlayer().hasPermission("bottone.mrc.build"))
+		if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if (!event.getPlayer().hasPermission("bottone.mrc.build"))
+		if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
-		if (event.getItemDrop().getItemStack().getType() == Material.BOW)
+		if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
 	@EventHandler
-	public void onPlayerPickupArrow(EntityPickupItemEvent event) {
-		if (event.getItem().getItemStack().getType() != Material.ARROW || event.getEntity() instanceof HumanEntity)
+	public void onPickupArrow(PlayerPickupArrowEvent event) {
+		int arrows = 0;
+		for (ItemStack item : event.getPlayer().getInventory().getContents()) {
+			if (item != null && item.getType() == Material.ARROW)
+				arrows += item.getAmount();
+		}
+
+		l.info(event.getPlayer().getName() + " picked up an arrow - they had " + arrows + " before");
+
+		if (arrows >= 5) {
+			event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onPickupItem(EntityPickupItemEvent event) {
+		if (event.getItem().getItemStack().getType() != Material.ARROW || !(event.getEntity() instanceof HumanEntity))
 			return;
 
 		int arrows = 0;
@@ -562,6 +592,8 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (item != null && item.getType() == Material.ARROW)
 				arrows += item.getAmount();
 		}
+
+		l.info(event.getEntity().getName() + " picked up arrow(s) from ground - they had " + arrows + " before");
 
 		if (arrows >= 5) {
 			event.setCancelled(true);
@@ -577,15 +609,52 @@ public final class MRC extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (!event.getPlayer().hasPermission("bottone.mrc.interact"))
+	public void onInventoryEvent(InventoryClickEvent event) {
+		if (!joinable)
 			event.setCancelled(true);
 	}
 
 	@EventHandler
-	public void onVehicleExit(VehicleExitEvent event) {
-		if (!event.getExited().hasPermission("bottone.mrc.interact"))
+	public void onInventoryOpen(InventoryOpenEvent event) {
+		if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
+
+		int arrows = 0;
+		for (ItemStack item : event.getPlayer().getInventory().getContents()) {
+			if (item != null && item.getType() == Material.ARROW)
+				arrows += item.getAmount();
+		}
+
+		if (arrows >= 5) {
+			return;
+		}
+
+		if (event.getInventory().contains(Material.RED_WOOL) && redPlayers.contains(event.getPlayer()) && redBay > 0) {
+			redBay--;
+			event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
+		}
+
+		if (event.getInventory().contains(Material.BLUE_WOOL) && bluePlayers.contains(event.getPlayer())
+				&& blueBay > 0) {
+			blueBay--;
+			event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
+		}
+	}
+
+//	@EventHandler
+//	public void onVehicleEnter(VehicleEnterEvent event) {
+//		if (event.getEntered() instanceof Player && ((Player) event.getEntered()).getGameMode() != GameMode.CREATIVE)
+//			if (!(gameState == GameState.COUNTDOWN && countdown == 10)
+//					|| !(gameState == GameState.INGAME && countdown == 150))
+//				event.setCancelled(true);
+//	}
+
+	@EventHandler
+	public void onVehicleExit(VehicleExitEvent event) {
+		if (event.getExited() instanceof Player && ((Player) event.getExited()).getGameMode() != GameMode.CREATIVE)
+			event.getVehicle().addPassenger(event.getExited());
+
+		l.info(event.getExited().getName() + " tried to exit vehicle");
 	}
 
 	@EventHandler
@@ -603,27 +672,6 @@ public final class MRC extends JavaPlugin implements Listener {
 	public void onInventoryInteract(InventoryInteractEvent event) {
 		if (!joinable)
 			event.setCancelled(true);
-	}
-
-	@EventHandler
-	public void onInventoryOpen(InventoryOpenEvent event) {
-		if (event.getInventory() instanceof Chest) {
-			if (event.getInventory().contains(Material.RED_WOOL) && redPlayers.contains(event.getPlayer())
-					&& redBay > 0) {
-				redBay--;
-				event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
-			}
-
-			if (event.getInventory().contains(Material.BLUE_WOOL) && bluePlayers.contains(event.getPlayer())
-					&& blueBay > 0) {
-				blueBay--;
-				event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
-			}
-		}
-
-		if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
-			event.setCancelled(true);
-		}
 	}
 
 	@EventHandler
@@ -705,8 +753,8 @@ public final class MRC extends JavaPlugin implements Listener {
 				players.remove(player);
 				spectators.add(player);
 
-				player.setGameMode(GameMode.SPECTATOR);
 				player.teleport(stadium);
+				player.setAllowFlight(true);
 
 				player.sendMessage(PREFIX + "You are now spectating the upcoming match!");
 
@@ -723,6 +771,32 @@ public final class MRC extends JavaPlugin implements Listener {
 	}
 
 	private void resetArena() {
+		players.clear();
+		spectators.clear();
+		redPlayers.clear();
+		bluePlayers.clear();
+
+		redBayHolo.delete();
+		blueBayHolo.delete();
+
+		clearEntities();
+	}
+
+	private void sendToBungeeServer(Player player, String server) {
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		DataOutputStream out = new DataOutputStream(b);
+
+		try {
+			out.writeUTF("Connect");
+			out.writeUTF(server);
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+
+		player.sendPluginMessage(plugin, "BungeeCord", b.toByteArray());
+	}
+
+	private void clearEntities() {
 		for (World w : getServer().getWorlds()) {
 			for (Entity e : w.getEntities()) {
 				if (e instanceof Player)
