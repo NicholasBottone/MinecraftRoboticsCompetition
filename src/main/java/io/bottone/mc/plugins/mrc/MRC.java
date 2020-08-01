@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,6 +58,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			+ ChatColor.DARK_PURPLE + "] " + ChatColor.AQUA;
 
 	private Logger l;
+	private static Random rand = new Random();
 
 	private Location stadium;
 	private Location red1;
@@ -217,8 +219,12 @@ public final class MRC extends JavaPlugin implements Listener {
 
 							if (red) {
 								team = Color.RED;
+								player.sendMessage(PREFIX + "You are competing on the " + ChatColor.RED + ChatColor.BOLD
+										+ "RED ALLIANCE");
 							} else {
 								team = Color.BLUE;
+								player.sendMessage(PREFIX + "You are competing on the " + ChatColor.BLUE
+										+ ChatColor.BOLD + "BLUE ALLIANCE");
 							}
 
 							// Give players their colored armor
@@ -410,15 +416,15 @@ public final class MRC extends JavaPlugin implements Listener {
 			@Override
 			public void run() {
 				stadium = new Location(getServer().getWorld("MRC"), -0.5, 82, 1, 90, 0);
-				red1 = new Location(getServer().getWorld("MRC"), -38.5, 74, 16.5, 180, 0);
-				red2 = new Location(getServer().getWorld("MRC"), -32.0, 74, 16.5, 180, 0);
-				red3 = new Location(getServer().getWorld("MRC"), -25.5, 74, 16.5, 180, 0);
-				blue1 = new Location(getServer().getWorld("MRC"), -25.5, 74, -11.5, 0, 0);
-				blue2 = new Location(getServer().getWorld("MRC"), -32.0, 74, -11.5, 0, 0);
-				blue3 = new Location(getServer().getWorld("MRC"), -38.5, 74, -11.5, 0, 0);
+				red1 = new Location(getServer().getWorld("MRC"), -38.5, 74, 15.5, 180, 0);
+				red2 = new Location(getServer().getWorld("MRC"), -32.0, 74, 15.5, 180, 0);
+				red3 = new Location(getServer().getWorld("MRC"), -25.5, 74, 15.5, 180, 0);
+				blue1 = new Location(getServer().getWorld("MRC"), -25.5, 74, -12.5, 0, 0);
+				blue2 = new Location(getServer().getWorld("MRC"), -32.0, 74, -12.5, 0, 0);
+				blue3 = new Location(getServer().getWorld("MRC"), -38.5, 74, -12.5, 0, 0);
 
-				redBayLoc = new Location(getServer().getWorld("MRC"), -37.5, 76, -21.5);
-				blueBayLoc = new Location(getServer().getWorld("MRC"), -26.5, 76, 26.5);
+				redBayLoc = new Location(getServer().getWorld("MRC"), -37.5, 76, -22.5);
+				blueBayLoc = new Location(getServer().getWorld("MRC"), -26.5, 76, 25.5);
 
 				getServer().getPluginManager().registerEvents(plugin, plugin);
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
@@ -529,9 +535,16 @@ public final class MRC extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
 
+		Entity vehicle = event.getPlayer().getVehicle();
+		if (vehicle != null) {
+			vehicle.remove();
+		}
+
 		if (players.contains(event.getPlayer())) {
 			// Player was in game
 			players.remove(event.getPlayer());
+			redPlayers.remove(event.getPlayer());
+			bluePlayers.remove(event.getPlayer());
 
 			getServer().broadcastMessage(PREFIX + event.getPlayer().getName() + " has left the game.");
 
@@ -567,19 +580,10 @@ public final class MRC extends JavaPlugin implements Listener {
 			event.setCancelled(true);
 	}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPickupArrow(PlayerPickupArrowEvent event) {
-		int arrows = 0;
-		for (ItemStack item : event.getPlayer().getInventory().getContents()) {
-			if (item != null && item.getType() == Material.ARROW)
-				arrows += item.getAmount();
-		}
-
-		l.info(event.getPlayer().getName() + " picked up an arrow - they had " + arrows + " before");
-
-		if (arrows >= 5) {
-			event.setCancelled(true);
-		}
+		event.setCancelled(true);
 	}
 
 	@EventHandler
@@ -592,8 +596,6 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (item != null && item.getType() == Material.ARROW)
 				arrows += item.getAmount();
 		}
-
-		l.info(event.getEntity().getName() + " picked up arrow(s) from ground - they had " + arrows + " before");
 
 		if (arrows >= 5) {
 			event.setCancelled(true);
@@ -652,9 +654,9 @@ public final class MRC extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onVehicleExit(VehicleExitEvent event) {
 		if (event.getExited() instanceof Player && ((Player) event.getExited()).getGameMode() != GameMode.CREATIVE)
-			event.getVehicle().addPassenger(event.getExited());
-
-		l.info(event.getExited().getName() + " tried to exit vehicle");
+			if (!(gameState == GameState.COUNTDOWN && countdown == 10)
+					|| !(gameState == GameState.INGAME && countdown == 150))
+				event.getVehicle().addPassenger(event.getExited());
 	}
 
 	@EventHandler
@@ -678,59 +680,50 @@ public final class MRC extends JavaPlugin implements Listener {
 	public void onProjectileHit(ProjectileHitEvent event) {
 		Location loc = event.getEntity().getLocation();
 
-		// Check if scored for red alliance
-		if (loc.getZ() > 27 && loc.getX() > -39 && loc.getX() < -36 && loc.getY() > 79 && loc.getY() < 82) {
-			if (loc.getZ() > 28) {
-				// INNER PORT
-				redScore += 3;
-				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 1, 1);
-			} else {
+		if (event.getHitBlock() != null) {
+
+			// Check if scored for red alliance
+			if (event.getHitBlock().getType() == Material.RED_TERRACOTTA) {
 				// OUTER PORT
 				redScore += 2;
 				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
+				redPC++;
+				blueBay++;
+				return;
 			}
-			redPC++;
-			blueBay++;
-		}
-
-		// Check if scored for blue alliance
-		if (loc.getZ() < -22 && loc.getX() > -28 && loc.getX() < -25 && loc.getY() > 79 && loc.getY() < 82) {
-			if (loc.getZ() < -23) {
+			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
 				// INNER PORT
-				blueScore += 3;
+				redScore += 3;
 				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 1, 1);
-			} else {
+				redPC++;
+				blueBay++;
+				return;
+			}
+
+			// Check if scored for blue alliance
+			if (event.getHitBlock().getType() == Material.BLUE_TERRACOTTA) {
 				// OUTER PORT
 				blueScore += 2;
 				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
+				bluePC++;
+				redBay++;
+				return;
 			}
-			bluePC++;
-			redBay++;
+			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
+				// INNER PORT
+				blueScore += 3;
+				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 1, 1);
+				bluePC++;
+				redBay++;
+				return;
+			}
+
 		}
 
-		// Check if outside arena
-		if (loc.getY() >= 87) {
-			loc.setY(73.5);
-			event.getEntity().teleport(loc);
-		}
-
-		if (loc.getZ() <= -22) {
-			loc.setZ(-21.5);
-			event.getEntity().teleport(loc);
-		}
-		if (loc.getZ() >= 26) {
-			loc.setZ(25.5);
-			event.getEntity().teleport(loc);
-		}
-
-		if (loc.getX() >= -20) {
-			loc.setX(-20.5);
-			event.getEntity().teleport(loc);
-		}
-		if (loc.getX() <= -45) {
-			loc.setX(-44.5);
-			event.getEntity().teleport(loc);
-		}
+		// Miss - outside arena - respawn arrow
+		loc.getWorld().dropItemNaturally(new Location(loc.getWorld(), random(-40, -24), 83, random(-19, 22)),
+				new ItemStack(Material.ARROW));
+		event.getEntity().remove();
 
 	}
 
@@ -776,8 +769,10 @@ public final class MRC extends JavaPlugin implements Listener {
 		redPlayers.clear();
 		bluePlayers.clear();
 
-		redBayHolo.delete();
-		blueBayHolo.delete();
+		if (redBayHolo != null) {
+			redBayHolo.delete();
+			blueBayHolo.delete();
+		}
 
 		clearEntities();
 	}
@@ -804,6 +799,10 @@ public final class MRC extends JavaPlugin implements Listener {
 				e.remove();
 			}
 		}
+	}
+
+	private static int random(int min, int max) {
+		return rand.nextInt((max - min) + 1) + min;
 	}
 
 }
