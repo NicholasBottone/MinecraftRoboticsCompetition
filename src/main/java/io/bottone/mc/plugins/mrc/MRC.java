@@ -33,6 +33,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -134,6 +135,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				case LOBBY:
 					// Lobby normally means no players.
 					joinable = true;
+					countdown = 0;
 
 					if (players.size() >= 1) {
 						// We have player(s) ... start the countdown!
@@ -149,8 +151,7 @@ public final class MRC extends JavaPlugin implements Listener {
 						blueEndgame = 0;
 						blueBay = 5;
 
-						getServer().broadcastMessage(
-								PREFIX + "Match starting in 30 seconds! (temporarily 5 seconds for testing)");
+						getServer().broadcastMessage(PREFIX + "Match starting in 5 seconds!");
 					}
 					break;
 
@@ -160,7 +161,7 @@ public final class MRC extends JavaPlugin implements Listener {
 					if (players.size() < 1) {
 						// We don't have enough players ... abort the countdown!
 						gameState = GameState.LOBBY;
-						countdown = 30;
+						countdown = 0;
 						joinable = true;
 
 						getServer().broadcastMessage(PREFIX + "Match countdown aborted due to lack of players.");
@@ -352,8 +353,11 @@ public final class MRC extends JavaPlugin implements Listener {
 						gameState = GameState.FINISHED;
 						countdown = 10;
 
+						clearEntities();
+
 						for (Player player : players) {
-							player.getInventory().clear();
+							player.getInventory().remove(Material.BOW);
+							player.getInventory().remove(Material.ARROW);
 						}
 
 						if (redScore > blueScore) {
@@ -387,6 +391,7 @@ public final class MRC extends JavaPlugin implements Listener {
 						joinable = true;
 
 						for (Player player : players) {
+							player.getInventory().clear();
 							sendToBungeeServer(player, "Hub");
 						}
 
@@ -643,20 +648,21 @@ public final class MRC extends JavaPlugin implements Listener {
 		}
 	}
 
-//	@EventHandler
-//	public void onVehicleEnter(VehicleEnterEvent event) {
-//		if (event.getEntered() instanceof Player && ((Player) event.getEntered()).getGameMode() != GameMode.CREATIVE)
-//			if (!(gameState == GameState.COUNTDOWN && countdown == 10)
-//					|| !(gameState == GameState.INGAME && countdown == 150))
-//				event.setCancelled(true);
-//	}
+	@EventHandler
+	public void onEntityEnter(PlayerInteractEntityEvent event) {
+		if (event.getRightClicked().getType() == EntityType.BOAT)
+			event.setCancelled(true);
+	}
 
 	@EventHandler
-	public void onVehicleExit(VehicleExitEvent event) {
-		if (event.getExited() instanceof Player && ((Player) event.getExited()).getGameMode() != GameMode.CREATIVE)
-			if (!(gameState == GameState.COUNTDOWN && countdown == 10)
-					|| !(gameState == GameState.INGAME && countdown == 150))
-				event.getVehicle().addPassenger(event.getExited());
+	public void onVehicleExit(VehicleExitEvent event) { // FIXME
+		if (event.getVehicle().isDead() || !event.getVehicle().isValid())
+			return;
+
+		if (event.getExited() instanceof Player && ((Player) event.getExited()).getGameMode() != GameMode.CREATIVE) {
+			event.setCancelled(true);
+			event.getVehicle().addPassenger(event.getExited());
+		}
 	}
 
 	@EventHandler

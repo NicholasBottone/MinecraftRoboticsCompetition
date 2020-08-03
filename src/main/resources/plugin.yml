@@ -1,5 +1,5 @@
 name: MRC
-version: 20.8.1
+version: 20.8.2
 
 description: Runs Minecraft Robotics Competition matches.
 author: Nicholas Bottone
@@ -9,7 +9,7 @@ main: io.bottone.mc.plugins.mrc.MRC
 database: false
 depend: [HolographicDisplays]
 softdepend: [Vault]
-api-version: 1.13
+api-version: 1.15
 
 commands:
   spectate:
