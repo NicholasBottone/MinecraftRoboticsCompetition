@@ -698,6 +698,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onRightClick(PlayerInteractEvent event) {
+
 		if (event.getMaterial() == Material.IRON_DOOR) {
 			// Send back to hub bungee server
 			sendToBungeeServer(event.getPlayer(), "Hub");
@@ -715,21 +716,25 @@ public final class MRC extends JavaPlugin implements Listener {
 			return;
 		}
 
-		if (event.getClickedBlock().getType() == Material.BELL) {
-			if (gameState != GameState.INGAME)
-				return;
-			// Fully hung, award points for hang
-			// FIXME test this
-			if (!hungPlayers.contains(event.getPlayer())) {
-				hungPlayers.add(event.getPlayer());
-				if (redPlayers.contains(event.getPlayer())) {
-					redScore += 25;
-					redEndgame += 25;
-				} else if (bluePlayers.contains(event.getPlayer())) {
-					blueScore += 25;
-					blueEndgame += 25;
+		if (event.getClickedBlock() != null) {
+
+			if (event.getClickedBlock().getType() == Material.BELL) {
+				if (gameState != GameState.INGAME)
+					return;
+				// Fully hung, award points for hang
+				// FIXME test this
+				if (!hungPlayers.contains(event.getPlayer())) {
+					hungPlayers.add(event.getPlayer());
+					if (redPlayers.contains(event.getPlayer())) {
+						redScore += 25;
+						redEndgame += 25;
+					} else if (bluePlayers.contains(event.getPlayer())) {
+						blueScore += 25;
+						blueEndgame += 25;
+					}
 				}
 			}
+
 		}
 	}
 
