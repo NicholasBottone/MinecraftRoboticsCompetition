@@ -789,7 +789,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_TERRACOTTA) {
 				// OUTER PORT
 				redScore += 2;
-				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
+				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				redPC++;
 				blueBay++;
 				return;
@@ -797,7 +797,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
 				// INNER PORT
 				redScore += 3;
-				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 1, 1);
+				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				redPC++;
 				blueBay++;
 				return;
@@ -807,7 +807,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.BLUE_TERRACOTTA) {
 				// OUTER PORT
 				blueScore += 2;
-				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
+				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				bluePC++;
 				redBay++;
 				return;
@@ -815,7 +815,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
 				// INNER PORT
 				blueScore += 3;
-				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 1, 1);
+				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				bluePC++;
 				redBay++;
 				return;
