@@ -862,18 +862,23 @@ public final class MRC extends JavaPlugin implements Listener {
 	}
 
 	private void resetArena() {
+		// Clear all lists
 		players.clear();
 		spectators.clear();
 		redPlayers.clear();
 		bluePlayers.clear();
 		hungPlayers.clear();
 
+		// Get rid of the holograms
 		if (redBayHolo != null) {
 			redBayHolo.delete();
 			blueBayHolo.delete();
 		}
 
 		clearEntities();
+
+		// Set the ingame time to a random time
+		getServer().getWorld("MRC").setTime(rand.nextInt(24000));
 	}
 
 	private void sendToBungeeServer(Player player, String server) {
