@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.bottone.mc.plugins.mrc</groupId>
 	<artifactId>MRC</artifactId>
-	<version>20.8.2</version>
+	<version>20.8.3</version>
 	<name>MinecraftRoboticsCompetition</name>
 	<build>
 		<plugins>
@@ -27,6 +27,14 @@
 			<id>vault-repo</id>
 			<url>http://nexus.hc.to/content/repositories/pub_releases</url>
 		</repository>
+		<repository>
+    		<id>holo-repo</id>
+    		<url>https://repo.codemc.io/repository/maven-public/</url>
+		</repository>
+		<repository>
+			<id>worldedit-repo</id>
+			<url>https://maven.enginehub.org/repo/</url>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -43,11 +51,16 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.gmail.filoghost.holographicdisplays</groupId>
-			<artifactId>holographicdisplays-parent</artifactId>
-			<version>2.4.3</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/holographicdisplays-api-2.4.3.jar</systemPath>
+		    <groupId>com.gmail.filoghost.holographicdisplays</groupId>
+		    <artifactId>holographicdisplays-api</artifactId>
+		    <version>2.4.3</version>
+		    <scope>provided</scope>
+		</dependency>
+		<dependency>
+		    <groupId>com.sk89q.worldedit</groupId>
+		    <artifactId>worldedit-bukkit</artifactId>
+		    <version>7.1.0</version>
+		    <scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

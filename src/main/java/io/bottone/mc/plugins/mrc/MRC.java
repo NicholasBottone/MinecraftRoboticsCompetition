@@ -34,6 +34,7 @@ import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -81,6 +82,8 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	private List<Player> redPlayers = new ArrayList<>();
 	private List<Player> bluePlayers = new ArrayList<>();
+
+	private List<Player> hungPlayers = new ArrayList<>();
 
 	private GameState gameState = GameState.LOBBY;
 	private int countdown = 30;
@@ -172,6 +175,9 @@ public final class MRC extends JavaPlugin implements Listener {
 						boolean red = true;
 						int position = 1;
 						for (Player player : players) {
+							// Clear inventories
+							player.getInventory().clear();
+
 							// Give players their bows
 							ItemStack bow = new ItemStack(Material.BOW, 1);
 							ItemMeta bowMeta = bow.getItemMeta();
@@ -349,6 +355,29 @@ public final class MRC extends JavaPlugin implements Listener {
 					blueBayLine.setText(blueBay + " Power Cells");
 
 					if (countdown <= 0) {
+						// Calculate parks in the rendezvous zone.
+						// FIXME test this
+						for (Player player : redPlayers) {
+							Location loc = player.getLocation();
+							loc.setY(71.5);
+							if (loc.getBlock().getType() == Material.SMOOTH_RED_SANDSTONE
+									|| loc.getBlock().getType() == Material.OAK_WOOD) {
+								// Parked!
+								redScore += 5;
+								redEndgame += 5;
+							}
+						}
+						for (Player player : bluePlayers) {
+							Location loc = player.getLocation();
+							loc.setY(71.5);
+							if (loc.getBlock().getType() == Material.SMOOTH_SANDSTONE
+									|| loc.getBlock().getType() == Material.OAK_WOOD) {
+								// Parked!
+								blueScore += 5;
+								blueEndgame += 5;
+							}
+						}
+
 						// Match is over.
 						gameState = GameState.FINISHED;
 						countdown = 10;
@@ -377,6 +406,18 @@ public final class MRC extends JavaPlugin implements Listener {
 						getServer().broadcastMessage(PREFIX + "Final Score: " + ChatColor.RED + ChatColor.BOLD
 								+ redScore + ChatColor.AQUA + " to " + ChatColor.BLUE + ChatColor.BOLD + blueScore);
 
+						break;
+					}
+
+					if (countdown == 30) { // Endgame period starts
+						// Give acacia door for dismounting and climbing
+						for (Player player : players) {
+							ItemStack item = new ItemStack(Material.ACACIA_DOOR, 1);
+							ItemMeta meta = item.getItemMeta();
+							meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Begin Climbing");
+							item.setItemMeta(meta);
+							player.getInventory().addItem(item);
+						}
 					}
 
 					countdown--;
@@ -390,12 +431,8 @@ public final class MRC extends JavaPlugin implements Listener {
 						gameState = GameState.LOBBY;
 						joinable = true;
 
-						for (Player player : players) {
+						for (Player player : Bukkit.getOnlinePlayers()) {
 							player.getInventory().clear();
-							sendToBungeeServer(player, "Hub");
-						}
-
-						for (Player player : spectators) {
 							sendToBungeeServer(player, "Hub");
 						}
 
@@ -527,6 +564,12 @@ public final class MRC extends JavaPlugin implements Listener {
 		event.getPlayer().setGameMode(GameMode.ADVENTURE);
 		event.getPlayer().getInventory().clear();
 
+		ItemStack item = new ItemStack(Material.IRON_DOOR, 1);
+		ItemMeta meta = item.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Return to Hub");
+		item.setItemMeta(meta);
+		event.getPlayer().getInventory().addItem(item);
+
 		if (players.size() < 6 && joinable) {
 			players.add(event.getPlayer());
 			event.getPlayer().setAllowFlight(false);
@@ -617,14 +660,16 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onInventoryEvent(InventoryClickEvent event) {
-		if (!joinable)
+		if (event.getWhoClicked().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onInventoryOpen(InventoryOpenEvent event) {
-		if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
-			event.setCancelled(true);
+		if (event.getPlayer().getGameMode() == GameMode.CREATIVE)
+			return;
+
+		event.setCancelled(true);
 
 		int arrows = 0;
 		for (ItemStack item : event.getPlayer().getInventory().getContents()) {
@@ -646,16 +691,57 @@ public final class MRC extends JavaPlugin implements Listener {
 			blueBay--;
 			event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
 		}
+
+		redBayLine.setText(redBay + " Power Cells");
+		blueBayLine.setText(blueBay + " Power Cells");
 	}
 
 	@EventHandler
-	public void onEntityEnter(PlayerInteractEntityEvent event) {
-		if (event.getRightClicked().getType() == EntityType.BOAT)
+	public void onRightClick(PlayerInteractEvent event) {
+		if (event.getMaterial() == Material.IRON_DOOR) {
+			// Send back to hub bungee server
+			sendToBungeeServer(event.getPlayer(), "Hub");
+			return;
+		}
+
+		if (event.getMaterial() == Material.ACACIA_DOOR) {
+			if (gameState != GameState.INGAME)
+				return;
+			// Dismount from boat to begin climb
+			// FIXME test that dismount works properly
+			event.getPlayer().getVehicle().remove();
+			event.getPlayer().getInventory().remove(Material.ACACIA_DOOR);
+			event.getPlayer().getInventory().remove(Material.BOW);
+			return;
+		}
+
+		if (event.getClickedBlock().getType() == Material.BELL) {
+			if (gameState != GameState.INGAME)
+				return;
+			// Fully hung, award points for hang
+			// FIXME test this
+			if (!hungPlayers.contains(event.getPlayer())) {
+				hungPlayers.add(event.getPlayer());
+				if (redPlayers.contains(event.getPlayer())) {
+					redScore += 25;
+					redEndgame += 25;
+				} else if (bluePlayers.contains(event.getPlayer())) {
+					blueScore += 25;
+					blueEndgame += 25;
+				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onRightClickEntity(PlayerInteractEntityEvent event) {
+		if (event.getRightClicked().getType() == EntityType.BOAT
+				&& event.getPlayer().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
 	@EventHandler
-	public void onVehicleExit(VehicleExitEvent event) { // FIXME
+	public void onVehicleExit(VehicleExitEvent event) { // FIXME still partially broken, but mostly fine
 		if (event.getVehicle().isDead() || !event.getVehicle().isValid())
 			return;
 
@@ -667,23 +753,29 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onVehicleDamage(VehicleDamageEvent event) {
-		event.setCancelled(true);
+		if (event.getAttacker() instanceof HumanEntity
+				&& ((HumanEntity) event.getAttacker()).getGameMode() != GameMode.CREATIVE)
+			event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onVehicleDestroy(VehicleDestroyEvent event) {
-		if (!joinable)
+		if (event.getAttacker() instanceof HumanEntity
+				&& ((HumanEntity) event.getAttacker()).getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onInventoryInteract(InventoryInteractEvent event) {
-		if (!joinable)
+		if (event.getWhoClicked().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onProjectileHit(ProjectileHitEvent event) {
+		if (gameState != GameState.INGAME)
+			return;
+
 		Location loc = event.getEntity().getLocation();
 
 		if (event.getHitBlock() != null) {
@@ -774,6 +866,7 @@ public final class MRC extends JavaPlugin implements Listener {
 		spectators.clear();
 		redPlayers.clear();
 		bluePlayers.clear();
+		hungPlayers.clear();
 
 		if (redBayHolo != null) {
 			redBayHolo.delete();
