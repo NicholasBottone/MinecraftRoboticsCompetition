@@ -178,10 +178,11 @@ public final class MRC extends JavaPlugin implements Listener {
 							// Clear inventories
 							player.getInventory().clear();
 
-							// Give players their bows
+							// Give players their power cell shooters
 							ItemStack bow = new ItemStack(Material.BOW, 1);
 							ItemMeta bowMeta = bow.getItemMeta();
 							bowMeta.setUnbreakable(true);
+							bowMeta.setDisplayName("Power Cell Shooter");
 							bow.setItemMeta(bowMeta);
 							player.getInventory().addItem(bow);
 
@@ -288,8 +289,8 @@ public final class MRC extends JavaPlugin implements Listener {
 						for (int position = 1; position <= redPlayers.size(); position++) {
 							Player player = redPlayers.get(position - 1);
 
-							// Give players their 3 starting arrows
-							player.getInventory().addItem(new ItemStack(Material.ARROW, 3));
+							// Give players their 3 starting power cells
+							givePowerCells(player, 3);
 
 							// Teleport players to their positions
 							switch (position) {
@@ -311,8 +312,8 @@ public final class MRC extends JavaPlugin implements Listener {
 						for (int position = 1; position <= bluePlayers.size(); position++) {
 							Player player = bluePlayers.get(position - 1);
 
-							// Give players their 3 starting arrows
-							player.getInventory().addItem(new ItemStack(Material.ARROW, 3));
+							// Give players their 3 starting power cells
+							givePowerCells(player, 3);
 
 							// Teleport players to their positions
 							switch (position) {
@@ -356,7 +357,6 @@ public final class MRC extends JavaPlugin implements Listener {
 
 					if (countdown <= 0) {
 						// Calculate parks in the rendezvous zone.
-						// FIXME test this
 						for (Player player : redPlayers) {
 							Location loc = player.getLocation();
 							loc.setY(71.5);
@@ -416,7 +416,7 @@ public final class MRC extends JavaPlugin implements Listener {
 							ItemMeta meta = item.getItemMeta();
 							meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Begin Climbing");
 							item.setItemMeta(meta);
-							player.getInventory().addItem(item);
+							player.getInventory().setItem(9, item);
 						}
 					}
 
@@ -568,7 +568,7 @@ public final class MRC extends JavaPlugin implements Listener {
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Return to Hub");
 		item.setItemMeta(meta);
-		event.getPlayer().getInventory().addItem(item);
+		event.getPlayer().getInventory().setItem(9, item);
 
 		if (players.size() < 6 && joinable) {
 			players.add(event.getPlayer());
@@ -649,12 +649,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			event.setCancelled(true);
 		} else if (arrows + event.getItem().getItemStack().getAmount() > 5) {
 			event.setCancelled(true);
-
-			ItemStack itemStack = event.getItem().getItemStack();
-			itemStack.setAmount(event.getItem().getItemStack().getAmount() - (5 - arrows));
-			event.getItem().setItemStack(itemStack);
-
-			((HumanEntity) event.getEntity()).getInventory().addItem(new ItemStack(Material.ARROW, 5 - arrows));
+			givePowerCells((HumanEntity) event.getEntity(), event.getItem().getItemStack().getAmount() - (5 - arrows));
 		}
 	}
 
@@ -683,13 +678,13 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		if (event.getInventory().contains(Material.RED_WOOL) && redPlayers.contains(event.getPlayer()) && redBay > 0) {
 			redBay--;
-			event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
+			givePowerCells(event.getPlayer(), 1);
 		}
 
 		if (event.getInventory().contains(Material.BLUE_WOOL) && bluePlayers.contains(event.getPlayer())
 				&& blueBay > 0) {
 			blueBay--;
-			event.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW, 1));
+			givePowerCells(event.getPlayer(), 1);
 		}
 
 		redBayLine.setText(redBay + " Power Cells");
@@ -709,7 +704,6 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (gameState != GameState.INGAME)
 				return;
 			// Dismount from boat to begin climb
-			// FIXME test that dismount works properly
 			event.getPlayer().getVehicle().remove();
 			event.getPlayer().getInventory().remove(Material.ACACIA_DOOR);
 			event.getPlayer().getInventory().remove(Material.BOW);
@@ -722,7 +716,6 @@ public final class MRC extends JavaPlugin implements Listener {
 				if (gameState != GameState.INGAME)
 					return;
 				// Fully hung, award points for hang
-				// FIXME test this
 				if (!hungPlayers.contains(event.getPlayer())) {
 					hungPlayers.add(event.getPlayer());
 					if (redPlayers.contains(event.getPlayer())) {
@@ -824,8 +817,14 @@ public final class MRC extends JavaPlugin implements Listener {
 		}
 
 		// Miss - outside arena - respawn arrow
-		loc.getWorld().dropItemNaturally(new Location(loc.getWorld(), random(-40, -24), 83, random(-19, 22)),
-				new ItemStack(Material.ARROW));
+		ItemStack arrowStack = new ItemStack(Material.ARROW);
+
+		ItemMeta meta = arrowStack.getItemMeta();
+		meta.setDisplayName("Power Cell");
+		arrowStack.setItemMeta(meta);
+
+		loc.getWorld().dropItemNaturally(new Location(loc.getWorld(), random(-40, -24), 76, random(-19, 22)),
+				arrowStack);
 		event.getEntity().remove();
 
 	}
@@ -912,6 +911,16 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	private static int random(int min, int max) {
 		return rand.nextInt((max - min) + 1) + min;
+	}
+
+	private void givePowerCells(HumanEntity player, int number) {
+		ItemStack arrowStack = new ItemStack(Material.ARROW, number);
+
+		ItemMeta meta = arrowStack.getItemMeta();
+		meta.setDisplayName("Power Cell");
+		arrowStack.setItemMeta(meta);
+
+		player.getInventory().addItem(arrowStack);
 	}
 
 }
