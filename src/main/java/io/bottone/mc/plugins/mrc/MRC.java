@@ -49,6 +49,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
+import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.session.ClipboardHolder;
 
 public final class MRC extends JavaPlugin implements Listener {
 
@@ -69,6 +80,8 @@ public final class MRC extends JavaPlugin implements Listener {
 	private Location blue1;
 	private Location blue2;
 	private Location blue3;
+
+	private World world;
 
 	private Location redBayLoc;
 	private Location blueBayLoc;
@@ -191,33 +204,33 @@ public final class MRC extends JavaPlugin implements Listener {
 							case 1:
 								if (red) {
 									player.teleport(red1);
-									player.getWorld().spawnEntity(red1, EntityType.BOAT).addPassenger(player);
+									world.spawnEntity(red1, EntityType.BOAT).addPassenger(player);
 									redPlayers.add(player);
 								} else {
 									player.teleport(blue1);
-									player.getWorld().spawnEntity(blue1, EntityType.BOAT).addPassenger(player);
+									world.spawnEntity(blue1, EntityType.BOAT).addPassenger(player);
 									bluePlayers.add(player);
 								}
 								break;
 							case 2:
 								if (red) {
 									player.teleport(red2);
-									player.getWorld().spawnEntity(red2, EntityType.BOAT).addPassenger(player);
+									world.spawnEntity(red2, EntityType.BOAT).addPassenger(player);
 									redPlayers.add(player);
 								} else {
 									player.teleport(blue2);
-									player.getWorld().spawnEntity(blue2, EntityType.BOAT).addPassenger(player);
+									world.spawnEntity(blue2, EntityType.BOAT).addPassenger(player);
 									bluePlayers.add(player);
 								}
 								break;
 							case 3:
 								if (red) {
 									player.teleport(red3);
-									player.getWorld().spawnEntity(red3, EntityType.BOAT).addPassenger(player);
+									world.spawnEntity(red3, EntityType.BOAT).addPassenger(player);
 									redPlayers.add(player);
 								} else {
 									player.teleport(blue3);
-									player.getWorld().spawnEntity(blue3, EntityType.BOAT).addPassenger(player);
+									world.spawnEntity(blue3, EntityType.BOAT).addPassenger(player);
 									bluePlayers.add(player);
 								}
 								break;
@@ -296,15 +309,15 @@ public final class MRC extends JavaPlugin implements Listener {
 							switch (position) {
 							case 1:
 								player.teleport(red1);
-								player.getWorld().spawnEntity(red1, EntityType.BOAT).addPassenger(player);
+								world.spawnEntity(red1, EntityType.BOAT).addPassenger(player);
 								break;
 							case 2:
 								player.teleport(red2);
-								player.getWorld().spawnEntity(red2, EntityType.BOAT).addPassenger(player);
+								world.spawnEntity(red2, EntityType.BOAT).addPassenger(player);
 								break;
 							case 3:
 								player.teleport(red3);
-								player.getWorld().spawnEntity(red3, EntityType.BOAT).addPassenger(player);
+								world.spawnEntity(red3, EntityType.BOAT).addPassenger(player);
 								break;
 							}
 						}
@@ -319,15 +332,15 @@ public final class MRC extends JavaPlugin implements Listener {
 							switch (position) {
 							case 1:
 								player.teleport(blue1);
-								player.getWorld().spawnEntity(blue1, EntityType.BOAT).addPassenger(player);
+								world.spawnEntity(blue1, EntityType.BOAT).addPassenger(player);
 								break;
 							case 2:
 								player.teleport(blue2);
-								player.getWorld().spawnEntity(blue2, EntityType.BOAT).addPassenger(player);
+								world.spawnEntity(blue2, EntityType.BOAT).addPassenger(player);
 								break;
 							case 3:
 								player.teleport(blue3);
-								player.getWorld().spawnEntity(blue3, EntityType.BOAT).addPassenger(player);
+								world.spawnEntity(blue3, EntityType.BOAT).addPassenger(player);
 								break;
 							}
 						}
@@ -416,8 +429,11 @@ public final class MRC extends JavaPlugin implements Listener {
 							ItemMeta meta = item.getItemMeta();
 							meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Begin Climbing");
 							item.setItemMeta(meta);
-							player.getInventory().setItem(9, item);
+							player.getInventory().setItem(8, item);
 						}
+
+						// Paste vines for climbing
+						pasteVines();
 					}
 
 					countdown--;
@@ -457,22 +473,24 @@ public final class MRC extends JavaPlugin implements Listener {
 
 			@Override
 			public void run() {
-				stadium = new Location(getServer().getWorld("MRC"), -0.5, 82, 1, 90, 0);
-				red1 = new Location(getServer().getWorld("MRC"), -38.5, 74, 15.5, 180, 0);
-				red2 = new Location(getServer().getWorld("MRC"), -32.0, 74, 15.5, 180, 0);
-				red3 = new Location(getServer().getWorld("MRC"), -25.5, 74, 15.5, 180, 0);
-				blue1 = new Location(getServer().getWorld("MRC"), -25.5, 74, -12.5, 0, 0);
-				blue2 = new Location(getServer().getWorld("MRC"), -32.0, 74, -12.5, 0, 0);
-				blue3 = new Location(getServer().getWorld("MRC"), -38.5, 74, -12.5, 0, 0);
+				world = getServer().getWorld("MRC");
 
-				redBayLoc = new Location(getServer().getWorld("MRC"), -37.5, 76, -22.5);
-				blueBayLoc = new Location(getServer().getWorld("MRC"), -26.5, 76, 25.5);
+				stadium = new Location(world, -0.5, 82, 1, 90, 0);
+				red1 = new Location(world, -38.5, 74, 15.5, 180, 0);
+				red2 = new Location(world, -32.0, 74, 15.5, 180, 0);
+				red3 = new Location(world, -25.5, 74, 15.5, 180, 0);
+				blue1 = new Location(world, -25.5, 74, -12.5, 0, 0);
+				blue2 = new Location(world, -32.0, 74, -12.5, 0, 0);
+				blue3 = new Location(world, -38.5, 74, -12.5, 0, 0);
+
+				redBayLoc = new Location(world, -37.5, 76, -22.5);
+				blueBayLoc = new Location(world, -26.5, 76, 25.5);
 
 				getServer().getPluginManager().registerEvents(plugin, plugin);
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
 			}
 
-		}, 200);
+		}, 100);
 
 	}
 
@@ -568,7 +586,7 @@ public final class MRC extends JavaPlugin implements Listener {
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Return to Hub");
 		item.setItemMeta(meta);
-		event.getPlayer().getInventory().setItem(9, item);
+		event.getPlayer().getInventory().setItem(8, item);
 
 		if (players.size() < 6 && joinable) {
 			players.add(event.getPlayer());
@@ -739,7 +757,7 @@ public final class MRC extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler
-	public void onVehicleExit(VehicleExitEvent event) { // FIXME still partially broken, but mostly fine
+	public void onVehicleExit(VehicleExitEvent event) { // FIXME Look into improving this
 		if (event.getVehicle().isDead() || !event.getVehicle().isValid())
 			return;
 
@@ -782,7 +800,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_TERRACOTTA) {
 				// OUTER PORT
 				redScore += 2;
-				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
+				world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				redPC++;
 				blueBay++;
 				return;
@@ -790,7 +808,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
 				// INNER PORT
 				redScore += 3;
-				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
+				world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				redPC++;
 				blueBay++;
 				return;
@@ -800,7 +818,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.BLUE_TERRACOTTA) {
 				// OUTER PORT
 				blueScore += 2;
-				loc.getWorld().playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
+				world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				bluePC++;
 				redBay++;
 				return;
@@ -808,7 +826,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
 				// INNER PORT
 				blueScore += 3;
-				loc.getWorld().playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
+				world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				bluePC++;
 				redBay++;
 				return;
@@ -823,8 +841,7 @@ public final class MRC extends JavaPlugin implements Listener {
 		meta.setDisplayName("Power Cell");
 		arrowStack.setItemMeta(meta);
 
-		loc.getWorld().dropItemNaturally(new Location(loc.getWorld(), random(-40, -24), 76, random(-19, 22)),
-				arrowStack);
+		world.dropItemNaturally(new Location(world, random(-40, -24), 76, random(-19, 22)), arrowStack);
 		event.getEntity().remove();
 
 	}
@@ -881,8 +898,11 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		clearEntities();
 
+		// Delete the vines
+		pasteBlank();
+
 		// Set the ingame time to a random time
-		getServer().getWorld("MRC").setTime(rand.nextInt(24000));
+		world.setTime(rand.nextInt(24000));
 	}
 
 	private void sendToBungeeServer(Player player, String server) {
@@ -900,12 +920,10 @@ public final class MRC extends JavaPlugin implements Listener {
 	}
 
 	private void clearEntities() {
-		for (World w : getServer().getWorlds()) {
-			for (Entity e : w.getEntities()) {
-				if (e instanceof Player)
-					continue;
-				e.remove();
-			}
+		for (Entity e : world.getEntities()) {
+			if (e instanceof Player)
+				continue;
+			e.remove();
 		}
 	}
 
@@ -921,6 +939,66 @@ public final class MRC extends JavaPlugin implements Listener {
 		arrowStack.setItemMeta(meta);
 
 		player.getInventory().addItem(arrowStack);
+	}
+
+	private void pasteBlank() {
+
+		CuboidRegion region = new CuboidRegion(BlockVector3.at(-78, 91, 50), BlockVector3.at(-85, 75, 57));
+		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+
+		try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory()
+				.getEditSession(BukkitAdapter.adapt(world), -1)) {
+			ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard,
+					region.getMinimumPoint());
+			Operations.complete(forwardExtentCopy);
+		} catch (WorldEditException ex) {
+			l.severe("Could not WorldEdit copy blank!");
+			ex.printStackTrace();
+			return;
+		}
+
+		try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory()
+				.getEditSession(BukkitAdapter.adapt(world), -1)) {
+			Operation operation = new ClipboardHolder(clipboard).createPaste(editSession)
+					.to(BlockVector3.at(-36, 74, -3)).ignoreAirBlocks(false).copyEntities(false).copyBiomes(false)
+					.build();
+			Operations.complete(operation);
+		} catch (WorldEditException ex) {
+			l.severe("Could not WorldEdit paste blank!");
+			ex.printStackTrace();
+			return;
+		}
+
+	}
+
+	private void pasteVines() {
+
+		CuboidRegion region = new CuboidRegion(BlockVector3.at(18, 91, 58), BlockVector3.at(11, 75, 65));
+		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+
+		try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory()
+				.getEditSession(BukkitAdapter.adapt(world), -1)) {
+			ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard,
+					region.getMinimumPoint());
+			Operations.complete(forwardExtentCopy);
+		} catch (WorldEditException ex) {
+			l.severe("Could not WorldEdit copy vines!");
+			ex.printStackTrace();
+			return;
+		}
+
+		try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory()
+				.getEditSession(BukkitAdapter.adapt(world), -1)) {
+			Operation operation = new ClipboardHolder(clipboard).createPaste(editSession)
+					.to(BlockVector3.at(-36, 74, -3)).ignoreAirBlocks(true).copyEntities(false).copyBiomes(false)
+					.build();
+			Operations.complete(operation);
+		} catch (WorldEditException ex) {
+			l.severe("Could not WorldEdit paste vines!");
+			ex.printStackTrace();
+			return;
+		}
+
 	}
 
 }
