@@ -81,6 +81,8 @@ public final class MRC extends JavaPlugin implements Listener {
 	private Location blue2;
 	private Location blue3;
 
+	private List<Location> powerCellSpots = new ArrayList<>();
+
 	private World world;
 
 	private Location redBayLoc;
@@ -187,7 +189,16 @@ public final class MRC extends JavaPlugin implements Listener {
 						// Game no longer joinable, assigning teams and moving to the arena.
 						boolean red = true;
 						int position = 1;
+
+						List<Player> unpicked = new ArrayList<>();
 						for (Player player : players) {
+							unpicked.add(player);
+						}
+
+						while (unpicked.size() > 0) {
+							Player player = unpicked.get(rand.nextInt(unpicked.size()));
+							unpicked.remove(player);
+
 							// Clear inventories
 							player.getInventory().clear();
 
@@ -278,20 +289,31 @@ public final class MRC extends JavaPlugin implements Listener {
 								position++;
 						}
 
+						// Play sound
+						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_HARP, 100, 1);
+
 						joinable = false;
 						countdown = 10;
 
 					}
 					if (countdown > 0 && !joinable) {
 						// Final countdown.
+
 						// Show title
 						showInstantTitle(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + (countdown - 1), "");
+
+						// Play sound
+						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_BASS, 100, 1 + ((10 - countdown) / 10));
 					}
 					if (countdown <= 0 && !joinable) {
 						// Match starts.
+
 						// Show title
 						showInstantTitle(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "GO",
 								ChatColor.LIGHT_PURPLE + "Good luck!");
+
+						// Play sound
+						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_PLING, 100, 1);
 
 						// Time to start the match!
 						gameState = GameState.INGAME;
@@ -345,6 +367,15 @@ public final class MRC extends JavaPlugin implements Listener {
 							}
 						}
 
+						// Spawn initial power cells on the field -- FIXME test this
+						ItemStack arrowStack = new ItemStack(Material.ARROW);
+						ItemMeta meta = arrowStack.getItemMeta();
+						meta.setDisplayName("Power Cell");
+						arrowStack.setItemMeta(meta);
+						for (Location loc : powerCellSpots) {
+							world.dropItem(loc, arrowStack);
+						}
+
 						// Setup the loading bay chest holograms
 						redBayHolo = HologramsAPI.createHologram(plugin, redBayLoc);
 						blueBayHolo = HologramsAPI.createHologram(plugin, blueBayLoc);
@@ -369,6 +400,7 @@ public final class MRC extends JavaPlugin implements Listener {
 					blueBayLine.setText(blueBay + " Power Cells");
 
 					if (countdown <= 0) {
+
 						// Calculate parks in the rendezvous zone.
 						for (Player player : redPlayers) {
 							Location loc = player.getLocation();
@@ -395,13 +427,16 @@ public final class MRC extends JavaPlugin implements Listener {
 						gameState = GameState.FINISHED;
 						countdown = 10;
 
+						// Remove all boats and arrows
 						clearEntities();
 
+						// Clear all bows + arrows from inventory
 						for (Player player : players) {
 							player.getInventory().remove(Material.BOW);
 							player.getInventory().remove(Material.ARROW);
 						}
 
+						// Announce the winner based on final score
 						if (redScore > blueScore) {
 							getServer().broadcastMessage(
 									PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
@@ -416,8 +451,12 @@ public final class MRC extends JavaPlugin implements Listener {
 							showTitle(ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!", "");
 						}
 
+						// Publish final score to chat
 						getServer().broadcastMessage(PREFIX + "Final Score: " + ChatColor.RED + ChatColor.BOLD
 								+ redScore + ChatColor.AQUA + " to " + ChatColor.BLUE + ChatColor.BOLD + blueScore);
+
+						// Play sound
+						world.playSound(red1, Sound.ENTITY_PLAYER_LEVELUP, 100, 1);
 
 						break;
 					}
@@ -434,6 +473,13 @@ public final class MRC extends JavaPlugin implements Listener {
 
 						// Paste vines for climbing
 						pasteVines();
+
+						// Play sound
+						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_BIT, 100, 1);
+
+						// Send message
+						getServer()
+								.broadcastMessage(PREFIX + "We're in the endgame now. 30 seconds left in the match!");
 					}
 
 					countdown--;
@@ -485,6 +531,27 @@ public final class MRC extends JavaPlugin implements Listener {
 
 				redBayLoc = new Location(world, -37.5, 76, -22.5);
 				blueBayLoc = new Location(world, -26.5, 76, 25.5);
+
+				powerCellSpots.add(new Location(world, -43, 74, 6.5));
+				powerCellSpots.add(new Location(world, -43, 74, 4.5));
+				powerCellSpots.add(new Location(world, -43, 74, 2.5));
+				powerCellSpots.add(new Location(world, -43.5, 74, -4.5));
+				powerCellSpots.add(new Location(world, -42.5, 74, -4.5));
+				powerCellSpots.add(new Location(world, -21, 74, 0.5));
+				powerCellSpots.add(new Location(world, -21, 74, -1.5));
+				powerCellSpots.add(new Location(world, -21, 74, -3.5));
+				powerCellSpots.add(new Location(world, -20.5, 74, 7.5));
+				powerCellSpots.add(new Location(world, -21.5, 74, 7.5));
+				powerCellSpots.add(new Location(world, -33.5, 74, 9.5));
+				powerCellSpots.add(new Location(world, -32, 74, 8.5));
+				powerCellSpots.add(new Location(world, -30, 74, 7.5));
+				powerCellSpots.add(new Location(world, -36.5, 74, 7));
+				powerCellSpots.add(new Location(world, -37.5, 74, 5));
+				powerCellSpots.add(new Location(world, -30.5, 74, -6.5));
+				powerCellSpots.add(new Location(world, -32, 74, -5.5));
+				powerCellSpots.add(new Location(world, -34, 74, -4.5));
+				powerCellSpots.add(new Location(world, -27.5, 74, -4));
+				powerCellSpots.add(new Location(world, -26.5, 74, -2));
 
 				getServer().getPluginManager().registerEvents(plugin, plugin);
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
@@ -733,6 +800,23 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getClickedBlock().getType() == Material.BELL) {
 				if (gameState != GameState.INGAME)
 					return;
+
+				if (redPlayers.contains(event.getPlayer())) {
+					// if they are on the red alliance
+					Location loc = event.getClickedBlock().getLocation();
+					loc.setY(loc.getY() + 1);
+					if (loc.getBlock().getType() != Material.RED_CONCRETE)
+						return;
+				} else if (bluePlayers.contains(event.getPlayer())) {
+					// if they are on the blue alliance
+					Location loc = event.getClickedBlock().getLocation();
+					loc.setY(loc.getY() + 1);
+					if (loc.getBlock().getType() != Material.BLUE_CONCRETE)
+						return;
+				} else {
+					return;
+				}
+
 				// Fully hung, award points for hang
 				if (!hungPlayers.contains(event.getPlayer())) {
 					hungPlayers.add(event.getPlayer());
@@ -743,6 +827,7 @@ public final class MRC extends JavaPlugin implements Listener {
 						blueScore += 25;
 						blueEndgame += 25;
 					}
+					event.getPlayer().sendMessage(PREFIX + "You have hung.");
 				}
 			}
 
