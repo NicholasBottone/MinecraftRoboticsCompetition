@@ -303,7 +303,7 @@ public final class MRC extends JavaPlugin implements Listener {
 						showInstantTitle(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + (countdown - 1), "");
 
 						// Play sound
-						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_BASS, 100, 1 + ((10 - countdown) / 10));
+						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_BASS, 100, 1);
 					}
 					if (countdown <= 0 && !joinable) {
 						// Match starts.
@@ -367,7 +367,7 @@ public final class MRC extends JavaPlugin implements Listener {
 							}
 						}
 
-						// Spawn initial power cells on the field -- FIXME test this
+						// Spawn initial power cells on the field
 						ItemStack arrowStack = new ItemStack(Material.ARROW);
 						ItemMeta meta = arrowStack.getItemMeta();
 						meta.setDisplayName("Power Cell");
@@ -532,26 +532,26 @@ public final class MRC extends JavaPlugin implements Listener {
 				redBayLoc = new Location(world, -37.5, 76, -22.5);
 				blueBayLoc = new Location(world, -26.5, 76, 25.5);
 
-				powerCellSpots.add(new Location(world, -43, 74, 6.5));
-				powerCellSpots.add(new Location(world, -43, 74, 4.5));
-				powerCellSpots.add(new Location(world, -43, 74, 2.5));
-				powerCellSpots.add(new Location(world, -43.5, 74, -4.5));
-				powerCellSpots.add(new Location(world, -42.5, 74, -4.5));
-				powerCellSpots.add(new Location(world, -21, 74, 0.5));
-				powerCellSpots.add(new Location(world, -21, 74, -1.5));
-				powerCellSpots.add(new Location(world, -21, 74, -3.5));
-				powerCellSpots.add(new Location(world, -20.5, 74, 7.5));
-				powerCellSpots.add(new Location(world, -21.5, 74, 7.5));
-				powerCellSpots.add(new Location(world, -33.5, 74, 9.5));
-				powerCellSpots.add(new Location(world, -32, 74, 8.5));
-				powerCellSpots.add(new Location(world, -30, 74, 7.5));
-				powerCellSpots.add(new Location(world, -36.5, 74, 7));
-				powerCellSpots.add(new Location(world, -37.5, 74, 5));
-				powerCellSpots.add(new Location(world, -30.5, 74, -6.5));
-				powerCellSpots.add(new Location(world, -32, 74, -5.5));
-				powerCellSpots.add(new Location(world, -34, 74, -4.5));
-				powerCellSpots.add(new Location(world, -27.5, 74, -4));
-				powerCellSpots.add(new Location(world, -26.5, 74, -2));
+				powerCellSpots.add(new Location(world, -43, 76, 6.5));
+				powerCellSpots.add(new Location(world, -43, 76, 4.5));
+				powerCellSpots.add(new Location(world, -43, 76, 2.5));
+				powerCellSpots.add(new Location(world, -43.5, 76, -4.5));
+				powerCellSpots.add(new Location(world, -42.5, 76, -4.5));
+				powerCellSpots.add(new Location(world, -21, 76, 0.5));
+				powerCellSpots.add(new Location(world, -21, 76, -1.5));
+				powerCellSpots.add(new Location(world, -21, 76, -3.5));
+				powerCellSpots.add(new Location(world, -20.5, 76, 7.5));
+				powerCellSpots.add(new Location(world, -21.5, 76, 7.5));
+				powerCellSpots.add(new Location(world, -33.5, 76, 9.5));
+				powerCellSpots.add(new Location(world, -32, 76, 8.5));
+				powerCellSpots.add(new Location(world, -30, 76, 7.5));
+				powerCellSpots.add(new Location(world, -36.5, 76, 7));
+				powerCellSpots.add(new Location(world, -37.5, 76, 5));
+				powerCellSpots.add(new Location(world, -30.5, 76, -6.5));
+				powerCellSpots.add(new Location(world, -32, 76, -5.5));
+				powerCellSpots.add(new Location(world, -34, 76, -4.5));
+				powerCellSpots.add(new Location(world, -27.5, 76, -4));
+				powerCellSpots.add(new Location(world, -26.5, 76, -2));
 
 				getServer().getPluginManager().registerEvents(plugin, plugin);
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
@@ -887,16 +887,22 @@ public final class MRC extends JavaPlugin implements Listener {
 				redScore += 2;
 				world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				redPC++;
-				blueBay++;
-				return;
+
+				if (blueBay < 15) {
+					blueBay++;
+					return;
+				}
 			}
 			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
 				// INNER PORT
 				redScore += 3;
 				world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				redPC++;
-				blueBay++;
-				return;
+
+				if (blueBay < 15) {
+					blueBay++;
+					return;
+				}
 			}
 
 			// Check if scored for blue alliance
@@ -905,21 +911,27 @@ public final class MRC extends JavaPlugin implements Listener {
 				blueScore += 2;
 				world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				bluePC++;
-				redBay++;
-				return;
+
+				if (redBay < 15) {
+					redBay++;
+					return;
+				}
 			}
 			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
 				// INNER PORT
 				blueScore += 3;
 				world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				bluePC++;
-				redBay++;
-				return;
+
+				if (redBay < 15) {
+					redBay++;
+					return;
+				}
 			}
 
 		}
 
-		// Miss - outside arena - respawn arrow
+		// Respawn the power cell in a random spot
 		ItemStack arrowStack = new ItemStack(Material.ARROW);
 
 		ItemMeta meta = arrowStack.getItemMeta();
