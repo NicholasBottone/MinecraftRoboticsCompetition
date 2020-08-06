@@ -45,6 +45,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
@@ -101,7 +102,7 @@ public final class MRC extends JavaPlugin implements Listener {
 	private List<Player> hungPlayers = new ArrayList<>();
 
 	private GameState gameState = GameState.LOBBY;
-	private int countdown = 30;
+	private int countdown = 0;
 	private boolean joinable = true;
 
 	private int redScore = 0;
@@ -158,7 +159,7 @@ public final class MRC extends JavaPlugin implements Listener {
 					if (players.size() >= 1) {
 						// We have player(s) ... start the countdown!
 						gameState = GameState.COUNTDOWN;
-						countdown = 5;
+						countdown = 20;
 
 						redScore = 0;
 						redPC = 0;
@@ -169,7 +170,7 @@ public final class MRC extends JavaPlugin implements Listener {
 						blueEndgame = 0;
 						blueBay = 5;
 
-						getServer().broadcastMessage(PREFIX + "Match starting in 5 seconds!");
+						getServer().broadcastMessage(PREFIX + "Match initiating in 20 seconds!");
 					}
 					break;
 
@@ -290,7 +291,11 @@ public final class MRC extends JavaPlugin implements Listener {
 						}
 
 						// Play sound
-						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_HARP, 100, 1);
+						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_BASS, 100, 1);
+
+						// Announce teams
+						getServer().broadcastMessage(PREFIX + ChatColor.RED + redPlayers + ChatColor.WHITE + " VS "
+								+ ChatColor.BLUE + bluePlayers);
 
 						joinable = false;
 						countdown = 10;
@@ -300,7 +305,7 @@ public final class MRC extends JavaPlugin implements Listener {
 						// Final countdown.
 
 						// Show title
-						showInstantTitle(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + (countdown - 1), "");
+						showInstantTitle(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + countdown, "");
 
 						// Play sound
 						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_BASS, 100, 1);
@@ -373,7 +378,7 @@ public final class MRC extends JavaPlugin implements Listener {
 						meta.setDisplayName("Power Cell");
 						arrowStack.setItemMeta(meta);
 						for (Location loc : powerCellSpots) {
-							world.dropItem(loc, arrowStack);
+							world.dropItem(loc, arrowStack).setVelocity(new Vector(0, 0, 0));
 						}
 
 						// Setup the loading bay chest holograms
@@ -532,26 +537,26 @@ public final class MRC extends JavaPlugin implements Listener {
 				redBayLoc = new Location(world, -37.5, 76, -22.5);
 				blueBayLoc = new Location(world, -26.5, 76, 25.5);
 
-				powerCellSpots.add(new Location(world, -43, 76, 6.5));
-				powerCellSpots.add(new Location(world, -43, 76, 4.5));
-				powerCellSpots.add(new Location(world, -43, 76, 2.5));
-				powerCellSpots.add(new Location(world, -43.5, 76, -4.5));
-				powerCellSpots.add(new Location(world, -42.5, 76, -4.5));
-				powerCellSpots.add(new Location(world, -21, 76, 0.5));
-				powerCellSpots.add(new Location(world, -21, 76, -1.5));
-				powerCellSpots.add(new Location(world, -21, 76, -3.5));
-				powerCellSpots.add(new Location(world, -20.5, 76, 7.5));
-				powerCellSpots.add(new Location(world, -21.5, 76, 7.5));
-				powerCellSpots.add(new Location(world, -33.5, 76, 9.5));
-				powerCellSpots.add(new Location(world, -32, 76, 8.5));
-				powerCellSpots.add(new Location(world, -30, 76, 7.5));
-				powerCellSpots.add(new Location(world, -36.5, 76, 7));
-				powerCellSpots.add(new Location(world, -37.5, 76, 5));
-				powerCellSpots.add(new Location(world, -30.5, 76, -6.5));
-				powerCellSpots.add(new Location(world, -32, 76, -5.5));
-				powerCellSpots.add(new Location(world, -34, 76, -4.5));
-				powerCellSpots.add(new Location(world, -27.5, 76, -4));
-				powerCellSpots.add(new Location(world, -26.5, 76, -2));
+				powerCellSpots.add(new Location(world, -43, 73, 6.5));
+				powerCellSpots.add(new Location(world, -43, 73, 4.5));
+				powerCellSpots.add(new Location(world, -43, 73, 2.5));
+				powerCellSpots.add(new Location(world, -43.5, 73, -4.5));
+				powerCellSpots.add(new Location(world, -42.5, 73, -4.5));
+				powerCellSpots.add(new Location(world, -21, 73, 0.5));
+				powerCellSpots.add(new Location(world, -21, 73, -1.5));
+				powerCellSpots.add(new Location(world, -21, 73, -3.5));
+				powerCellSpots.add(new Location(world, -20.5, 73, 7.5));
+				powerCellSpots.add(new Location(world, -21.5, 73, 7.5));
+				powerCellSpots.add(new Location(world, -33.5, 73, 9.5));
+				powerCellSpots.add(new Location(world, -32, 73, 8.5));
+				powerCellSpots.add(new Location(world, -30, 73, 7.5));
+				powerCellSpots.add(new Location(world, -36.5, 73, 7));
+				powerCellSpots.add(new Location(world, -37.5, 73, 5));
+				powerCellSpots.add(new Location(world, -30.5, 73, -6.5));
+				powerCellSpots.add(new Location(world, -32, 73, -5.5));
+				powerCellSpots.add(new Location(world, -34, 73, -4.5));
+				powerCellSpots.add(new Location(world, -27.5, 73, -4));
+				powerCellSpots.add(new Location(world, -26.5, 73, -2));
 
 				getServer().getPluginManager().registerEvents(plugin, plugin);
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
@@ -661,6 +666,7 @@ public final class MRC extends JavaPlugin implements Listener {
 		} else {
 			spectators.add(event.getPlayer());
 			event.getPlayer().setAllowFlight(true);
+			event.getPlayer().sendMessage(PREFIX + "You are now spectating the upcoming match!");
 		}
 
 	}
