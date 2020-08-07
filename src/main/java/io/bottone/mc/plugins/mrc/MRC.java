@@ -294,8 +294,16 @@ public final class MRC extends JavaPlugin implements Listener {
 						world.playSound(red1, Sound.BLOCK_NOTE_BLOCK_BASS, 100, 1);
 
 						// Announce teams
-						getServer().broadcastMessage(PREFIX + ChatColor.RED + redPlayers + ChatColor.WHITE + " VS "
-								+ ChatColor.BLUE + bluePlayers);
+						String redString = "";
+						for (Player player : redPlayers) {
+							redString += player.getName() + " ";
+						}
+						String blueString = "";
+						for (Player player : bluePlayers) {
+							blueString += player.getName() + " ";
+						}
+						getServer().broadcastMessage(PREFIX + ChatColor.RED + redString + ChatColor.WHITE + "VS "
+								+ ChatColor.BLUE + blueString);
 
 						joinable = false;
 						countdown = 10;
@@ -795,7 +803,10 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (gameState != GameState.INGAME)
 				return;
 			// Dismount from boat to begin climb
-			event.getPlayer().getVehicle().remove();
+			Entity vehicle = event.getPlayer().getVehicle();
+			if (vehicle != null) {
+				vehicle.remove();
+			}
 			event.getPlayer().getInventory().remove(Material.ACACIA_DOOR);
 			event.getPlayer().getInventory().remove(Material.BOW);
 			return;
@@ -827,11 +838,11 @@ public final class MRC extends JavaPlugin implements Listener {
 				if (!hungPlayers.contains(event.getPlayer())) {
 					hungPlayers.add(event.getPlayer());
 					if (redPlayers.contains(event.getPlayer())) {
-						redScore += 25;
-						redEndgame += 25;
+						redScore += 20;
+						redEndgame += 20;
 					} else if (bluePlayers.contains(event.getPlayer())) {
-						blueScore += 25;
-						blueEndgame += 25;
+						blueScore += 20;
+						blueEndgame += 20;
 					}
 					event.getPlayer().sendMessage(PREFIX + "You have hung.");
 				}
@@ -890,53 +901,68 @@ public final class MRC extends JavaPlugin implements Listener {
 			// Check if scored for red alliance
 			if (event.getHitBlock().getType() == Material.RED_TERRACOTTA) {
 				// OUTER PORT
-				redScore += 2;
+
+				redScore += (countdown > 135) ? 4 : 2;
 				world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				redPC++;
 
 				if (blueBay < 15) {
 					blueBay++;
-					return;
+				} else {
+					spawnRandomPC();
 				}
+				return;
 			}
 			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
 				// INNER PORT
-				redScore += 3;
+				redScore += (countdown > 135) ? 6 : 3;
 				world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				redPC++;
 
 				if (blueBay < 15) {
 					blueBay++;
-					return;
+				} else {
+					spawnRandomPC();
 				}
+				return;
 			}
 
 			// Check if scored for blue alliance
 			if (event.getHitBlock().getType() == Material.BLUE_TERRACOTTA) {
 				// OUTER PORT
-				blueScore += 2;
+				blueScore += (countdown > 135) ? 4 : 2;
 				world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				bluePC++;
 
 				if (redBay < 15) {
 					redBay++;
-					return;
+				} else {
+					spawnRandomPC();
 				}
+				return;
 			}
 			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
 				// INNER PORT
-				blueScore += 3;
+				blueScore += (countdown > 135) ? 6 : 3;
 				world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				bluePC++;
 
 				if (redBay < 15) {
 					redBay++;
-					return;
+				} else {
+					spawnRandomPC();
 				}
+				return;
 			}
 
 		}
 
+		spawnRandomPC();
+		event.getEntity().remove();
+
+	}
+
+	private void spawnRandomPC() {
 		// Respawn the power cell in a random spot
 		ItemStack arrowStack = new ItemStack(Material.ARROW);
 
@@ -945,8 +971,6 @@ public final class MRC extends JavaPlugin implements Listener {
 		arrowStack.setItemMeta(meta);
 
 		world.dropItemNaturally(new Location(world, random(-40, -24), 76, random(-19, 22)), arrowStack);
-		event.getEntity().remove();
-
 	}
 
 	@Override
