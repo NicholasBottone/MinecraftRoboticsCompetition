@@ -44,6 +44,7 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -62,6 +63,8 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 
+import net.milkbowl.vault.economy.Economy;
+
 public final class MRC extends JavaPlugin implements Listener {
 
 	public static enum GameState {
@@ -70,6 +73,9 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	public static final String PREFIX = ChatColor.DARK_PURPLE + "[" + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "MRC"
 			+ ChatColor.DARK_PURPLE + "] " + ChatColor.AQUA;
+
+	public static final int WIN_REWARD = 10;
+	public static final int TIE_REWARD = 2;
 
 	private Logger l;
 	private static Random rand = new Random();
@@ -115,7 +121,7 @@ public final class MRC extends JavaPlugin implements Listener {
 	private int blueEndgame = 0;
 	private int blueBay = 5;
 
-//	private Economy econ;
+	private Economy econ;
 
 	private MRC plugin;
 
@@ -125,23 +131,19 @@ public final class MRC extends JavaPlugin implements Listener {
 		l = getLogger();
 		plugin = this;
 
-		/*
-		 * // Check for Vault
-		 *
-		 * if (getServer().getPluginManager().getPlugin("Vault") == null) {
-		 * l.log(Level.SEVERE, "Unable to hook with Vault, disabling MRC!");
-		 * getServer().getPluginManager().disablePlugin(this); return; }
-		 *
-		 * // Hook Vault economy
-		 *
-		 * RegisteredServiceProvider<Economy> rspe =
-		 * getServer().getServicesManager().getRegistration(Economy.class); econ =
-		 * rspe.getProvider(); if (econ == null) { l.log(Level.SEVERE,
-		 * "Unable to hook with Vault economy, disabling MRC!");
-		 * getServer().getPluginManager().disablePlugin(this); return; } else
-		 * l.log(Level.INFO, "MRC successfully hooked to Vault economy " +
-		 * econ.getName());
-		 */
+		// Check for Vault
+		if (getServer().getPluginManager().getPlugin("Vault") == null) {
+			l.log(Level.WARNING, "Unable to hook with Vault, disabling economy based functions!");
+		} else {
+			// Hook Vault economy
+			RegisteredServiceProvider<Economy> rspe = getServer().getServicesManager().getRegistration(Economy.class);
+			econ = rspe.getProvider();
+			if (econ == null) {
+				l.log(Level.WARNING, "Unable to hook with Vault economy, disabling economy based functions!");
+			} else {
+				l.log(Level.INFO, "MRC successfully hooked to Vault economy " + econ.getName());
+			}
+		}
 
 		// GAME TICK (every second)
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -454,14 +456,36 @@ public final class MRC extends JavaPlugin implements Listener {
 							getServer().broadcastMessage(
 									PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
 							showTitle(ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!", "");
+
+							if (econ != null) {
+								// Give economy reward
+								for (Player player : redPlayers) {
+									econ.depositPlayer(player, WIN_REWARD);
+								}
+							}
+
 						} else if (blueScore > redScore) {
 							getServer().broadcastMessage(
 									PREFIX + ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!");
 							showTitle(ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!", "");
+
+							if (econ != null) {
+								// Give economy reward
+								for (Player player : redPlayers) {
+									econ.depositPlayer(player, WIN_REWARD);
+								}
+							}
 						} else {
 							getServer().broadcastMessage(
 									PREFIX + ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!");
 							showTitle(ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!", "");
+
+							if (econ != null) {
+								// Give economy reward
+								for (Player player : players) {
+									econ.depositPlayer(player, TIE_REWARD);
+								}
+							}
 						}
 
 						// Publish final score to chat
