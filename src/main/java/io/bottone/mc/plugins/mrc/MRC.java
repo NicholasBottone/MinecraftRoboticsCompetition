@@ -457,7 +457,7 @@ public final class MRC extends JavaPlugin implements Listener {
 									PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
 							showTitle(ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!", "");
 
-							if (econ != null) {
+							if (econ != null && players.size() >= 2) {
 								// Give economy reward
 								for (Player player : redPlayers) {
 									econ.depositPlayer(player, WIN_REWARD);
@@ -469,7 +469,7 @@ public final class MRC extends JavaPlugin implements Listener {
 									PREFIX + ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!");
 							showTitle(ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!", "");
 
-							if (econ != null) {
+							if (econ != null && players.size() >= 2) {
 								// Give economy reward
 								for (Player player : redPlayers) {
 									econ.depositPlayer(player, WIN_REWARD);
@@ -480,7 +480,7 @@ public final class MRC extends JavaPlugin implements Listener {
 									PREFIX + ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!");
 							showTitle(ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!", "");
 
-							if (econ != null) {
+							if (econ != null && players.size() >= 2) {
 								// Give economy reward
 								for (Player player : players) {
 									econ.depositPlayer(player, TIE_REWARD);
@@ -1047,13 +1047,14 @@ public final class MRC extends JavaPlugin implements Listener {
 			blueBayHolo.delete();
 		}
 
-		clearEntities();
-
 		// Delete the vines
 		pasteBlank();
 
 		// Set the ingame time to a random time
 		world.setTime(rand.nextInt(24000));
+
+		// Clear entities
+		clearEntities();
 	}
 
 	private void sendToBungeeServer(Player player, String server) {
