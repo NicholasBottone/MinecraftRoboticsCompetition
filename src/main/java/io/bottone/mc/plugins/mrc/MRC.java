@@ -965,6 +965,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 				// Fully hung, award points for hang
 				if (!hungPlayers.contains(event.getPlayer())) {
+					playerData.get(event.getPlayer()).addPoints(20);
 					hungPlayers.add(event.getPlayer());
 					if (redPlayers.contains(event.getPlayer())) {
 						redScore += 20;
