@@ -3,6 +3,7 @@ package io.bottone.mc.plugins.mrc;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -101,6 +102,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	private List<Player> players = new ArrayList<>();
 	private List<Player> spectators = new ArrayList<>();
+	private HashMap<Player, PlayerData> playerData = new HashMap<>();
 
 	private List<Player> redPlayers = new ArrayList<>();
 	private List<Player> bluePlayers = new ArrayList<>();
@@ -339,6 +341,9 @@ public final class MRC extends JavaPlugin implements Listener {
 						for (int position = 1; position <= redPlayers.size(); position++) {
 							Player player = redPlayers.get(position - 1);
 
+							// Init player data
+							playerData.put(player, new PlayerData(player.getName()));
+
 							// Give players their 3 starting power cells
 							givePowerCells(player, 3);
 
@@ -361,6 +366,9 @@ public final class MRC extends JavaPlugin implements Listener {
 
 						for (int position = 1; position <= bluePlayers.size(); position++) {
 							Player player = bluePlayers.get(position - 1);
+
+							// Init player data
+							playerData.put(player, new PlayerData(player.getName()));
 
 							// Give players their 3 starting power cells
 							givePowerCells(player, 3);
@@ -425,6 +433,7 @@ public final class MRC extends JavaPlugin implements Listener {
 								// Parked!
 								redScore += 5;
 								redEndgame += 5;
+								playerData.get(player).addPoints(5);
 							}
 						}
 						for (Player player : bluePlayers) {
@@ -435,6 +444,7 @@ public final class MRC extends JavaPlugin implements Listener {
 								// Parked!
 								blueScore += 5;
 								blueEndgame += 5;
+								playerData.get(player).addPoints(5);
 							}
 						}
 
@@ -495,6 +505,20 @@ public final class MRC extends JavaPlugin implements Listener {
 						// Play sound
 						world.playSound(red1, Sound.ENTITY_PLAYER_LEVELUP, 100, 1);
 
+						if (players.size() > 2)
+							Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+								@Override
+								public void run() {
+									getServer().broadcastMessage(PREFIX + ChatColor.BOLD + "Player Contributions");
+									for (Player p : redPlayers) {
+										getServer().broadcastMessage(PREFIX + ChatColor.RED + playerData.get(p));
+									}
+									for (Player p : bluePlayers) {
+										getServer().broadcastMessage(PREFIX + ChatColor.BLUE + playerData.get(p));
+									}
+								}
+							}, 60);
+
 						break;
 					}
 
@@ -535,7 +559,13 @@ public final class MRC extends JavaPlugin implements Listener {
 							sendToBungeeServer(player, "Hub");
 						}
 
-						resetArena();
+						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+							@Override
+							public void run() {
+								resetArena();
+							}
+						}, 20);
+
 						break;
 
 					}
@@ -670,7 +700,82 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		}
 
-		for (Player player : Bukkit.getOnlinePlayers()) {
+		for (Player player : spectators) {
+			sb.setScoreboard(player);
+
+			player.setExp(0);
+			player.setLevel(countdown);
+		}
+
+		for (Player player : players) {
+			sb = new MRCScoreboard(PREFIX + gameState.toString());
+
+			switch (gameState) {
+
+			case LOBBY:
+				sb.put(3, "Waiting to start the game!");
+				sb.put(2, players.size() + " players");
+				sb.put(1, " ");
+				sb.put(0, ChatColor.GREEN + "mc.bottone.io");
+				break;
+
+			case COUNTDOWN:
+				if (joinable) {
+					sb.put(3, "Match initiating in " + countdown);
+				} else {
+					sb.put(3, ChatColor.BOLD + "Here we go in " + countdown);
+				}
+				sb.put(2, players.size() + " players");
+				sb.put(1, " ");
+				sb.put(0, ChatColor.GREEN + "mc.bottone.io");
+				break;
+
+			case INGAME:
+				PlayerData pd = playerData.get(player);
+				sb.put(12, ChatColor.BOLD + "Timer: " + countdown);
+				sb.put(11, " ");
+				sb.put(10, ChatColor.AQUA.toString() + pd.getPointsContributed() + " pts contributed");
+				sb.put(9, ChatColor.AQUA.toString() + pd.getAccuracyPercent() + "% acc, " + pd.getInnersPercent()
+						+ "% inners");
+				sb.put(8, " ");
+				sb.put(7, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
+				sb.put(6, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + redScore);
+				sb.put(5, ChatColor.RED.toString() + "Power Cells: " + redPC);
+				sb.put(4, "  ");
+				sb.put(3, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
+				sb.put(2, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + blueScore);
+				sb.put(1, ChatColor.BLUE.toString() + "Power Cells: " + bluePC);
+				break;
+
+			case FINISHED:
+				PlayerData pdata = playerData.get(player);
+				if (redScore > blueScore) {
+					sb.put(15, ChatColor.RED.toString() + ChatColor.BOLD + "RED WINS!");
+				} else if (blueScore > redScore) {
+					sb.put(15, ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE WINS!");
+				} else {
+					sb.put(15, ChatColor.BOLD + "TIE!");
+				}
+				sb.put(14, " ");
+				sb.put(13, ChatColor.AQUA.toString() + pdata.getPointsContributed() + " pts contributed");
+				sb.put(12, ChatColor.AQUA.toString() + pdata.getAccuracyPercent() + "% acc, " + pdata.getInnersPercent()
+						+ "% inners");
+				sb.put(11, " ");
+				sb.put(10, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
+				sb.put(9, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + redScore);
+				sb.put(8, ChatColor.RED.toString() + "Power Cells: " + redPC);
+				sb.put(7, ChatColor.RED.toString() + "Endgame: " + redEndgame);
+				sb.put(6, "  ");
+				sb.put(5, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
+				sb.put(4, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + blueScore);
+				sb.put(3, ChatColor.BLUE.toString() + "Power Cells: " + bluePC);
+				sb.put(2, ChatColor.BLUE.toString() + "Endgame: " + blueEndgame);
+				sb.put(1, "   ");
+				sb.put(0, ChatColor.GREEN + "mc.bottone.io");
+				break;
+
+			}
+
 			sb.setScoreboard(player);
 
 			player.setExp(0);
@@ -926,6 +1031,9 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_TERRACOTTA) {
 				// OUTER PORT
 
+				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+					playerData.get(event.getEntity().getShooter()).addOuter(countdown > 135);
+
 				redScore += (countdown > 135) ? 4 : 2;
 				world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				redPC++;
@@ -939,6 +1047,10 @@ public final class MRC extends JavaPlugin implements Listener {
 			}
 			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
 				// INNER PORT
+
+				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+					playerData.get(event.getEntity().getShooter()).addInner(countdown > 135);
+
 				redScore += (countdown > 135) ? 6 : 3;
 				world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				redPC++;
@@ -954,6 +1066,10 @@ public final class MRC extends JavaPlugin implements Listener {
 			// Check if scored for blue alliance
 			if (event.getHitBlock().getType() == Material.BLUE_TERRACOTTA) {
 				// OUTER PORT
+
+				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+					playerData.get(event.getEntity().getShooter()).addOuter(countdown > 135);
+
 				blueScore += (countdown > 135) ? 4 : 2;
 				world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
 				bluePC++;
@@ -967,6 +1083,10 @@ public final class MRC extends JavaPlugin implements Listener {
 			}
 			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
 				// INNER PORT
+
+				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+					playerData.get(event.getEntity().getShooter()).addInner(countdown > 135);
+
 				blueScore += (countdown > 135) ? 6 : 3;
 				world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
 				bluePC++;
@@ -981,8 +1101,11 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		}
 
+		// MISSED SHOT
 		spawnRandomPC();
 		event.getEntity().remove();
+		if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+			playerData.get(event.getEntity().getShooter()).addMiss();
 
 	}
 
