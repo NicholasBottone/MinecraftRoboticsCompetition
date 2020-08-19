@@ -505,19 +505,15 @@ public final class MRC extends JavaPlugin implements Listener {
 						// Play sound
 						world.playSound(red1, Sound.ENTITY_PLAYER_LEVELUP, 100, 1);
 
-						if (players.size() > 2)
-							Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-								@Override
-								public void run() {
-									getServer().broadcastMessage(PREFIX + ChatColor.BOLD + "Player Contributions");
-									for (Player p : redPlayers) {
-										getServer().broadcastMessage(PREFIX + ChatColor.RED + playerData.get(p));
-									}
-									for (Player p : bluePlayers) {
-										getServer().broadcastMessage(PREFIX + ChatColor.BLUE + playerData.get(p));
-									}
+						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+							@Override
+							public void run() {
+								getServer().broadcastMessage(PREFIX + ChatColor.BOLD + "Player Contributions");
+								for (Player p : playerData.keySet()) {
+									getServer().broadcastMessage(PREFIX + playerData.get(p));
 								}
-							}, 60);
+							}
+						}, 60);
 
 						break;
 					}
@@ -1164,6 +1160,7 @@ public final class MRC extends JavaPlugin implements Listener {
 		redPlayers.clear();
 		bluePlayers.clear();
 		hungPlayers.clear();
+		playerData.clear();
 
 		// Get rid of the holograms
 		if (redBayHolo != null) {
