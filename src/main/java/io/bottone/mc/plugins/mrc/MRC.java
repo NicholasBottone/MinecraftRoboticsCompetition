@@ -551,13 +551,6 @@ public final class MRC extends JavaPlugin implements Listener {
 				blueCenter = new Location(world, -32.0, 74, -12.5, 0, 0);
 				blueLeft = new Location(world, -38.5, 74, -12.5, 0, 0);
 
-				redRightSign = (Sign) new Location(world, -14, 95, 0).getBlock();
-				redCenterSign = (Sign) new Location(world, -14, 95, -1).getBlock();
-				redLeftSign = (Sign) new Location(world, -14, 95, -2).getBlock();
-				blueRightSign = (Sign) new Location(world, -14, 95, 3).getBlock();
-				blueCenterSign = (Sign) new Location(world, -14, 95, 2).getBlock();
-				blueLeftSign = (Sign) new Location(world, -14, 95, 1).getBlock();
-
 				redBayLoc = new Location(world, -37.5, 76, -22.5);
 				blueBayLoc = new Location(world, -26.5, 76, 25.5);
 
@@ -581,6 +574,13 @@ public final class MRC extends JavaPlugin implements Listener {
 				powerCellSpots.add(new Location(world, -34, 73, -4.5));
 				powerCellSpots.add(new Location(world, -27.5, 73, -4));
 				powerCellSpots.add(new Location(world, -26.5, 73, -2));
+
+				redRightSign = (Sign) new Location(world, 14.5, 95, 0.5).getBlock().getState();
+				redCenterSign = (Sign) new Location(world, 14.5, 95, -0.5).getBlock().getState();
+				redLeftSign = (Sign) new Location(world, 14.5, 95, -1.5).getBlock().getState();
+				blueRightSign = (Sign) new Location(world, 14.5, 95, 3.5).getBlock().getState();
+				blueCenterSign = (Sign) new Location(world, 14.5, 95, 2.5).getBlock().getState();
+				blueLeftSign = (Sign) new Location(world, 14.5, 95, 1.5).getBlock().getState();
 
 				getServer().getPluginManager().registerEvents(plugin, plugin);
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
@@ -783,18 +783,30 @@ public final class MRC extends JavaPlugin implements Listener {
 
 			Location l = playerPositions.remove(event.getPlayer());
 			if (l != null) {
-				if (l.equals(redLeft))
+				if (l.equals(redLeft)) {
 					redLeftSign.setLine(3, "Click to claim");
-				if (l.equals(redCenter))
+					redLeftSign.update();
+				}
+				if (l.equals(redCenter)) {
 					redCenterSign.setLine(3, "Click to claim");
-				if (l.equals(redRight))
+					redCenterSign.update();
+				}
+				if (l.equals(redRight)) {
 					redRightSign.setLine(3, "Click to claim");
-				if (l.equals(blueLeft))
+					redRightSign.update();
+				}
+				if (l.equals(blueLeft)) {
 					blueLeftSign.setLine(3, "Click to claim");
-				if (l.equals(blueCenter))
+					blueLeftSign.update();
+				}
+				if (l.equals(blueCenter)) {
 					blueCenterSign.setLine(3, "Click to claim");
-				if (l.equals(blueRight))
+					blueCenterSign.update();
+				}
+				if (l.equals(blueRight)) {
 					blueRightSign.setLine(3, "Click to claim");
+					blueCenterSign.update();
+				}
 			}
 
 			getServer().broadcastMessage(PREFIX + event.getPlayer().getName() + " has left the game.");
@@ -1176,43 +1188,60 @@ public final class MRC extends JavaPlugin implements Listener {
 					return false;
 
 				Location pos;
+				Sign sign;
 
 				switch (args[0].toLowerCase()) {
 				case "redleft":
 					pos = redLeft;
-					redPlayers.add(player);
+					sign = redLeftSign;
 					break;
 				case "redcenter":
 					pos = redCenter;
-					redPlayers.add(player);
+					sign = redCenterSign;
 					break;
 				case "redright":
 					pos = redRight;
-					redPlayers.add(player);
+					sign = redRightSign;
 					break;
 				case "blueleft":
 					pos = blueLeft;
-					bluePlayers.add(player);
+					sign = blueLeftSign;
 					break;
 				case "bluecenter":
 					pos = blueCenter;
-					bluePlayers.add(player);
+					sign = blueCenterSign;
 					break;
 				case "blueright":
 					pos = blueRight;
-					bluePlayers.add(player);
+					sign = blueRightSign;
 					break;
 				default:
 					return false;
 				}
 
 				if (playerPositions.containsValue(pos)) {
+					if (playerPositions.get(player).equals(pos)) {
+						player.sendMessage(PREFIX + "Unclaimed your position.");
+						removeOldPosSel(player);
+						playerClasses.remove(player);
+						spectators.add(player);
+						tempSpectators.add(player);
+						player.setAllowFlight(true);
+						return true;
+					}
+
 					player.sendMessage(PREFIX + "That spot is already taken!");
 					return true;
 				}
 				removeOldPosSel(player);
 				playerPositions.put(player, pos);
 				playerClasses.put(player, PlayerClass.BOW);
+				if (args[0].toLowerCase().startsWith("red"))
+					redPlayers.add(player);
+				else
+					bluePlayers.add(player);
+				sign.setLine(3, player.getName());
+				sign.update();
 
 				players.add(player);
 				spectators.remove(player);
@@ -1281,26 +1310,34 @@ public final class MRC extends JavaPlugin implements Listener {
 	}
 
 	private void removeOldPosSel(Player player) {
+		redPlayers.remove(player);
+		bluePlayers.remove(player);
 		if (playerPositions.containsKey(player)) {
 			Location loc = playerPositions.get(player);
 			if (loc.equals(redLeft)) {
 				playerPositions.remove(player);
 				redLeftSign.setLine(3, "Click to claim");
+				redLeftSign.update();
 			} else if (loc.equals(redCenter)) {
 				playerPositions.remove(player);
 				redCenterSign.setLine(3, "Click to claim");
+				redCenterSign.update();
 			} else if (loc.equals(redRight)) {
 				playerPositions.remove(player);
 				redRightSign.setLine(3, "Click to claim");
+				redRightSign.update();
 			} else if (loc.equals(blueLeft)) {
 				playerPositions.remove(player);
 				blueLeftSign.setLine(3, "Click to claim");
+				blueLeftSign.update();
 			} else if (loc.equals(blueCenter)) {
 				playerPositions.remove(player);
 				blueCenterSign.setLine(3, "Click to claim");
+				blueCenterSign.update();
 			} else if (loc.equals(blueRight)) {
 				playerPositions.remove(player);
 				blueRightSign.setLine(3, "Click to claim");
+				blueRightSign.update();
 			}
 		}
 	}
@@ -1339,6 +1376,12 @@ public final class MRC extends JavaPlugin implements Listener {
 		blueLeftSign.setLine(3, "Click to claim");
 		blueCenterSign.setLine(3, "Click to claim");
 		blueRightSign.setLine(3, "Click to claim");
+		redLeftSign.update();
+		redCenterSign.update();
+		redRightSign.update();
+		blueLeftSign.update();
+		blueCenterSign.update();
+		blueRightSign.update();
 	}
 
 	private void sendToBungeeServer(Player player, String server) {
