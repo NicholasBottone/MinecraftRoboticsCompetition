@@ -1212,6 +1212,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				}
 				removeOldPosSel(player);
 				playerPositions.put(player, pos);
+				playerClasses.put(player, PlayerClass.BOW);
 
 				players.add(player);
 				spectators.remove(player);
