@@ -86,7 +86,8 @@ public final class MRC extends JavaPlugin implements Listener {
 	private Logger l;
 	private static Random rand = new Random();
 
-	private Location stadium;
+	private Location positionSelect;
+	private Location stadiumStands;
 	private Location redRight;
 	private Location redCenter;
 	private Location redLeft;
@@ -241,7 +242,6 @@ public final class MRC extends JavaPlugin implements Listener {
 							// Teleport players to their positions
 							player.teleport(position);
 							world.spawnEntity(position, EntityType.BOAT).addPassenger(player);
-							redPlayers.add(player);
 
 							Color team;
 
@@ -543,7 +543,8 @@ public final class MRC extends JavaPlugin implements Listener {
 			public void run() {
 				world = getServer().getWorld("MRC");
 
-				stadium = new Location(world, 12.5, 94, 1, -90, 0);
+				positionSelect = new Location(world, 12.5, 94, 1, -90, 0);
+				stadiumStands = new Location(world, -1, 81, 0, 90, 0);
 				redRight = new Location(world, -38.5, 74, 15.5, 180, 0);
 				redCenter = new Location(world, -32.0, 74, 15.5, 180, 0);
 				redLeft = new Location(world, -25.5, 74, 15.5, 180, 0);
@@ -749,7 +750,6 @@ public final class MRC extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerLogin(PlayerJoinEvent event) {
 
-		event.getPlayer().teleport(stadium);
 		event.getPlayer().setGameMode(GameMode.ADVENTURE);
 		event.getPlayer().getInventory().clear();
 
@@ -762,8 +762,14 @@ public final class MRC extends JavaPlugin implements Listener {
 		spectators.add(event.getPlayer());
 		tempSpectators.add(event.getPlayer());
 		event.getPlayer().setAllowFlight(true);
-		event.getPlayer().sendMessage(PREFIX + "Welcome to MRC! Choose a position and class to compete!");
 
+		if (joinable) {
+			event.getPlayer().teleport(positionSelect);
+			event.getPlayer().sendMessage(PREFIX + "Welcome to MRC! Choose a position and class to compete!");
+		} else {
+			event.getPlayer().teleport(stadiumStands);
+			event.getPlayer().sendMessage(PREFIX + "You are spectating the ongoing match.");
+		}
 	}
 
 	@EventHandler
@@ -779,7 +785,6 @@ public final class MRC extends JavaPlugin implements Listener {
 			players.remove(event.getPlayer());
 			redPlayers.remove(event.getPlayer());
 			bluePlayers.remove(event.getPlayer());
-			playerClasses.remove(event.getPlayer());
 
 			Location l = playerPositions.remove(event.getPlayer());
 			if (l != null) {
@@ -861,16 +866,30 @@ public final class MRC extends JavaPlugin implements Listener {
 				arrows += item.getAmount();
 		}
 
-		if (arrows >= 5) {
+		int maxArrows = 5;
+		switch (playerClasses.get(event.getEntity())) {
+		case BOW:
+		case CROSSBOW:
+			maxArrows = 5;
+			break;
+		case SNOWBALL:
+			maxArrows = 3;
+			break;
+		case INSTACLIMB:
+			maxArrows = 4;
+			break;
+		}
+
+		if (arrows >= maxArrows) {
 			event.setCancelled(true);
-		} else if (arrows + event.getItem().getItemStack().getAmount() > 5) {
+		} else if (arrows + event.getItem().getItemStack().getAmount() > maxArrows) {
 			event.setCancelled(true);
 			if (playerClasses.get(event.getEntity()) == PlayerClass.SNOWBALL)
 				givePowerCells((HumanEntity) event.getEntity(),
-						event.getItem().getItemStack().getAmount() - (5 - arrows), Material.SNOWBALL);
+						event.getItem().getItemStack().getAmount() - (maxArrows - arrows), Material.SNOWBALL);
 			else
 				givePowerCells((HumanEntity) event.getEntity(),
-						event.getItem().getItemStack().getAmount() - (5 - arrows), Material.ARROW);
+						event.getItem().getItemStack().getAmount() - (maxArrows - arrows), Material.ARROW);
 		} else if (playerClasses.get(event.getEntity()) == PlayerClass.SNOWBALL) {
 			event.setCancelled(true);
 			givePowerCells((HumanEntity) event.getEntity(), event.getItem().getItemStack().getAmount(),
@@ -965,6 +984,23 @@ public final class MRC extends JavaPlugin implements Listener {
 		}
 
 		if (event.getClickedBlock() != null) {
+
+			if (event.getClickedBlock().getType() == Material.OAK_WALL_SIGN) {
+				if (event.getClickedBlock().equals(redLeftSign.getBlock())) {
+					event.getPlayer().performCommand("pos redleft");
+				} else if (event.getClickedBlock().equals(redCenterSign.getBlock())) {
+					event.getPlayer().performCommand("pos redcenter");
+				} else if (event.getClickedBlock().equals(redRightSign.getBlock())) {
+					event.getPlayer().performCommand("pos redright");
+				} else if (event.getClickedBlock().equals(blueLeftSign.getBlock())) {
+					event.getPlayer().performCommand("pos blueleft");
+				} else if (event.getClickedBlock().equals(blueCenterSign.getBlock())) {
+					event.getPlayer().performCommand("pos bluecenter");
+				} else if (event.getClickedBlock().equals(blueRightSign.getBlock())) {
+					event.getPlayer().performCommand("pos blueright");
+				}
+				return;
+			}
 
 			if (event.getClickedBlock().getType() == Material.BELL) {
 				if (gameState != GameState.INGAME)
@@ -1223,7 +1259,6 @@ public final class MRC extends JavaPlugin implements Listener {
 					if (playerPositions.get(player).equals(pos)) {
 						player.sendMessage(PREFIX + "Unclaimed your position.");
 						removeOldPosSel(player);
-						playerClasses.remove(player);
 						spectators.add(player);
 						tempSpectators.add(player);
 						player.setAllowFlight(true);
@@ -1312,6 +1347,7 @@ public final class MRC extends JavaPlugin implements Listener {
 	private void removeOldPosSel(Player player) {
 		redPlayers.remove(player);
 		bluePlayers.remove(player);
+		players.remove(player);
 		if (playerPositions.containsKey(player)) {
 			Location loc = playerPositions.get(player);
 			if (loc.equals(redLeft)) {
