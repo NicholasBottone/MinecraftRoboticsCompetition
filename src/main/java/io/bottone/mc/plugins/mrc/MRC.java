@@ -414,6 +414,7 @@ public final class MRC extends JavaPlugin implements Listener {
 							player.getInventory().remove(Material.CROSSBOW);
 							player.getInventory().remove(Material.SNOWBALL);
 							player.getInventory().remove(Material.ARROW);
+							player.getInventory().remove(Material.ACACIA_DOOR);
 						}
 
 						// Announce the winner based on final score
@@ -552,8 +553,8 @@ public final class MRC extends JavaPlugin implements Listener {
 				blueCenter = new Location(world, -32.0, 74, -12.5, 0, 0);
 				blueLeft = new Location(world, -38.5, 74, -12.5, 0, 0);
 
-				redBayLoc = new Location(world, -37.5, 76, -22.5);
-				blueBayLoc = new Location(world, -26.5, 76, 25.5);
+				redBayLoc = new Location(world, -37.5, 75, -22.5);
+				blueBayLoc = new Location(world, -26.5, 75, 25.5);
 
 				powerCellSpots.add(new Location(world, -43, 73, 6.5));
 				powerCellSpots.add(new Location(world, -43, 73, 4.5));
@@ -882,18 +883,11 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		if (arrows >= maxArrows) {
 			event.setCancelled(true);
-		} else if (arrows + event.getItem().getItemStack().getAmount() > maxArrows) {
-			event.setCancelled(true);
-			if (playerClasses.get(event.getEntity()) == PlayerClass.SNOWBALL)
-				givePowerCells((HumanEntity) event.getEntity(),
-						event.getItem().getItemStack().getAmount() - (maxArrows - arrows), Material.SNOWBALL);
-			else
-				givePowerCells((HumanEntity) event.getEntity(),
-						event.getItem().getItemStack().getAmount() - (maxArrows - arrows), Material.ARROW);
 		} else if (playerClasses.get(event.getEntity()) == PlayerClass.SNOWBALL) {
 			event.setCancelled(true);
 			givePowerCells((HumanEntity) event.getEntity(), event.getItem().getItemStack().getAmount(),
 					Material.SNOWBALL);
+			event.getItem().remove();
 		}
 
 	}
@@ -913,11 +907,25 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		int arrows = 0;
 		for (ItemStack item : event.getPlayer().getInventory().getContents()) {
-			if (item != null && item.getType() == Material.ARROW)
+			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL))
 				arrows += item.getAmount();
 		}
 
-		if (arrows >= 5) {
+		int maxArrows = 5;
+		switch (playerClasses.get(event.getPlayer())) {
+		case BOW:
+		case CROSSBOW:
+			maxArrows = 5;
+			break;
+		case SNOWBALL:
+			maxArrows = 3;
+			break;
+		case INSTACLIMB:
+			maxArrows = 4;
+			break;
+		}
+
+		if (arrows >= maxArrows) {
 			return;
 		}
 
@@ -945,6 +953,11 @@ public final class MRC extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onRightClick(PlayerInteractEvent event) {
 
+		if (event.getMaterial() == Material.SNOWBALL && !event.getPlayer().isInsideVehicle()) {
+			event.setCancelled(true);
+			return;
+		}
+
 		if (event.getMaterial() == Material.IRON_DOOR) {
 			// Send back to hub bungee server
 			sendToBungeeServer(event.getPlayer(), "Hub");
@@ -961,6 +974,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			}
 			event.getPlayer().getInventory().remove(Material.ACACIA_DOOR);
 			event.getPlayer().getInventory().remove(Material.BOW);
+			event.getPlayer().getInventory().remove(Material.CROSSBOW);
 			if (playerClasses.get(event.getPlayer()) == PlayerClass.INSTACLIMB) {
 				// Instant hang, award points for hang
 				if (!hungPlayers.contains(event.getPlayer())) {
