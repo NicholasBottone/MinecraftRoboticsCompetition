@@ -896,10 +896,6 @@ public final class MRC extends JavaPlugin implements Listener {
 					Material.SNOWBALL);
 		}
 
-		if (playerClasses.get(event.getEntity()) == PlayerClass.SNOWBALL) {
-			((HumanEntity) event.getEntity()).getInventory().remove(Material.ARROW);
-			givePowerCells((HumanEntity) event.getEntity(), arrows, Material.SNOWBALL);
-		}
 	}
 
 	@EventHandler
