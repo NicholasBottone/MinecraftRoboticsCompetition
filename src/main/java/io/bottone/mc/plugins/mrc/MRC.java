@@ -751,6 +751,9 @@ public final class MRC extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerLogin(PlayerJoinEvent event) {
 
+		if (!playerClasses.containsKey(event.getPlayer()))
+			playerClasses.put(event.getPlayer(), PlayerClass.BOW);
+
 		event.getPlayer().setGameMode(GameMode.ADVENTURE);
 		event.getPlayer().getInventory().clear();
 
@@ -1113,6 +1116,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				} else {
 					spawnRandomPC();
 				}
+				event.getEntity().remove();
 				return;
 			}
 			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
@@ -1130,6 +1134,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				} else {
 					spawnRandomPC();
 				}
+				event.getEntity().remove();
 				return;
 			}
 
@@ -1149,6 +1154,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				} else {
 					spawnRandomPC();
 				}
+				event.getEntity().remove();
 				return;
 			}
 			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
@@ -1166,6 +1172,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				} else {
 					spawnRandomPC();
 				}
+				event.getEntity().remove();
 				return;
 			}
 
@@ -1280,7 +1287,6 @@ public final class MRC extends JavaPlugin implements Listener {
 				}
 				removeOldPosSel(player);
 				playerPositions.put(player, pos);
-				playerClasses.put(player, PlayerClass.BOW);
 				if (args[0].toLowerCase().startsWith("red"))
 					redPlayers.add(player);
 				else
