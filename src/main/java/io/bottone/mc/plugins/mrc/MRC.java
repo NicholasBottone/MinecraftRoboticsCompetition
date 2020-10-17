@@ -243,42 +243,13 @@ public final class MRC extends JavaPlugin implements Listener {
 							player.teleport(position);
 							world.spawnEntity(position, EntityType.BOAT).addPassenger(player);
 
-							Color team;
-
 							if (redPlayers.contains(player)) {
-								team = Color.RED;
 								player.sendMessage(PREFIX + "You are competing on the " + ChatColor.RED + ChatColor.BOLD
 										+ "RED ALLIANCE");
 							} else {
-								team = Color.BLUE;
 								player.sendMessage(PREFIX + "You are competing on the " + ChatColor.BLUE
 										+ ChatColor.BOLD + "BLUE ALLIANCE");
 							}
-
-							// Give players their colored armor
-							ItemStack armor = new ItemStack(Material.LEATHER_BOOTS);
-							LeatherArmorMeta lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(team);
-							armor.setItemMeta(lameta);
-							player.getInventory().setBoots(armor);
-
-							armor = new ItemStack(Material.LEATHER_LEGGINGS);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(team);
-							armor.setItemMeta(lameta);
-							player.getInventory().setLeggings(armor);
-
-							armor = new ItemStack(Material.LEATHER_HELMET);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(team);
-							armor.setItemMeta(lameta);
-							player.getInventory().setHelmet(armor);
-
-							armor = new ItemStack(Material.LEATHER_CHESTPLATE);
-							lameta = (LeatherArmorMeta) armor.getItemMeta();
-							lameta.setColor(team);
-							armor.setItemMeta(lameta);
-							player.getInventory().setChestplate(armor);
 
 						}
 
@@ -501,10 +472,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				case FINISHED:
 					joinable = false;
 
-					if (countdown <= 0) {
-
-						gameState = GameState.LOBBY;
-						joinable = true;
+					if (countdown == 0) {
 
 						for (Player player : players) {
 							player.getInventory().clear();
@@ -519,8 +487,10 @@ public final class MRC extends JavaPlugin implements Listener {
 							@Override
 							public void run() {
 								resetArena();
+								gameState = GameState.LOBBY;
+								joinable = true;
 							}
-						}, 20);
+						}, 30);
 
 						break;
 
@@ -1279,6 +1249,7 @@ public final class MRC extends JavaPlugin implements Listener {
 						spectators.add(player);
 						tempSpectators.add(player);
 						player.setAllowFlight(true);
+						player.getInventory().setArmorContents(null);
 						return true;
 					}
 
@@ -1287,10 +1258,14 @@ public final class MRC extends JavaPlugin implements Listener {
 				}
 				removeOldPosSel(player);
 				playerPositions.put(player, pos);
-				if (args[0].toLowerCase().startsWith("red"))
+				Color team;
+				if (args[0].toLowerCase().startsWith("red")) {
 					redPlayers.add(player);
-				else
+					team = Color.RED;
+				} else {
 					bluePlayers.add(player);
+					team = Color.BLUE;
+				}
 				sign.setLine(3, player.getName());
 				sign.update();
 
@@ -1299,6 +1274,31 @@ public final class MRC extends JavaPlugin implements Listener {
 				tempSpectators.remove(player);
 
 				player.setAllowFlight(false);
+
+				// Give players their colored armor
+				ItemStack armor = new ItemStack(Material.LEATHER_BOOTS);
+				LeatherArmorMeta lameta = (LeatherArmorMeta) armor.getItemMeta();
+				lameta.setColor(team);
+				armor.setItemMeta(lameta);
+				player.getInventory().setBoots(armor);
+
+				armor = new ItemStack(Material.LEATHER_LEGGINGS);
+				lameta = (LeatherArmorMeta) armor.getItemMeta();
+				lameta.setColor(team);
+				armor.setItemMeta(lameta);
+				player.getInventory().setLeggings(armor);
+
+				armor = new ItemStack(Material.LEATHER_HELMET);
+				lameta = (LeatherArmorMeta) armor.getItemMeta();
+				lameta.setColor(team);
+				armor.setItemMeta(lameta);
+				player.getInventory().setHelmet(armor);
+
+				armor = new ItemStack(Material.LEATHER_CHESTPLATE);
+				lameta = (LeatherArmorMeta) armor.getItemMeta();
+				lameta.setColor(team);
+				armor.setItemMeta(lameta);
+				player.getInventory().setChestplate(armor);
 
 				player.sendMessage(PREFIX + "Claimed a position in the upcoming match.");
 				return true;
@@ -1397,7 +1397,6 @@ public final class MRC extends JavaPlugin implements Listener {
 	private void resetArena() {
 		// Clear all lists
 		players.clear();
-		spectators.clear();
 		tempSpectators.clear();
 		redPlayers.clear();
 		bluePlayers.clear();
@@ -1521,7 +1520,7 @@ public final class MRC extends JavaPlugin implements Listener {
 		try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory()
 				.getEditSession(BukkitAdapter.adapt(world), -1)) {
 			Operation operation = new ClipboardHolder(clipboard).createPaste(editSession)
-					.to(BlockVector3.at(-36, 74, -3)).ignoreAirBlocks(true).copyEntities(false).copyBiomes(false)
+					.to(BlockVector3.at(-36, 74, -3)).ignoreAirBlocks(false).copyEntities(false).copyBiomes(false)
 					.build();
 			Operations.complete(operation);
 		} catch (WorldEditException ex) {

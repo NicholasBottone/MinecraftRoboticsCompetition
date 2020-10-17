@@ -1,5 +1,5 @@
 name: MRC
-version: 20.10.12
+version: 20.10.16
 
 description: Runs Minecraft Robotics Competition matches.
 author: Nicholas Bottone
@@ -13,7 +13,7 @@ api-version: 1.15
 
 commands:
   spectate:
-    description: Starts spectating the MRC match.
+    description: Enters MRC spectator mode.
     usage: /spectate
   pos:
     description: Selects a position to compete in.
