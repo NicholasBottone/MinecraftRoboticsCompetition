@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -124,6 +125,8 @@ public final class MRC extends JavaPlugin implements Listener {
 	private HashMap<Player, Location> playerPositions = new HashMap<>();
 	private HashMap<Player, PlayerClass> playerClasses = new HashMap<>();
 
+	private Map<String, Object> personalBests = new HashMap<>();
+
 	private List<Player> hungPlayers = new ArrayList<>();
 
 	private GameState gameState = GameState.LOBBY;
@@ -163,6 +166,8 @@ public final class MRC extends JavaPlugin implements Listener {
 				l.log(Level.INFO, "MRC successfully hooked to Vault economy: " + econ.getName());
 			}
 		}
+
+		loadWorldRecords();
 
 		// GAME TICK (every second)
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -346,6 +351,11 @@ public final class MRC extends JavaPlugin implements Listener {
 					redBayLine.setText(redBay + " Power Cells");
 					blueBayLine.setText(blueBay + " Power Cells");
 
+					if (countdown == 135) {
+						// Auto period is over
+						world.playSound(redRight, Sound.BLOCK_NOTE_BLOCK_BELL, 100, 1);
+					}
+
 					if (countdown <= 0) {
 
 						// Calculate parks in the rendezvous zone.
@@ -438,6 +448,12 @@ public final class MRC extends JavaPlugin implements Listener {
 								getServer().broadcastMessage(PREFIX + ChatColor.BOLD + "Player Contributions");
 								for (Player p : playerData.keySet()) {
 									getServer().broadcastMessage(PREFIX + playerData.get(p));
+								}
+
+								if (playerData.size() == 1) {
+									for (Player p : playerData.keySet()) {
+										submitScore(p, playerData.get(p).getPointsContributed());
+									}
 								}
 							}
 						}, 60);
@@ -559,6 +575,33 @@ public final class MRC extends JavaPlugin implements Listener {
 			}
 
 		}, 100);
+
+	}
+
+	private void loadWorldRecords() {
+		saveDefaultConfig();
+		reloadConfig();
+
+		personalBests = getConfig().getConfigurationSection("records.personalbests").getValues(false);
+	}
+
+	private void submitScore(Player p, int score) {
+
+		if (personalBests.containsKey(p.getName())) {
+			if ((Integer) personalBests.get(p.getName()) < score) { // new PB
+				personalBests.put(p.getName(), score);
+				p.sendMessage(PREFIX + "New personal best!");
+
+				getConfig().createSection("records.personalbests", personalBests);
+				saveConfig();
+			}
+		} else { // no PB saved
+			personalBests.put(p.getName(), score);
+			p.sendMessage(PREFIX + "New personal best!");
+
+			getConfig().createSection("records.personalbests", personalBests);
+			saveConfig();
+		}
 
 	}
 
@@ -1078,7 +1121,8 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_TERRACOTTA) {
 				// OUTER PORT
 
-				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player
+						&& redPlayers.contains(event.getEntity().getShooter()))
 					playerData.get(event.getEntity().getShooter()).addOuter(countdown > 135);
 
 				redScore += (countdown > 135) ? 4 : 2;
@@ -1096,7 +1140,8 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
 				// INNER PORT
 
-				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player
+						&& redPlayers.contains(event.getEntity().getShooter()))
 					playerData.get(event.getEntity().getShooter()).addInner(countdown > 135);
 
 				redScore += (countdown > 135) ? 6 : 3;
@@ -1116,7 +1161,8 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.BLUE_TERRACOTTA) {
 				// OUTER PORT
 
-				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player
+						&& bluePlayers.contains(event.getEntity().getShooter()))
 					playerData.get(event.getEntity().getShooter()).addOuter(countdown > 135);
 
 				blueScore += (countdown > 135) ? 4 : 2;
@@ -1134,7 +1180,8 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
 				// INNER PORT
 
-				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
+				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player
+						&& bluePlayers.contains(event.getEntity().getShooter()))
 					playerData.get(event.getEntity().getShooter()).addInner(countdown > 135);
 
 				blueScore += (countdown > 135) ? 6 : 3;
@@ -1177,6 +1224,18 @@ public final class MRC extends JavaPlugin implements Listener {
 		if (!(sender instanceof Player)) {
 
 			sender.sendMessage(PREFIX + "Must be a player to do that!");
+			return true;
+
+		}
+
+		if (label.toLowerCase().startsWith("reloadrecords")) {
+
+			if (!sender.hasPermission("mrc.fta")) {
+				sender.sendMessage(PREFIX + "No permission!");
+				return true;
+			}
+
+			loadWorldRecords();
 			return true;
 
 		}

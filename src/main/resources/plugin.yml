@@ -1,5 +1,5 @@
 name: MRC
-version: 20.10.16
+version: 20.10.18
 
 description: Runs Minecraft Robotics Competition matches.
 author: Nicholas Bottone
@@ -21,3 +21,7 @@ commands:
   class:
     description: Selects a class to compete in.
     usage: /class <class>
+  reloadrecords:
+    description: Reloads MRC world records.
+    usage: /reloadrecords
+    permission: mrc.fta
