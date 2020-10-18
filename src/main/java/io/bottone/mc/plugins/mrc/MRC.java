@@ -591,7 +591,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			if (joinable) {
 				sb.put(3, "Match initiating in " + countdown);
 			} else {
-				sb.put(3, ChatColor.BOLD + "Here we go in " + countdown);
+				sb.put(3, ChatColor.BOLD + "Here we go in " + (countdown + 1));
 			}
 			sb.put(2, players.size() + " players");
 			sb.put(1, " ");
@@ -639,6 +639,8 @@ public final class MRC extends JavaPlugin implements Listener {
 
 			player.setExp(0);
 			player.setLevel(countdown);
+			if (gameState == GameState.COUNTDOWN && !joinable)
+				player.setLevel(countdown + 1);
 		}
 
 		for (Player player : players) {
@@ -657,7 +659,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				if (joinable) {
 					sb.put(3, "Match initiating in " + countdown);
 				} else {
-					sb.put(3, ChatColor.BOLD + "Here we go in " + countdown);
+					sb.put(3, ChatColor.BOLD + "Here we go in " + (countdown + 1));
 				}
 				sb.put(2, players.size() + " players");
 				sb.put(1, " ");
@@ -714,6 +716,8 @@ public final class MRC extends JavaPlugin implements Listener {
 
 			player.setExp(0);
 			player.setLevel(countdown);
+			if (gameState == GameState.COUNTDOWN && !joinable)
+				player.setLevel(countdown + 1);
 		}
 
 	}
