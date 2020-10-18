@@ -18,6 +18,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.command.Command;
@@ -173,8 +174,6 @@ public final class MRC extends JavaPlugin implements Listener {
 				l.log(Level.INFO, "MRC successfully hooked to Vault economy: " + econ.getName());
 			}
 		}
-
-		loadWorldRecords();
 
 		// GAME TICK (every second)
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -550,7 +549,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				record1 = new Location(world, 14, 97, -1);
 				record2 = new Location(world, 14, 97, 0);
 				record3 = new Location(world, 14, 97, 1);
-				record4 = new Location(world, 14, 97, 1);
+				record4 = new Location(world, 14, 97, 2);
 
 				redBayLoc = new Location(world, -37.5, 75, -22.5);
 				blueBayLoc = new Location(world, -26.5, 75, 25.5);
@@ -584,6 +583,7 @@ public final class MRC extends JavaPlugin implements Listener {
 				blueLeftSign = (Sign) new Location(world, 14.5, 95, 1.5).getBlock().getState();
 
 				getServer().getPluginManager().registerEvents(plugin, plugin);
+				loadWorldRecords();
 				l.log(Level.INFO, "Locations loaded and MRC activated.");
 			}
 
@@ -668,24 +668,28 @@ public final class MRC extends JavaPlugin implements Listener {
 			}
 		}
 
-		record1.getBlock().setType(Material.PLAYER_HEAD);
+		record1.getBlock().setType(Material.PLAYER_WALL_HEAD);
 		Skull skull = (Skull) record1.getBlock().getState();
 		skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(worldRecordHolders[0]));
+		skull.setRotation(BlockFace.WEST);
 		skull.update();
 
-		record2.getBlock().setType(Material.PLAYER_HEAD);
+		record2.getBlock().setType(Material.PLAYER_WALL_HEAD);
 		skull = (Skull) record2.getBlock().getState();
 		skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(worldRecordHolders[1]));
+		skull.setRotation(BlockFace.WEST);
 		skull.update();
 
-		record3.getBlock().setType(Material.PLAYER_HEAD);
+		record3.getBlock().setType(Material.PLAYER_WALL_HEAD);
 		skull = (Skull) record3.getBlock().getState();
 		skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(worldRecordHolders[2]));
+		skull.setRotation(BlockFace.WEST);
 		skull.update();
 
-		record4.getBlock().setType(Material.PLAYER_HEAD);
+		record4.getBlock().setType(Material.PLAYER_WALL_HEAD);
 		skull = (Skull) record4.getBlock().getState();
 		skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(worldRecordHolders[3]));
+		skull.setRotation(BlockFace.WEST);
 		skull.update();
 
 		// TODO: some sort of feature that shows player names/scores on the heads (low
@@ -1322,6 +1326,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			for (int i = 1; i <= 4; i++) {
 				sender.sendMessage(PREFIX + i + ") " + worldRecordHolders[i - 1] + ": " + worldRecordScores[i - 1]);
 			}
+			return true;
 		}
 
 		if (label.toLowerCase().startsWith("pb") || label.toLowerCase().startsWith("personalbest")) {
@@ -1330,6 +1335,7 @@ public final class MRC extends JavaPlugin implements Listener {
 			} else {
 				player.sendMessage(PREFIX + "You do not have a personal best saved!");
 			}
+			return true;
 		}
 
 		if (label.toLowerCase().startsWith("reloadrecords")) {
