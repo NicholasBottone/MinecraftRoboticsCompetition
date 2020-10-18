@@ -19,6 +19,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
+import org.bukkit.block.Skull;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -95,6 +96,10 @@ public final class MRC extends JavaPlugin implements Listener {
 	private Location blueRight;
 	private Location blueCenter;
 	private Location blueLeft;
+	private Location record1;
+	private Location record2;
+	private Location record3;
+	private Location record4;
 
 	private Sign redRightSign;
 	private Sign redCenterSign;
@@ -126,6 +131,8 @@ public final class MRC extends JavaPlugin implements Listener {
 	private HashMap<Player, PlayerClass> playerClasses = new HashMap<>();
 
 	private Map<String, Object> personalBests = new HashMap<>();
+	private String[] worldRecordHolders;
+	private int[] worldRecordScores;
 
 	private List<Player> hungPlayers = new ArrayList<>();
 
@@ -532,12 +539,18 @@ public final class MRC extends JavaPlugin implements Listener {
 
 				positionSelect = new Location(world, 12.5, 94, 1, -90, 0);
 				stadiumStands = new Location(world, -1, 81, 0, 90, 0);
+
 				redRight = new Location(world, -38.5, 74, 15.5, 180, 0);
 				redCenter = new Location(world, -32.0, 74, 15.5, 180, 0);
 				redLeft = new Location(world, -25.5, 74, 15.5, 180, 0);
 				blueRight = new Location(world, -25.5, 74, -12.5, 0, 0);
 				blueCenter = new Location(world, -32.0, 74, -12.5, 0, 0);
 				blueLeft = new Location(world, -38.5, 74, -12.5, 0, 0);
+
+				record1 = new Location(world, 14, 97, -1);
+				record2 = new Location(world, 14, 97, 0);
+				record3 = new Location(world, 14, 97, 1);
+				record4 = new Location(world, 14, 97, 1);
 
 				redBayLoc = new Location(world, -37.5, 75, -22.5);
 				blueBayLoc = new Location(world, -26.5, 75, 25.5);
@@ -583,6 +596,7 @@ public final class MRC extends JavaPlugin implements Listener {
 		reloadConfig();
 
 		personalBests = getConfig().getConfigurationSection("records.personalbests").getValues(false);
+		setRecordSkulls();
 	}
 
 	private void submitScore(Player p, int score) {
@@ -594,6 +608,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 				getConfig().createSection("records.personalbests", personalBests);
 				saveConfig();
+				setRecordSkulls();
 			}
 		} else { // no PB saved
 			personalBests.put(p.getName(), score);
@@ -601,7 +616,80 @@ public final class MRC extends JavaPlugin implements Listener {
 
 			getConfig().createSection("records.personalbests", personalBests);
 			saveConfig();
+			setRecordSkulls();
 		}
+
+	}
+
+	@SuppressWarnings("deprecation")
+	private void setRecordSkulls() {
+		worldRecordHolders = new String[4];
+		worldRecordScores = new int[] { 0, 0, 0, 0 };
+
+		for (String playerName : personalBests.keySet()) {
+			int score = (int) personalBests.get(playerName);
+			if (score > worldRecordScores[0]) {
+				worldRecordScores[3] = worldRecordScores[2];
+				worldRecordScores[2] = worldRecordScores[1];
+				worldRecordScores[1] = worldRecordScores[0];
+
+				worldRecordHolders[3] = worldRecordHolders[2];
+				worldRecordHolders[2] = worldRecordHolders[1];
+				worldRecordHolders[1] = worldRecordHolders[0];
+
+				worldRecordHolders[0] = playerName;
+				worldRecordScores[0] = score;
+				continue;
+			}
+			if (score > worldRecordScores[1]) {
+				worldRecordScores[3] = worldRecordScores[2];
+				worldRecordScores[2] = worldRecordScores[1];
+
+				worldRecordHolders[3] = worldRecordHolders[2];
+				worldRecordHolders[2] = worldRecordHolders[1];
+
+				worldRecordHolders[1] = playerName;
+				worldRecordScores[1] = score;
+				continue;
+			}
+			if (score > worldRecordScores[2]) {
+				worldRecordScores[3] = worldRecordScores[2];
+
+				worldRecordHolders[3] = worldRecordHolders[2];
+
+				worldRecordHolders[2] = playerName;
+				worldRecordScores[2] = score;
+				continue;
+			}
+			if (score > worldRecordScores[3]) {
+				worldRecordHolders[3] = playerName;
+				worldRecordScores[3] = score;
+				continue;
+			}
+		}
+
+		record1.getBlock().setType(Material.PLAYER_HEAD);
+		Skull skull = (Skull) record1.getBlock().getState();
+		skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(worldRecordHolders[0]));
+		skull.update();
+
+		record2.getBlock().setType(Material.PLAYER_HEAD);
+		skull = (Skull) record2.getBlock().getState();
+		skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(worldRecordHolders[1]));
+		skull.update();
+
+		record3.getBlock().setType(Material.PLAYER_HEAD);
+		skull = (Skull) record3.getBlock().getState();
+		skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(worldRecordHolders[2]));
+		skull.update();
+
+		record4.getBlock().setType(Material.PLAYER_HEAD);
+		skull = (Skull) record4.getBlock().getState();
+		skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(worldRecordHolders[3]));
+		skull.update();
+
+		// TODO: some sort of feature that shows player names/scores on the heads (low
+		// priority)
 
 	}
 
@@ -1228,6 +1316,22 @@ public final class MRC extends JavaPlugin implements Listener {
 
 		}
 
+		Player player = (Player) sender;
+
+		if (label.toLowerCase().startsWith("records") || label.toLowerCase().startsWith("wr")) {
+			for (int i = 1; i <= 4; i++) {
+				sender.sendMessage(PREFIX + i + ") " + worldRecordHolders[i - 1] + ": " + worldRecordScores[i - 1]);
+			}
+		}
+
+		if (label.toLowerCase().startsWith("pb") || label.toLowerCase().startsWith("personalbest")) {
+			if (personalBests.containsKey(player.getName())) {
+				player.sendMessage(PREFIX + "Your personal best is " + personalBests.get(player.getName()));
+			} else {
+				player.sendMessage(PREFIX + "You do not have a personal best saved!");
+			}
+		}
+
 		if (label.toLowerCase().startsWith("reloadrecords")) {
 
 			if (!sender.hasPermission("mrc.fta")) {
@@ -1241,8 +1345,6 @@ public final class MRC extends JavaPlugin implements Listener {
 		}
 
 		if (label.toLowerCase().startsWith("spectate")) {
-
-			Player player = (Player) sender;
 
 			if (!players.contains(player)) {
 
@@ -1265,8 +1367,6 @@ public final class MRC extends JavaPlugin implements Listener {
 		}
 
 		if (label.toLowerCase().startsWith("pos")) {
-
-			Player player = (Player) sender;
 
 			if (joinable) {
 
@@ -1376,8 +1476,6 @@ public final class MRC extends JavaPlugin implements Listener {
 		}
 
 		if (label.toLowerCase().startsWith("class")) {
-
-			Player player = (Player) sender;
 
 			if (joinable) {
 
