@@ -453,13 +453,9 @@ public final class MRC extends JavaPlugin implements Listener {
 							public void run() {
 								getServer().broadcastMessage(PREFIX + ChatColor.BOLD + "Player Contributions");
 								for (Player p : playerData.keySet()) {
-									getServer().broadcastMessage(PREFIX + playerData.get(p));
-								}
-
-								if (playerData.size() == 1) {
-									for (Player p : playerData.keySet()) {
-										submitScore(p, playerData.get(p).getPointsContributed());
-									}
+									PlayerData pd = playerData.get(p);
+									getServer().broadcastMessage(PREFIX + pd);
+									submitScore(p, pd.getPointsContributed());
 								}
 							}
 						}, 60);
@@ -498,11 +494,13 @@ public final class MRC extends JavaPlugin implements Listener {
 
 						for (Player player : players) {
 							player.getInventory().clear();
-							sendToBungeeServer(player, "Hub");
+							player.sendMessage(PREFIX + "Type /hub to go back to the main lobby.");
+							player.teleport(positionSelect);
 						}
 						for (Player player : tempSpectators) {
 							player.getInventory().clear();
-							sendToBungeeServer(player, "Hub");
+							player.sendMessage(PREFIX + "Type /hub to go back to the main lobby.");
+							player.teleport(positionSelect);
 						}
 
 						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
@@ -927,7 +925,8 @@ public final class MRC extends JavaPlugin implements Listener {
 				}
 			}
 
-			getServer().broadcastMessage(PREFIX + event.getPlayer().getName() + " has left the game.");
+			if (gameState == GameState.INGAME || (gameState == GameState.COUNTDOWN && !joinable))
+				getServer().broadcastMessage(PREFIX + event.getPlayer().getName() + " has left the game.");
 
 			if (players.size() < 1) {
 				getServer().broadcastMessage(PREFIX + "Match aborted due to lack of players.");
