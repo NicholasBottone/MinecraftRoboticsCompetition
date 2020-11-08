@@ -492,25 +492,28 @@ public final class MRC extends JavaPlugin implements Listener {
 
 					if (countdown == 0) {
 
+						List<Player> playersToProcess = new ArrayList<>();
+
 						for (Player player : players) {
 							player.getInventory().clear();
 							player.sendMessage(PREFIX + "Type /hub to go back to the main lobby.");
 							player.teleport(positionSelect);
+							playersToProcess.add(player);
 						}
 						for (Player player : tempSpectators) {
 							player.getInventory().clear();
 							player.sendMessage(PREFIX + "Type /hub to go back to the main lobby.");
 							player.teleport(positionSelect);
+							playersToProcess.add(player);
 						}
 
-						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-							@Override
-							public void run() {
-								resetArena();
-								gameState = GameState.LOBBY;
-								joinable = true;
-							}
-						}, 30);
+						resetArena();
+						gameState = GameState.LOBBY;
+						joinable = true;
+
+						for (Player player : playersToProcess) {
+							onPlayerLogin(player);
+						}
 
 						break;
 
@@ -858,29 +861,36 @@ public final class MRC extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerLogin(PlayerJoinEvent event) {
 
-		if (!playerClasses.containsKey(event.getPlayer()))
-			playerClasses.put(event.getPlayer(), PlayerClass.BOW);
+		onPlayerLogin(event.getPlayer());
 
-		event.getPlayer().setGameMode(GameMode.ADVENTURE);
-		event.getPlayer().getInventory().clear();
+	}
+
+	public void onPlayerLogin(Player player) {
+
+		if (!playerClasses.containsKey(player))
+			playerClasses.put(player, PlayerClass.BOW);
+
+		player.setGameMode(GameMode.ADVENTURE);
+		player.getInventory().clear();
 
 		ItemStack item = new ItemStack(Material.IRON_DOOR, 1);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Return to Hub");
 		item.setItemMeta(meta);
-		event.getPlayer().getInventory().setItem(8, item);
+		player.getInventory().setItem(8, item);
 
-		spectators.add(event.getPlayer());
-		tempSpectators.add(event.getPlayer());
-		event.getPlayer().setAllowFlight(true);
+		spectators.add(player);
+		tempSpectators.add(player);
+		player.setAllowFlight(true);
 
 		if (joinable) {
-			event.getPlayer().teleport(positionSelect);
-			event.getPlayer().sendMessage(PREFIX + "Welcome to MRC! Choose a position and class to compete!");
+			player.teleport(positionSelect);
+			player.sendMessage(PREFIX + "Welcome to MRC! Choose a position and class to compete!");
 		} else {
-			event.getPlayer().teleport(stadiumStands);
-			event.getPlayer().sendMessage(PREFIX + "You are spectating the ongoing match.");
+			player.teleport(stadiumStands);
+			player.sendMessage(PREFIX + "You are spectating the ongoing match.");
 		}
+
 	}
 
 	@EventHandler
