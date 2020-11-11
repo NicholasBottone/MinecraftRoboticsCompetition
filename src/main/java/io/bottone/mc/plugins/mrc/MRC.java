@@ -225,7 +225,7 @@ public final class MRC extends JavaPlugin implements Listener {
 							Location position = playerPositions.get(player);
 
 							// Clear inventories
-							player.getInventory().clear();
+							player.getInventory().remove(Material.IRON_DOOR);
 
 							// Give players their power cell shooters
 							switch (playerClasses.get(player)) {
