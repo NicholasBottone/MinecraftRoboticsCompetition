@@ -31,6 +31,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -1317,6 +1318,15 @@ public final class MRC extends JavaPlugin implements Listener {
 		arrowStack.setItemMeta(meta);
 
 		world.dropItemNaturally(new Location(world, random(-40, -24), 76, random(-19, 22)), arrowStack);
+	}
+
+	@EventHandler
+	public void onBlockPhysics(BlockPhysicsEvent event) {
+		Material material = event.getBlock().getType();
+		if (material == Material.YELLOW_CARPET || material == Material.RED_CARPET || material == Material.LIME_CARPET
+				|| material == Material.LIGHT_BLUE_CARPET) {
+			event.setCancelled(true);
+		}
 	}
 
 	@Override
