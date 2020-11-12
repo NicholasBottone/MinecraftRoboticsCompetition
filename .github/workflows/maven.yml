@@ -25,4 +25,5 @@ jobs:
     - name: Upload JAR artifact
       uses: actions/upload-artifact@v2.2.0
       with:
+        name: Spigot Plugin JAR
         path: /home/runner/work/MinecraftRoboticsCompetition/MinecraftRoboticsCompetition/target/**.jar

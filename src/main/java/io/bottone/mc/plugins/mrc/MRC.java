@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -136,6 +137,8 @@ public final class MRC extends JavaPlugin implements Listener {
 	private int[] worldRecordScores;
 
 	private List<Player> hungPlayers = new ArrayList<>();
+	
+	private List<UUID> killedBoats = new ArrayList<>();
 
 	private GameState gameState = GameState.LOBBY;
 	private int countdown = 0;
@@ -306,6 +309,15 @@ public final class MRC extends JavaPlugin implements Listener {
 						gameState = GameState.INGAME;
 						countdown = 150;
 						getServer().broadcastMessage(PREFIX + "Let the match begin!");
+						
+						for (Player player : players) {
+							Entity e = player.getVehicle();
+							if (e != null) {
+								killedBoats.add(e.getUniqueId());
+								e.remove();
+							}
+						}
+						
 						clearEntities();
 
 						for (Player player : playerPositions.keySet()) {
@@ -410,7 +422,7 @@ public final class MRC extends JavaPlugin implements Listener {
 									PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
 							showTitle(ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!", " ");
 
-							if (econ != null && players.size() >= 2) {
+							if (econ != null && bluePlayers.size() >= redPlayers.size() && (redScore+blueScore) >= 100) {
 								// Give economy reward
 								for (Player player : redPlayers) {
 									econ.depositPlayer(player, WIN_REWARD);
@@ -422,9 +434,9 @@ public final class MRC extends JavaPlugin implements Listener {
 									PREFIX + ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!");
 							showTitle(ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!", " ");
 
-							if (econ != null && players.size() >= 2) {
+							if (econ != null && bluePlayers.size() <= redPlayers.size() && (redScore+blueScore) >= 100) {
 								// Give economy reward
-								for (Player player : redPlayers) {
+								for (Player player : bluePlayers) {
 									econ.depositPlayer(player, WIN_REWARD);
 								}
 							}
@@ -433,7 +445,7 @@ public final class MRC extends JavaPlugin implements Listener {
 									PREFIX + ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!");
 							showTitle(ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!", " ");
 
-							if (econ != null && players.size() >= 2) {
+							if (econ != null && players.size() >= 2 && (redScore+blueScore) >= 100) {
 								// Give economy reward
 								for (Player player : players) {
 									econ.depositPlayer(player, TIE_REWARD);
@@ -1182,6 +1194,10 @@ public final class MRC extends JavaPlugin implements Listener {
 	public void onVehicleExit(VehicleExitEvent event) { // FIXME Look into improving this (low priority)
 		if (event.getVehicle().isDead() || !event.getVehicle().isValid())
 			return;
+		if (killedBoats.contains(event.getVehicle().getUniqueId())) {
+			event.getVehicle().remove();
+			return;
+		}
 
 		if (event.getExited() instanceof Player && ((Player) event.getExited()).getGameMode() != GameMode.CREATIVE) {
 			event.setCancelled(true);
@@ -1677,7 +1693,7 @@ public final class MRC extends JavaPlugin implements Listener {
 
 	}
 
-	private void pasteVines() { // FIXME: Look into fixing on Bedrock (low priority)
+	private void pasteVines() {
 
 		CuboidRegion region = new CuboidRegion(BlockVector3.at(18, 91, 58), BlockVector3.at(11, 75, 65));
 		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
