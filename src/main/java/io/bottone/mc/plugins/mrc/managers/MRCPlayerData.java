@@ -1,6 +1,6 @@
-package io.bottone.mc.plugins.mrc;
+package io.bottone.mc.plugins.mrc.managers;
 
-public class PlayerData {
+public class MRCPlayerData {
 
 	private final String playerName;
 	private int shots = 0;
@@ -8,7 +8,7 @@ public class PlayerData {
 	private int outers = 0;
 	private int pointsContributed = 0;
 
-	public PlayerData(String playerName) {
+	public MRCPlayerData(String playerName) {
 		this.playerName = playerName;
 	}
 

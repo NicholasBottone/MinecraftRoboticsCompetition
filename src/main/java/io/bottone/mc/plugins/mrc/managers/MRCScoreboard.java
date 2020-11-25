@@ -1,4 +1,4 @@
-package io.bottone.mc.plugins.mrc;
+package io.bottone.mc.plugins.mrc.managers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
