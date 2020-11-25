@@ -14,6 +14,7 @@ public class MRCRecordManager {
 
 	public MRCRecordManager(MRC plugin) {
 		this.plugin = plugin;
+		loadWorldRecords();
 	}
 
 	public void loadWorldRecords() {
