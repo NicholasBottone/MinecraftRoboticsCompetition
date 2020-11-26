@@ -74,8 +74,7 @@ public class PositionCommand implements CommandExecutor {
 					player.sendMessage(MRC.PREFIX + "Unclaimed your position.");
 					removeOldPosSel(player);
 					plugin.spectators.add(player);
-					plugin.tempSpectators.add(player);
-					player.setAllowFlight(true);
+					player.setAllowFlight(false);
 					player.getInventory().setArmorContents(null);
 					return true;
 				}
@@ -98,7 +97,6 @@ public class PositionCommand implements CommandExecutor {
 
 			plugin.players.add(player);
 			plugin.spectators.remove(player);
-			plugin.tempSpectators.remove(player);
 
 			player.setAllowFlight(false);
 

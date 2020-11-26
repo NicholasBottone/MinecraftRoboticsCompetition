@@ -1,13 +1,9 @@
 package io.bottone.mc.plugins.mrc.gametick;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.entity.Player;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.eventhandler.PlayerEventHandler;
 
 public class FinishedTick {
 
@@ -19,26 +15,21 @@ public class FinishedTick {
 
 		if (plugin.countdown == 0) {
 
-			List<Player> playersToProcess = new ArrayList<>();
-
 			for (Player player : plugin.players) {
 				player.getInventory().clear();
-				player.teleport(plugin.positionSelect);
-				playersToProcess.add(player);
-			}
-			for (Player player : plugin.tempSpectators) {
-				player.getInventory().clear();
-				player.teleport(plugin.positionSelect);
-				playersToProcess.add(player);
+				player.teleport(plugin.stadiumStands);
+				plugin.sendToBungeeServer(player, "MRC");
 			}
 
 			plugin.arena.resetArena();
 			plugin.gameState = GameState.LOBBY;
 			plugin.joinable = true;
 
-			for (Player player : playersToProcess) {
-				PlayerEventHandler.onPlayerLogin(plugin, player);
-			}
+			plugin.matchNumber++;
+			plugin.getServer().broadcastMessage(MRC.PREFIX + "Welcome to MRC Event match #" + plugin.matchNumber);
+			if (plugin.matches.containsKey(plugin.matchNumber))
+				plugin.matches.get(plugin.matchNumber).teleportPlayers(plugin.redPositionSelect,
+						plugin.bluePositionSelect, MRC.PREFIX);
 
 			return;
 

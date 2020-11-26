@@ -6,11 +6,11 @@ import org.bukkit.command.CommandSender;
 
 import io.bottone.mc.plugins.mrc.MRC;
 
-public class ReloadCommand implements CommandExecutor {
+public class SetMatchCommand implements CommandExecutor {
 
 	private MRC plugin;
 
-	public ReloadCommand(MRC plugin) {
+	public SetMatchCommand(MRC plugin) {
 		this.plugin = plugin;
 	}
 
@@ -21,12 +21,13 @@ public class ReloadCommand implements CommandExecutor {
 			return true;
 		}
 
-		if (plugin.schedule.importMatchSchedule()) {
-			sender.sendMessage(MRC.PREFIX + "Reloaded successfully.");
-		} else {
-			sender.sendMessage(MRC.PREFIX + "Failed to reload.");
+		try {
+			plugin.matchNumber = Integer.parseInt(args[0]);
+			sender.sendMessage(MRC.PREFIX + "Set match to " + plugin.matchNumber);
+			return true;
+		} catch (Exception e) {
+			return false;
 		}
-		return true;
 	}
 
 }

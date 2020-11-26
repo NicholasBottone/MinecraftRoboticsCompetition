@@ -29,12 +29,6 @@ public class RightClickEventHandler implements Listener {
 			return;
 		}
 
-		if (event.getMaterial() == Material.IRON_DOOR) {
-			// Send back to hub bungee server
-			plugin.sendToBungeeServer(event.getPlayer(), "Hub");
-			return;
-		}
-
 		if (event.getMaterial() == Material.ACACIA_DOOR) {
 			if (plugin.gameState != GameState.INGAME)
 				return;

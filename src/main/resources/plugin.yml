@@ -1,7 +1,7 @@
-name: MRC
+name: MRC-Event
 version: 20.11.25
 
-description: Runs Minecraft Robotics Competition matches.
+description: Runs Minecraft Robotics Competition events.
 author: Nicholas Bottone
 website: https://mc.bottone.io
 
@@ -21,15 +21,19 @@ commands:
   class:
     description: Selects a class to compete in.
     usage: /class <class>
-  reloadrecords:
-    description: Reloads MRC world records.
-    usage: /reloadrecords
+  reloadschedule:
+    description: Reloads the match schedule from CSV.
+    usage: /reloadschedule
     permission: mrc.fta
-  wr:
-    description: See the MRC world records.
-    usage: /wr
-    aliases: records
-  pb:
-    description: See your MRC personal best.
-    usage: /pb
-    aliases: personalbest
+  setmatch:
+    description: Sets the current match number.
+    usage: /setmatch <number>
+    permission: mrc.fta
+  start:
+    description: Force initiates the next MRC match.
+    usage: /start
+    permission: mrc.fta
+  abort:
+    description: Force stops the ongoing MRC match.
+    usage: /abort
+    permission: mrc.fta

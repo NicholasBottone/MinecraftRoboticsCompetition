@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.block.Sign;
 
 import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.event.MatchScheduleManager;
 import io.bottone.mc.plugins.mrc.eventhandler.BlockEventHandler;
 import io.bottone.mc.plugins.mrc.eventhandler.InventoryEventHandler;
 import io.bottone.mc.plugins.mrc.eventhandler.ItemEventHandler;
@@ -18,7 +19,6 @@ import io.bottone.mc.plugins.mrc.eventhandler.VehicleEventHandler;
 import io.bottone.mc.plugins.mrc.managers.MRCArenaManager;
 import io.bottone.mc.plugins.mrc.managers.MRCCommands;
 import io.bottone.mc.plugins.mrc.managers.MRCEconomyConnector;
-import io.bottone.mc.plugins.mrc.managers.MRCRecordManager;
 import io.bottone.mc.plugins.mrc.managers.MRCScoreboardManager;
 
 public class MRCInit {
@@ -60,10 +60,11 @@ public class MRCInit {
 				plugin.scoreboard = new MRCScoreboardManager(plugin);
 				plugin.l.log(Level.INFO, "Arena and Scoreboard managers initialized (6/7)");
 
-				plugin.records = new MRCRecordManager(plugin);
-				plugin.l.log(Level.INFO, "Config and records loaded (7/7)");
+				plugin.schedule = new MatchScheduleManager(plugin);
+				plugin.l.log(Level.INFO, "Match schedule loaded (7/7)");
 
 				plugin.l.log(Level.INFO, "Setup completed and MRC activated! Starting game tick.");
+				plugin.l.log(Level.INFO, "*** MRC IS IN EVENT MODE ***");
 				new MRCGameTick(plugin);
 
 			}
@@ -77,7 +78,8 @@ public class MRCInit {
 		plugin.world = plugin.getServer().getWorld("MRC");
 		World world = plugin.world;
 
-		plugin.positionSelect = new Location(world, 12.5, 94, 1, -90, 0);
+		plugin.redPositionSelect = new Location(world, 12.5, 94, -1.5, -90, 0);
+		plugin.bluePositionSelect = new Location(world, 12.5, 94, 3.5, -90, 0);
 		plugin.stadiumStands = new Location(world, -1, 81, 0, 90, 0);
 
 		plugin.redRight = new Location(world, -38.5, 74, 15.5, 180, 0);
@@ -116,12 +118,12 @@ public class MRCInit {
 		plugin.powerCellSpots.add(new Location(world, -27.5, 73, -4));
 		plugin.powerCellSpots.add(new Location(world, -26.5, 73, -2));
 
-		plugin.redRightSign = (Sign) new Location(world, 14.5, 95, 0.5).getBlock().getState();
-		plugin.redCenterSign = (Sign) new Location(world, 14.5, 95, -0.5).getBlock().getState();
-		plugin.redLeftSign = (Sign) new Location(world, 14.5, 95, -1.5).getBlock().getState();
-		plugin.blueRightSign = (Sign) new Location(world, 14.5, 95, 3.5).getBlock().getState();
-		plugin.blueCenterSign = (Sign) new Location(world, 14.5, 95, 2.5).getBlock().getState();
-		plugin.blueLeftSign = (Sign) new Location(world, 14.5, 95, 1.5).getBlock().getState();
+		plugin.redRightSign = (Sign) new Location(world, 14, 95, -1).getBlock().getState();
+		plugin.redCenterSign = (Sign) new Location(world, 14, 95, -2).getBlock().getState();
+		plugin.redLeftSign = (Sign) new Location(world, 14, 95, -3).getBlock().getState();
+		plugin.blueRightSign = (Sign) new Location(world, 14, 95, 4).getBlock().getState();
+		plugin.blueCenterSign = (Sign) new Location(world, 14, 95, 3).getBlock().getState();
+		plugin.blueLeftSign = (Sign) new Location(world, 14, 95, 2).getBlock().getState();
 
 	}
 

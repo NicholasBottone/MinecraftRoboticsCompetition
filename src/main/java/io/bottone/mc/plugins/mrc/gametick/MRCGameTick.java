@@ -17,7 +17,7 @@ public class MRCGameTick {
 				switch (plugin.gameState) {
 
 				case LOBBY:
-					// Lobby normally means no players.
+					// Lobby means no active match.
 					LobbyTick.doTick(plugin);
 					break;
 

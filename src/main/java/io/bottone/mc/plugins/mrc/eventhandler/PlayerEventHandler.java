@@ -1,9 +1,7 @@
 package io.bottone.mc.plugins.mrc.eventhandler;
 
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,8 +9,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import io.bottone.mc.plugins.mrc.enums.GameState;
@@ -43,22 +39,34 @@ public class PlayerEventHandler implements Listener {
 		player.setGameMode(GameMode.ADVENTURE);
 		player.getInventory().clear();
 
-		ItemStack item = new ItemStack(Material.IRON_DOOR, 1);
-		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Return to Hub");
-		item.setItemMeta(meta);
-		player.getInventory().setItem(4, item);
-
 		plugin.spectators.add(player);
-		plugin.tempSpectators.add(player);
-		player.setAllowFlight(true);
+		player.setAllowFlight(false);
 
 		if (plugin.joinable) {
-			player.teleport(plugin.positionSelect);
-			player.sendMessage(MRC.PREFIX + "Welcome to MRC! Choose a position and class to compete!");
+			if (plugin.matches.containsKey(plugin.matchNumber)) {
+				if (plugin.matches.get(plugin.matchNumber).teleportPlayer(player, plugin.redPositionSelect,
+						plugin.bluePositionSelect, plugin.stadiumStands)) {
+					player.sendMessage(MRC.PREFIX + "Welcome to MRC Event match #" + plugin.matchNumber);
+					player.sendMessage(MRC.PREFIX + "Choose a position and class to ready-up.");
+				} else {
+					if (!player.hasPermission("mrc.fta")) {
+						plugin.sendToBungeeServer(player, "MRC");
+						return;
+					}
+				}
+			}
+
 		} else {
+			if (plugin.matches.containsKey(plugin.matchNumber + 1)) {
+				if (!plugin.matches.get(plugin.matchNumber + 1).hasPlayer(player)) {
+					if (!player.hasPermission("mrc.fta")) {
+						plugin.sendToBungeeServer(player, "MRC");
+						return;
+					}
+				}
+			}
 			player.teleport(plugin.stadiumStands);
-			player.sendMessage(MRC.PREFIX + "You are spectating the ongoing match.");
+			player.sendMessage(MRC.PREFIX + "You are queued and will be up soon.");
 		}
 
 	}
@@ -108,18 +116,10 @@ public class PlayerEventHandler implements Listener {
 			if (plugin.gameState == GameState.INGAME || (plugin.gameState == GameState.COUNTDOWN && !plugin.joinable))
 				plugin.getServer().broadcastMessage(MRC.PREFIX + event.getPlayer().getName() + " has left the game.");
 
-			if (plugin.players.size() < 1) {
-				plugin.getServer().broadcastMessage(MRC.PREFIX + "Match aborted due to lack of players.");
-				plugin.gameState = GameState.LOBBY;
-				plugin.countdown = 20;
-				plugin.arena.resetArena();
-			}
-
 			return;
 		}
 
 		plugin.spectators.remove(event.getPlayer());
-		plugin.tempSpectators.remove(event.getPlayer());
 
 	}
 

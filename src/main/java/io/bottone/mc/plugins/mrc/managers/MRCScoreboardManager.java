@@ -16,13 +16,14 @@ public class MRCScoreboardManager {
 
 	public void updateScoreboards() {
 
-		MRCScoreboard sb = new MRCScoreboard(MRC.PREFIX + plugin.gameState.toString());
+		MRCScoreboard sb = new MRCScoreboard(MRC.PREFIX + "Event");
 
 		switch (plugin.gameState) {
 
 		case LOBBY:
-			sb.put(3, "Waiting to start the game!");
-			sb.put(2, plugin.players.size() + " players");
+			sb.put(4, "Waiting to start!");
+			sb.put(3, "Match " + plugin.matchNumber);
+			sb.put(2, plugin.players.size() + " players ready");
 			sb.put(1, " ");
 			sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 			break;
@@ -33,24 +34,26 @@ public class MRCScoreboardManager {
 			} else {
 				sb.put(3, ChatColor.BOLD + "Here we go in " + (plugin.countdown + 1));
 			}
-			sb.put(2, plugin.players.size() + " players");
+			sb.put(2, "Match " + plugin.matchNumber);
 			sb.put(1, " ");
 			sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 			break;
 
 		case INGAME:
-			sb.put(9, ChatColor.BOLD + "Timer: " + plugin.countdown);
-			sb.put(8, " ");
-			sb.put(7, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
-			sb.put(6, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + plugin.redScore);
-			sb.put(5, ChatColor.RED.toString() + "Power Cells: " + plugin.redPC);
-			sb.put(4, "  ");
-			sb.put(3, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
-			sb.put(2, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + plugin.blueScore);
-			sb.put(1, ChatColor.BLUE.toString() + "Power Cells: " + plugin.bluePC);
+			sb.put(9, "Match " + plugin.matchNumber);
+			sb.put(8, ChatColor.BOLD + "Timer: " + plugin.countdown);
+			sb.put(7, " ");
+			sb.put(6, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
+			sb.put(5, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + plugin.redScore);
+			sb.put(4, ChatColor.RED.toString() + "Power Cells: " + plugin.redPC);
+			sb.put(3, "  ");
+			sb.put(2, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
+			sb.put(1, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + plugin.blueScore);
+			sb.put(0, ChatColor.BLUE.toString() + "Power Cells: " + plugin.bluePC);
 			break;
 
 		case FINISHED:
+			sb.put(13, "Match " + plugin.matchNumber);
 			if (plugin.redScore > plugin.blueScore) {
 				sb.put(12, ChatColor.RED.toString() + ChatColor.BOLD + "RED WINS!");
 			} else if (plugin.blueScore > plugin.redScore) {
@@ -84,13 +87,14 @@ public class MRCScoreboardManager {
 		}
 
 		for (Player player : plugin.players) {
-			sb = new MRCScoreboard(MRC.PREFIX + plugin.gameState.toString());
+			sb = new MRCScoreboard(MRC.PREFIX + "Event");
 
 			switch (plugin.gameState) {
 
 			case LOBBY:
-				sb.put(3, "Waiting to start the game!");
-				sb.put(2, plugin.players.size() + " players");
+				sb.put(4, "Waiting to start!");
+				sb.put(3, "Match " + plugin.matchNumber);
+				sb.put(2, plugin.players.size() + " players ready");
 				sb.put(1, " ");
 				sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 				break;
@@ -101,13 +105,14 @@ public class MRCScoreboardManager {
 				} else {
 					sb.put(3, ChatColor.BOLD + "Here we go in " + (plugin.countdown + 1));
 				}
-				sb.put(2, plugin.players.size() + " players");
+				sb.put(2, "Match " + plugin.matchNumber);
 				sb.put(1, " ");
 				sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 				break;
 
 			case INGAME:
 				MRCPlayerData pd = plugin.playerData.get(player);
+				sb.put(13, "Match " + plugin.matchNumber);
 				sb.put(12, ChatColor.BOLD + "Timer: " + plugin.countdown);
 				sb.put(11, " ");
 				sb.put(10, ChatColor.AQUA.toString() + pd.getPointsContributed() + " pts contributed");
@@ -125,6 +130,7 @@ public class MRCScoreboardManager {
 
 			case FINISHED:
 				MRCPlayerData pdata = plugin.playerData.get(player);
+				sb.put(16, "Match " + plugin.matchNumber);
 				if (plugin.redScore > plugin.blueScore) {
 					sb.put(15, ChatColor.RED.toString() + ChatColor.BOLD + "RED WINS!");
 				} else if (plugin.blueScore > plugin.redScore) {

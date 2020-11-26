@@ -22,10 +22,11 @@ import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
 
 import io.bottone.mc.plugins.mrc.enums.GameState;
 import io.bottone.mc.plugins.mrc.enums.PlayerClass;
+import io.bottone.mc.plugins.mrc.event.Match;
+import io.bottone.mc.plugins.mrc.event.MatchScheduleManager;
 import io.bottone.mc.plugins.mrc.gametick.MRCInit;
 import io.bottone.mc.plugins.mrc.managers.MRCArenaManager;
 import io.bottone.mc.plugins.mrc.managers.MRCPlayerData;
-import io.bottone.mc.plugins.mrc.managers.MRCRecordManager;
 import io.bottone.mc.plugins.mrc.managers.MRCScoreboardManager;
 import net.milkbowl.vault.economy.Economy;
 
@@ -34,13 +35,15 @@ public final class MRC extends JavaPlugin {
 	public static final String PREFIX = ChatColor.DARK_PURPLE + "[" + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "MRC"
 			+ ChatColor.DARK_PURPLE + "] " + ChatColor.AQUA;
 
-	public static final int WIN_REWARD = 10;
-	public static final int TIE_REWARD = 2;
+	public static final int WIN_REWARD = 15;
+	public static final int TIE_REWARD = 5;
 
 	public Logger l;
 	public static Random rand = new Random();
 
-	public Location positionSelect;
+	public Location redPositionSelect;
+	public Location bluePositionSelect;
+
 	public Location stadiumStands;
 	public Location redRight;
 	public Location redCenter;
@@ -73,7 +76,6 @@ public final class MRC extends JavaPlugin {
 
 	public List<Player> players = new ArrayList<>();
 	public List<Player> spectators = new ArrayList<>();
-	public List<Player> tempSpectators = new ArrayList<>();
 
 	public List<Player> redPlayers = new ArrayList<>();
 	public List<Player> bluePlayers = new ArrayList<>();
@@ -108,7 +110,11 @@ public final class MRC extends JavaPlugin {
 
 	public MRCArenaManager arena;
 	public MRCScoreboardManager scoreboard;
-	public MRCRecordManager records;
+	public MatchScheduleManager schedule;
+
+	public HashMap<Integer, Match> matches = new HashMap<>();
+	public int matchNumber = 1;
+	public boolean matchReady = false;
 
 	@Override
 	public void onEnable() {

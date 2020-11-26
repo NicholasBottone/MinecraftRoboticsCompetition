@@ -33,7 +33,6 @@ public class MRCArenaManager {
 	public void resetArena() {
 		// Clear all lists
 		plugin.players.clear();
-		plugin.tempSpectators.clear();
 		plugin.redPlayers.clear();
 		plugin.bluePlayers.clear();
 		plugin.hungPlayers.clear();

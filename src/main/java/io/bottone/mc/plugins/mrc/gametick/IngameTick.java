@@ -125,7 +125,6 @@ public class IngameTick {
 					for (Player p : plugin.playerData.keySet()) {
 						MRCPlayerData pd = plugin.playerData.get(p);
 						plugin.getServer().broadcastMessage(MRC.PREFIX + pd);
-						plugin.records.submitScore(p, pd.getPointsContributed());
 					}
 				}
 			}, 60);
