@@ -12,6 +12,7 @@ import io.bottone.mc.plugins.mrc.event.MatchScheduleManager;
 import io.bottone.mc.plugins.mrc.managers.MRCArenaManager;
 import io.bottone.mc.plugins.mrc.managers.MRCCommands;
 import io.bottone.mc.plugins.mrc.managers.MRCEconomyConnector;
+import io.bottone.mc.plugins.mrc.managers.MRCEvents;
 import io.bottone.mc.plugins.mrc.managers.MRCScoreboardManager;
 
 public class MRCInit {
