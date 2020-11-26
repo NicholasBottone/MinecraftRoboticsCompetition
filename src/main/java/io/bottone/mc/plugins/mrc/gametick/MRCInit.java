@@ -8,16 +8,10 @@ import org.bukkit.World;
 import org.bukkit.block.Sign;
 
 import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.eventhandler.BlockEventHandler;
-import io.bottone.mc.plugins.mrc.eventhandler.InventoryEventHandler;
-import io.bottone.mc.plugins.mrc.eventhandler.ItemEventHandler;
-import io.bottone.mc.plugins.mrc.eventhandler.PlayerEventHandler;
-import io.bottone.mc.plugins.mrc.eventhandler.ProjectileEventHandler;
-import io.bottone.mc.plugins.mrc.eventhandler.RightClickEventHandler;
-import io.bottone.mc.plugins.mrc.eventhandler.VehicleEventHandler;
 import io.bottone.mc.plugins.mrc.managers.MRCArenaManager;
 import io.bottone.mc.plugins.mrc.managers.MRCCommands;
 import io.bottone.mc.plugins.mrc.managers.MRCEconomyConnector;
+import io.bottone.mc.plugins.mrc.managers.MRCEvents;
 import io.bottone.mc.plugins.mrc.managers.MRCRecordManager;
 import io.bottone.mc.plugins.mrc.managers.MRCScoreboardManager;
 
@@ -41,13 +35,7 @@ public class MRCInit {
 				MRCEconomyConnector.hookVault(plugin);
 				// Vault economy hooked (2/7)
 
-				plugin.getServer().getPluginManager().registerEvents(new BlockEventHandler(), plugin);
-				plugin.getServer().getPluginManager().registerEvents(new InventoryEventHandler(plugin), plugin);
-				plugin.getServer().getPluginManager().registerEvents(new ItemEventHandler(plugin), plugin);
-				plugin.getServer().getPluginManager().registerEvents(new PlayerEventHandler(plugin), plugin);
-				plugin.getServer().getPluginManager().registerEvents(new ProjectileEventHandler(plugin), plugin);
-				plugin.getServer().getPluginManager().registerEvents(new RightClickEventHandler(plugin), plugin);
-				plugin.getServer().getPluginManager().registerEvents(new VehicleEventHandler(plugin), plugin);
+				MRCEvents.registerEvents(plugin);
 				plugin.l.log(Level.INFO, "Events registered (3/7)");
 
 				MRCCommands.registerCommands(plugin);
