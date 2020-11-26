@@ -1,9 +1,9 @@
 name: MRC
-version: 20.11.12
+version: 20.11.25
 
 description: Runs Minecraft Robotics Competition matches.
 author: Nicholas Bottone
-website: https://www.bottone.io
+website: https://mc.bottone.io
 
 main: io.bottone.mc.plugins.mrc.MRC
 database: false
@@ -25,15 +25,11 @@ commands:
     description: Reloads MRC world records.
     usage: /reloadrecords
     permission: mrc.fta
-  records:
-    description: See the MRC world records.
-    usage: /records
   wr:
     description: See the MRC world records.
     usage: /wr
+    aliases: records
   pb:
     description: See your MRC personal best.
     usage: /pb
-  personalbest:
-    description: See your MRC personal best.
-    usage: /personalbest
+    aliases: personalbest
