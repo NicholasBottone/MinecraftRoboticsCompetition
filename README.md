@@ -1,5 +1,5 @@
-![Java CI with Maven MASTER](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/workflows/Java%20CI%20with%20Maven%20MASTER/badge.svg?branch=master)
-![Java CI with Maven EVENT](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/workflows/Java%20CI%20with%20Maven%20EVENT/badge.svg?branch=master)
+![Java CI with Maven MASTER](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/workflows/Java%20CI%20with%20Maven%20MASTER/badge.svg)
+![Java CI with Maven EVENT](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/workflows/Java%20CI%20with%20Maven%20EVENT/badge.svg)
 # MinecraftRoboticsCompetition
  Spigot plugin for running MRC minigames. Designed and developed by Nicholas Bottone.
 
