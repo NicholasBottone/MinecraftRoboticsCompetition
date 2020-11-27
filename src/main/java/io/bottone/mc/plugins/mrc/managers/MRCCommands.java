@@ -15,7 +15,7 @@ public class MRCCommands {
 		plugin.getCommand("abort").setExecutor(new AbortMatchCommand(plugin));
 		plugin.getCommand("class").setExecutor(new ClassCommand(plugin));
 		plugin.getCommand("pos").setExecutor(new PositionCommand(plugin));
-		plugin.getCommand("reloadrecords").setExecutor(new ReloadCommand(plugin));
+		plugin.getCommand("reloadschedule").setExecutor(new ReloadCommand(plugin));
 		plugin.getCommand("setmatch").setExecutor(new SetMatchCommand(plugin));
 		plugin.getCommand("start").setExecutor(new StartMatchCommand(plugin));
 

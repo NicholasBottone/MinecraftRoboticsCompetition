@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import org.bukkit.Bukkit;
+
 import io.bottone.mc.plugins.mrc.MRC;
 
 public class MatchScheduleManager {
@@ -18,7 +20,7 @@ public class MatchScheduleManager {
 
 		try {
 			plugin.matches = new HashMap<>();
-			Scanner schedule = new Scanner(new File("plugins\\MRC\\schedule.csv"));
+			Scanner schedule = new Scanner(new File("F:\\MRC-Schedules\\" + Bukkit.getName() + ".csv"));
 			if (schedule.hasNextLine())
 				schedule.nextLine(); // skip over headers
 			while (schedule.hasNextLine()) { // for each match
