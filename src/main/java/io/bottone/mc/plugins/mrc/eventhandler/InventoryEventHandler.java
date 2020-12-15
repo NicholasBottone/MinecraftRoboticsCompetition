@@ -4,9 +4,9 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
 import io.bottone.mc.plugins.mrc.MRC;
@@ -20,12 +20,6 @@ public class InventoryEventHandler implements Listener {
 
 		this.plugin = plugin;
 
-	}
-
-	@EventHandler
-	public void onInventoryEvent(InventoryClickEvent event) {
-		if (event.getWhoClicked().getGameMode() != GameMode.CREATIVE)
-			event.setCancelled(true);
 	}
 
 	@EventHandler
@@ -84,6 +78,12 @@ public class InventoryEventHandler implements Listener {
 	@EventHandler
 	public void onInventoryInteract(InventoryInteractEvent event) {
 		if (event.getWhoClicked().getGameMode() != GameMode.CREATIVE)
+			event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onSwapHands(PlayerSwapHandItemsEvent event) {
+		if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
 
