@@ -72,8 +72,17 @@ public class IngameTick {
 				player.getInventory().remove(Material.ACACIA_DOOR);
 			}
 
+			// Calculate ranking points per alliance
+			int redRP = 0;
+			redRP += (plugin.redPC >= MRC.PC_RANKING_POINT) ? 1 : 0;
+			redRP += (plugin.redEndgame >= 65) ? 1 : 0;
+			int blueRP = 0;
+			blueRP += (plugin.bluePC >= MRC.PC_RANKING_POINT) ? 1 : 0;
+			blueRP += (plugin.blueEndgame >= 65) ? 1 : 0;
+			
 			// Announce the winner based on final score
 			if (plugin.redScore > plugin.blueScore) {
+				redRP += 2;
 				plugin.getServer().broadcastMessage(
 						MRC.PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
 				MRCTitleManager.showTitle(ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!", " ");
@@ -87,6 +96,7 @@ public class IngameTick {
 				}
 
 			} else if (plugin.blueScore > plugin.redScore) {
+				blueRP += 2;
 				plugin.getServer().broadcastMessage(
 						MRC.PREFIX + ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!");
 				MRCTitleManager.showTitle(ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!", " ");
@@ -99,6 +109,8 @@ public class IngameTick {
 					}
 				}
 			} else {
+				redRP += 1;
+				blueRP += 1;
 				plugin.getServer()
 						.broadcastMessage(MRC.PREFIX + ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!");
 				MRCTitleManager.showTitle(ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!", " ");
@@ -114,7 +126,11 @@ public class IngameTick {
 			// Publish final score to chat
 			plugin.getServer().broadcastMessage(MRC.PREFIX + "Final Score: " + ChatColor.RED + ChatColor.BOLD
 					+ plugin.redScore + ChatColor.AQUA + " to " + ChatColor.BLUE + ChatColor.BOLD + plugin.blueScore);
-
+			
+			// Publish ranking points to chat
+			plugin.getServer().broadcastMessage(MRC.PREFIX + ChatColor.RED + ChatColor.BOLD + "RED: + " + redRP + " RPs"
+					+ ChatColor.AQUA + " -- " + ChatColor.BLUE + ChatColor.BOLD + "BLUE: + " + blueRP + " RPs");
+			
 			// Play sound
 			plugin.world.playSound(plugin.redRight, Sound.ENTITY_PLAYER_LEVELUP, 100, 1);
 

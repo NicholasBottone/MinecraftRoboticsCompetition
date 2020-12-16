@@ -37,6 +37,7 @@ public final class MRC extends JavaPlugin {
 
 	public static final int WIN_REWARD = 15;
 	public static final int TIE_REWARD = 5;
+	public static final int PC_RANKING_POINT = 90;
 
 	public Logger l;
 	public static Random rand = new Random();
