@@ -7,6 +7,7 @@ import io.bottone.mc.plugins.mrc.commands.PositionCommand;
 import io.bottone.mc.plugins.mrc.commands.ReloadCommand;
 import io.bottone.mc.plugins.mrc.commands.SetMatchCommand;
 import io.bottone.mc.plugins.mrc.commands.StartMatchCommand;
+import io.bottone.mc.plugins.mrc.commands.TeamChatCommand;
 
 public class MRCCommands {
 
@@ -18,6 +19,7 @@ public class MRCCommands {
 		plugin.getCommand("reloadschedule").setExecutor(new ReloadCommand(plugin));
 		plugin.getCommand("setmatch").setExecutor(new SetMatchCommand(plugin));
 		plugin.getCommand("start").setExecutor(new StartMatchCommand(plugin));
+		plugin.getCommand("teamchat").setExecutor(new TeamChatCommand(plugin));
 
 	}
 

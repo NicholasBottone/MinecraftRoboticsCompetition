@@ -1,5 +1,5 @@
 name: MRC-Event
-version: 20.12.15
+version: 20.12.16
 
 description: Runs Minecraft Robotics Competition events.
 author: Nicholas Bottone
@@ -37,3 +37,7 @@ commands:
     description: Force stops the ongoing MRC match.
     usage: /abort
     permission: mrc.fta
+  teamchat:
+    description: Sends a message privately to your alliance partners.
+    usage: /teamchat <message>
+    aliases: team, chat, tc
