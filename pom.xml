@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.bottone.mc.plugins.mrc</groupId>
 	<artifactId>MRC</artifactId>
-	<version>20.12.15</version>
+	<version>20.12.16</version>
 	<name>MinecraftRoboticsCompetition</name>
 	<build>
 		<plugins>

@@ -1,5 +1,5 @@
 name: MRC
-version: 20.12.15
+version: 20.12.16
 
 description: Runs Minecraft Robotics Competition matches.
 author: Nicholas Bottone
@@ -33,3 +33,7 @@ commands:
     description: See your MRC personal best.
     usage: /pb
     aliases: personalbest
+  teamchat:
+    description: Sends a message privately to your alliance partners.
+    usage: /teamchat <message>
+    aliases: team, chat, tc
