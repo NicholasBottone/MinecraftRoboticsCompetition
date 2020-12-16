@@ -23,8 +23,10 @@ public class ReloadCommand implements CommandExecutor {
 
 		if (plugin.schedule.importMatchSchedule()) {
 			sender.sendMessage(MRC.PREFIX + "Reloaded successfully.");
+			plugin.l.info("Successfully imported match schedule");
 		} else {
 			sender.sendMessage(MRC.PREFIX + "Failed to reload.");
+			plugin.l.info("Failed to import match schedule");
 		}
 		return true;
 	}
