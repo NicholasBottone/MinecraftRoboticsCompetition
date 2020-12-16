@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
 import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.GameState;
 import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class InventoryEventHandler implements Listener {
@@ -28,6 +29,9 @@ public class InventoryEventHandler implements Listener {
 			return;
 
 		event.setCancelled(true);
+
+		if (plugin.gameState != GameState.INGAME)
+			return;
 
 		int arrows = 0;
 		for (ItemStack item : event.getPlayer().getInventory().getContents()) {
@@ -80,7 +84,7 @@ public class InventoryEventHandler implements Listener {
 		if (event.getWhoClicked().getGameMode() != GameMode.CREATIVE)
 			event.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onSwapHands(PlayerSwapHandItemsEvent event) {
 		if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
