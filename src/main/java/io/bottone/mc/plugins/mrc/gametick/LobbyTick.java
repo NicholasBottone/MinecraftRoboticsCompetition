@@ -24,8 +24,6 @@ public class LobbyTick {
 			plugin.bluePC = 0;
 			plugin.blueEndgame = 0;
 			plugin.blueBay = 5;
-
-			plugin.getServer().broadcastMessage(MRC.PREFIX + "Match initiating in 20 seconds!");
 		}
 
 	}

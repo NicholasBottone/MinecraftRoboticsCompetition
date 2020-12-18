@@ -1,7 +1,5 @@
 package io.bottone.mc.plugins.mrc;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +23,6 @@ import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 import io.bottone.mc.plugins.mrc.gametick.MRCInit;
 import io.bottone.mc.plugins.mrc.managers.MRCArenaManager;
 import io.bottone.mc.plugins.mrc.managers.MRCPlayerData;
-import io.bottone.mc.plugins.mrc.managers.MRCRecordManager;
 import io.bottone.mc.plugins.mrc.managers.MRCScoreboardManager;
 import net.milkbowl.vault.economy.Economy;
 
@@ -34,8 +31,8 @@ public final class MRC extends JavaPlugin {
 	public static final String PREFIX = ChatColor.DARK_PURPLE + "[" + ChatColor.LIGHT_PURPLE + ChatColor.BOLD + "MRC"
 			+ ChatColor.DARK_PURPLE + "] " + ChatColor.AQUA;
 
-	public static final int WIN_REWARD = 10;
-	public static final int TIE_REWARD = 2;
+	public static final int WIN_REWARD = 1;
+	public static final int TIE_REWARD = 0;
 
 	public Logger l;
 	public static Random rand = new Random();
@@ -108,7 +105,6 @@ public final class MRC extends JavaPlugin {
 
 	public MRCArenaManager arena;
 	public MRCScoreboardManager scoreboard;
-	public MRCRecordManager records;
 
 	@Override
 	public void onEnable() {
@@ -116,20 +112,6 @@ public final class MRC extends JavaPlugin {
 		l = getLogger();
 		new MRCInit(this);
 
-	}
-
-	public void sendToBungeeServer(Player player, String server) {
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(b);
-
-		try {
-			out.writeUTF("Connect");
-			out.writeUTF(server);
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
-
-		player.sendPluginMessage(this, "BungeeCord", b.toByteArray());
 	}
 
 	public static int random(int min, int max) {

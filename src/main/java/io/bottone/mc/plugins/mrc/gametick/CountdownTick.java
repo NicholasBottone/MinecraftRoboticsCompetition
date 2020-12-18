@@ -29,8 +29,6 @@ public class CountdownTick {
 			plugin.gameState = GameState.LOBBY;
 			plugin.countdown = 0;
 			plugin.joinable = true;
-
-			plugin.getServer().broadcastMessage(MRC.PREFIX + "Match countdown aborted due to lack of players.");
 			return;
 		}
 		if (plugin.countdown <= 0 && plugin.joinable) {
@@ -82,18 +80,6 @@ public class CountdownTick {
 			// Play sound
 			plugin.world.playSound(plugin.redRight, Sound.BLOCK_NOTE_BLOCK_BASS, 100, 1);
 
-			// Announce teams
-			String redString = "";
-			for (Player player : plugin.redPlayers) {
-				redString += player.getName() + " ";
-			}
-			String blueString = "";
-			for (Player player : plugin.bluePlayers) {
-				blueString += player.getName() + " ";
-			}
-			plugin.getServer().broadcastMessage(
-					MRC.PREFIX + ChatColor.RED + redString + ChatColor.WHITE + "VS " + ChatColor.BLUE + blueString);
-
 			plugin.joinable = false;
 			plugin.countdown = 10;
 
@@ -121,7 +107,6 @@ public class CountdownTick {
 			// Time to start the match!
 			plugin.gameState = GameState.INGAME;
 			plugin.countdown = 150;
-			plugin.getServer().broadcastMessage(MRC.PREFIX + "Let the match begin!");
 
 			for (Player player : plugin.players) {
 				Entity e = player.getVehicle();

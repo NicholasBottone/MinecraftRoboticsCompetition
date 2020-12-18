@@ -16,29 +16,35 @@ public class MRCScoreboardManager {
 
 	public void updateScoreboards() {
 
-		MRCScoreboard sb = new MRCScoreboard(MRC.PREFIX + plugin.gameState.toString());
+		MRCScoreboard sb = new MRCScoreboard(MRC.PREFIX + plugin.getServer().getMotd());
 
 		switch (plugin.gameState) {
 
 		case LOBBY:
-			sb.put(3, "Waiting to start the game!");
-			sb.put(2, plugin.players.size() + " players");
-			sb.put(1, " ");
+			sb.put(6, "MRC Event Pits Server");
+			sb.put(5, "Practice Field");
+			sb.put(4, " ");
+			sb.put(3, ChatColor.DARK_AQUA + "Watch the event stream!");
+			sb.put(2, ChatColor.AQUA + "twitch.tv/FirstUpdatesNow");
+			sb.put(1, "  ");
 			sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 			break;
 
 		case COUNTDOWN:
 			if (plugin.joinable) {
-				sb.put(3, "Match initiating in " + plugin.countdown);
+				sb.put(5, "Practice match in " + plugin.countdown);
 			} else {
-				sb.put(3, ChatColor.BOLD + "Here we go in " + (plugin.countdown + 1));
+				sb.put(5, ChatColor.BOLD + "Here we go in " + (plugin.countdown + 1));
 			}
-			sb.put(2, plugin.players.size() + " players");
-			sb.put(1, " ");
+			sb.put(4, " ");
+			sb.put(3, ChatColor.DARK_AQUA + "Watch the event stream!");
+			sb.put(2, ChatColor.AQUA + "twitch.tv/FirstUpdatesNow");
+			sb.put(1, "  ");
 			sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 			break;
 
 		case INGAME:
+			sb.put(10, "Practice Match");
 			sb.put(9, ChatColor.BOLD + "Timer: " + plugin.countdown);
 			sb.put(8, " ");
 			sb.put(7, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
@@ -48,9 +54,13 @@ public class MRCScoreboardManager {
 			sb.put(3, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
 			sb.put(2, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + plugin.blueScore);
 			sb.put(1, ChatColor.BLUE.toString() + "Power Cells: " + plugin.bluePC);
+			sb.put(0, "   ");
+			sb.put(-1, ChatColor.DARK_AQUA + "Watch the event stream!");
+			sb.put(-2, ChatColor.AQUA + "twitch.tv/FirstUpdatesNow");
 			break;
 
 		case FINISHED:
+			sb.put(13, "Practice Match");
 			if (plugin.redScore > plugin.blueScore) {
 				sb.put(12, ChatColor.RED.toString() + ChatColor.BOLD + "RED WINS!");
 			} else if (plugin.blueScore > plugin.redScore) {
@@ -84,25 +94,30 @@ public class MRCScoreboardManager {
 		}
 
 		for (Player player : plugin.players) {
-			sb = new MRCScoreboard(MRC.PREFIX + plugin.gameState.toString());
+			sb = new MRCScoreboard(MRC.PREFIX + plugin.getServer().getMotd());
 
 			switch (plugin.gameState) {
 
 			case LOBBY:
-				sb.put(3, "Waiting to start the game!");
-				sb.put(2, plugin.players.size() + " players");
-				sb.put(1, " ");
+				sb.put(6, "MRC Event Pits Server");
+				sb.put(5, "Practice Field");
+				sb.put(4, " ");
+				sb.put(3, ChatColor.DARK_AQUA + "Watch the event stream!");
+				sb.put(2, ChatColor.AQUA + "twitch.tv/FirstUpdatesNow");
+				sb.put(1, "  ");
 				sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 				break;
 
 			case COUNTDOWN:
 				if (plugin.joinable) {
-					sb.put(3, "Match initiating in " + plugin.countdown);
+					sb.put(5, "Practice match in " + plugin.countdown);
 				} else {
-					sb.put(3, ChatColor.BOLD + "Here we go in " + (plugin.countdown + 1));
+					sb.put(5, ChatColor.BOLD + "Here we go in " + (plugin.countdown + 1));
 				}
-				sb.put(2, plugin.players.size() + " players");
-				sb.put(1, " ");
+				sb.put(4, " ");
+				sb.put(3, ChatColor.DARK_AQUA + "Watch the event stream!");
+				sb.put(2, ChatColor.AQUA + "twitch.tv/FirstUpdatesNow");
+				sb.put(1, "  ");
 				sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 				break;
 

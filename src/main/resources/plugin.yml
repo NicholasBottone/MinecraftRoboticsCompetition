@@ -1,7 +1,7 @@
-name: MRC
+name: MRC-Pits
 version: 20.12.18-SNAPSHOT
 
-description: Runs Minecraft Robotics Competition matches.
+description: Runs the Minecraft Robotics Competition event pits.
 author: Nicholas Bottone
 website: https://mc.bottone.io
 
@@ -21,18 +21,6 @@ commands:
   class:
     description: Selects a class to compete in.
     usage: /class <class>
-  reloadrecords:
-    description: Reloads MRC world records.
-    usage: /reloadrecords
-    permission: mrc.fta
-  wr:
-    description: See the MRC world records.
-    usage: /wr
-    aliases: records
-  pb:
-    description: See your MRC personal best.
-    usage: /pb
-    aliases: personalbest
   teamchat:
     description: Sends a message privately to your alliance partners.
     usage: /teamchat <message>

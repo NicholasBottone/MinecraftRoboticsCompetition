@@ -12,7 +12,6 @@ import io.bottone.mc.plugins.mrc.managers.MRCArenaManager;
 import io.bottone.mc.plugins.mrc.managers.MRCCommands;
 import io.bottone.mc.plugins.mrc.managers.MRCEconomyConnector;
 import io.bottone.mc.plugins.mrc.managers.MRCEvents;
-import io.bottone.mc.plugins.mrc.managers.MRCRecordManager;
 import io.bottone.mc.plugins.mrc.managers.MRCScoreboardManager;
 
 public class MRCInit {
@@ -30,28 +29,26 @@ public class MRCInit {
 			public void run() {
 
 				loadLocations();
-				plugin.l.log(Level.INFO, "Locations loaded (1/7)");
+				plugin.l.log(Level.INFO, "Locations loaded (1/6)");
 
 				MRCEconomyConnector.hookVault(plugin);
-				// Vault economy hooked (2/7)
+				// Vault economy hooked (2/6)
 
 				MRCEvents.registerEvents(plugin);
-				plugin.l.log(Level.INFO, "Events registered (3/7)");
+				plugin.l.log(Level.INFO, "Events registered (3/6)");
 
 				MRCCommands.registerCommands(plugin);
-				plugin.l.log(Level.INFO, "Commands registered (4/7)");
+				plugin.l.log(Level.INFO, "Commands registered (4/6)");
 
 				plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-				plugin.l.log(Level.INFO, "Bungeecord hooked (5/7)");
+				plugin.l.log(Level.INFO, "Bungeecord hooked (5/6)");
 
 				plugin.arena = new MRCArenaManager(plugin);
 				plugin.scoreboard = new MRCScoreboardManager(plugin);
-				plugin.l.log(Level.INFO, "Arena and Scoreboard managers initialized (6/7)");
-
-				plugin.records = new MRCRecordManager(plugin);
-				plugin.l.log(Level.INFO, "Config and records loaded (7/7)");
+				plugin.l.log(Level.INFO, "Arena and Scoreboard managers initialized (6/6)");
 
 				plugin.l.log(Level.INFO, "Setup completed and MRC activated! Starting game tick.");
+				plugin.l.log(Level.INFO, "*** MRC IS RUNNING IN EVENT PITS MODE ***");
 				new MRCGameTick(plugin);
 
 			}
@@ -74,11 +71,6 @@ public class MRCInit {
 		plugin.blueRight = new Location(world, -25.5, 74, -12.5, 0, 0);
 		plugin.blueCenter = new Location(world, -32.0, 74, -12.5, 0, 0);
 		plugin.blueLeft = new Location(world, -38.5, 74, -12.5, 0, 0);
-
-		plugin.record1 = new Location(world, 14, 97, -1);
-		plugin.record2 = new Location(world, 14, 97, 0);
-		plugin.record3 = new Location(world, 14, 97, 1);
-		plugin.record4 = new Location(world, 14, 97, 2);
 
 		plugin.redBayLoc = new Location(world, -37.5, 75, -22.5);
 		plugin.blueBayLoc = new Location(world, -26.5, 75, 25.5);

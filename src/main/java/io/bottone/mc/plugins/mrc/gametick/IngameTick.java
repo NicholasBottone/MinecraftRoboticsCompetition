@@ -1,6 +1,5 @@
 package io.bottone.mc.plugins.mrc.gametick;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,7 +10,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.managers.MRCPlayerData;
 import io.bottone.mc.plugins.mrc.managers.MRCTitleManager;
 
 public class IngameTick {
@@ -74,8 +72,6 @@ public class IngameTick {
 
 			// Announce the winner based on final score
 			if (plugin.redScore > plugin.blueScore) {
-				plugin.getServer().broadcastMessage(
-						MRC.PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
 				MRCTitleManager.showTitle(ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!", " ");
 
 				if (plugin.econ != null && plugin.bluePlayers.size() >= plugin.redPlayers.size()
@@ -87,8 +83,6 @@ public class IngameTick {
 				}
 
 			} else if (plugin.blueScore > plugin.redScore) {
-				plugin.getServer().broadcastMessage(
-						MRC.PREFIX + ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!");
 				MRCTitleManager.showTitle(ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!", " ");
 
 				if (plugin.econ != null && plugin.bluePlayers.size() <= plugin.redPlayers.size()
@@ -99,8 +93,6 @@ public class IngameTick {
 					}
 				}
 			} else {
-				plugin.getServer()
-						.broadcastMessage(MRC.PREFIX + ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!");
 				MRCTitleManager.showTitle(ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!", " ");
 
 				if (plugin.econ != null && plugin.players.size() >= 2 && (plugin.redScore + plugin.blueScore) >= 100) {
@@ -111,24 +103,8 @@ public class IngameTick {
 				}
 			}
 
-			// Publish final score to chat
-			plugin.getServer().broadcastMessage(MRC.PREFIX + "Final Score: " + ChatColor.RED + ChatColor.BOLD
-					+ plugin.redScore + ChatColor.AQUA + " to " + ChatColor.BLUE + ChatColor.BOLD + plugin.blueScore);
-
 			// Play sound
 			plugin.world.playSound(plugin.redRight, Sound.ENTITY_PLAYER_LEVELUP, 100, 1);
-
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-				@Override
-				public void run() {
-					plugin.getServer().broadcastMessage(MRC.PREFIX + ChatColor.BOLD + "Player Contributions");
-					for (Player p : plugin.playerData.keySet()) {
-						MRCPlayerData pd = plugin.playerData.get(p);
-						plugin.getServer().broadcastMessage(MRC.PREFIX + pd);
-						plugin.records.submitScore(p, pd.getPointsContributed());
-					}
-				}
-			}, 60);
 
 			return;
 		}
@@ -148,9 +124,6 @@ public class IngameTick {
 
 			// Play sound
 			plugin.world.playSound(plugin.redRight, Sound.BLOCK_NOTE_BLOCK_BIT, 100, 1);
-
-			// Send message
-			plugin.getServer().broadcastMessage(MRC.PREFIX + "We're in the endgame now. 30 seconds left in the match!");
 		}
 
 		plugin.countdown--;

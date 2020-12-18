@@ -1,9 +1,7 @@
 package io.bottone.mc.plugins.mrc.eventhandler;
 
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,8 +9,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import io.bottone.mc.plugins.mrc.enums.GameState;
@@ -43,23 +39,11 @@ public class PlayerEventHandler implements Listener {
 		player.setGameMode(GameMode.ADVENTURE);
 		player.getInventory().clear();
 
-		ItemStack item = new ItemStack(Material.IRON_DOOR, 1);
-		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Return to Hub");
-		item.setItemMeta(meta);
-		player.getInventory().setItem(4, item);
-
 		plugin.spectators.add(player);
 		plugin.tempSpectators.add(player);
 		player.setAllowFlight(true);
 
-		if (plugin.joinable) {
-			player.teleport(plugin.positionSelect);
-			player.sendMessage(MRC.PREFIX + "Welcome to MRC! Choose a position and class to compete!");
-		} else {
-			player.teleport(plugin.stadiumStands);
-			player.sendMessage(MRC.PREFIX + "You are spectating the ongoing match.");
-		}
+		player.teleport(plugin.stadiumStands);
 
 	}
 

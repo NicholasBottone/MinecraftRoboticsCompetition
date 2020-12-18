@@ -20,16 +20,16 @@ public class FinishedTick {
 		if (plugin.countdown == 0) {
 
 			List<Player> playersToProcess = new ArrayList<>();
+			List<Player> spectatorsToProcess = new ArrayList<>();
 
 			for (Player player : plugin.players) {
 				player.getInventory().clear();
-				player.teleport(plugin.positionSelect);
+				player.teleport(plugin.stadiumStands);
 				playersToProcess.add(player);
 			}
 			for (Player player : plugin.tempSpectators) {
 				player.getInventory().clear();
-				player.teleport(plugin.positionSelect);
-				playersToProcess.add(player);
+				spectatorsToProcess.add(player);
 			}
 
 			plugin.arena.resetArena();
@@ -38,6 +38,12 @@ public class FinishedTick {
 
 			for (Player player : playersToProcess) {
 				PlayerEventHandler.onPlayerLogin(plugin, player);
+			}
+			
+			for (Player player : spectatorsToProcess) {
+				plugin.spectators.add(player);
+				plugin.tempSpectators.add(player);
+				player.setAllowFlight(true);
 			}
 
 			return;
