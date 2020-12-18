@@ -36,4 +36,4 @@ commands:
   teamchat:
     description: Sends a message privately to your alliance partners.
     usage: /teamchat <message>
-    aliases: team, chat, tc
+    aliases: [team, chat, tc]
