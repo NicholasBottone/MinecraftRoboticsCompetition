@@ -1,5 +1,5 @@
 name: MRC-Event
-version: 20.12.16
+version: 20.12.19
 
 description: Runs Minecraft Robotics Competition events.
 author: Nicholas Bottone
@@ -40,4 +40,4 @@ commands:
   teamchat:
     description: Sends a message privately to your alliance partners.
     usage: /teamchat <message>
-    aliases: team, chat, tc
+    aliases: [team, chat, tc]

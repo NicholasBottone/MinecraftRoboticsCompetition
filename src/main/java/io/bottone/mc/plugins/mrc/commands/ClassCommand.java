@@ -29,11 +29,6 @@ public class ClassCommand implements CommandExecutor {
 
 		if (plugin.joinable) {
 
-			if (!plugin.players.contains(player)) {
-				player.sendMessage(MRC.PREFIX + "You must claim a position before selecting a class.");
-				return true;
-			}
-
 			if (args.length == 0) {
 				return false;
 			}
