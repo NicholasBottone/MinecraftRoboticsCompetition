@@ -8,9 +8,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.projectiles.ProjectileSource;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import io.bottone.mc.plugins.mrc.enums.GameState;
+import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class ProjectileEventHandler implements Listener {
 
@@ -121,9 +123,17 @@ public class ProjectileEventHandler implements Listener {
 
 	}
 
+	@EventHandler
 	public void onProjectileLaunch(ProjectileLaunchEvent event) {
 		// TODO: Nerf the long range velocity on bow class
-		plugin.l.info("MRC Debug: Velocity = " + event.getEntity().getVelocity());
+		ProjectileSource shooter = event.getEntity().getShooter();
+		if (shooter != null && shooter instanceof Player) {
+
+			if (plugin.playerClasses.get(shooter) == PlayerClass.BOW
+					|| plugin.playerClasses.get(shooter) == PlayerClass.INSTACLIMB)
+				plugin.l.info("MRC Debug: Velocity = " + event.getEntity().getVelocity());
+
+		}
 	}
 
 }
