@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.Vector;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import io.bottone.mc.plugins.mrc.enums.GameState;
@@ -125,13 +126,23 @@ public class ProjectileEventHandler implements Listener {
 
 	@EventHandler
 	public void onProjectileLaunch(ProjectileLaunchEvent event) {
-		// TODO: Nerf the long range velocity on bow class
 		ProjectileSource shooter = event.getEntity().getShooter();
 		if (shooter != null && shooter instanceof Player) {
 
 			if (plugin.playerClasses.get(shooter) == PlayerClass.BOW
-					|| plugin.playerClasses.get(shooter) == PlayerClass.INSTACLIMB)
-				plugin.l.info("MRC Debug: Velocity = " + event.getEntity().getVelocity());
+					|| plugin.playerClasses.get(shooter) == PlayerClass.INSTACLIMB) {
+				Vector v = event.getEntity().getVelocity();
+				if (plugin.redPlayers.contains(shooter)) {
+					if (((Player) shooter).getLocation().getZ() < -12) {
+						v.setY(0.25);
+					}
+				} else {
+					if (((Player) shooter).getLocation().getZ() > 15) {
+						v.setY(0.25);
+					}
+				}
+				event.getEntity().setVelocity(v);
+			}
 
 		}
 	}
