@@ -18,7 +18,7 @@ public class FinishedTick {
 			for (Player player : plugin.players) {
 				player.getInventory().clear();
 				player.teleport(plugin.stadiumStands);
-				plugin.sendToBungeeServer(player, "MRC");
+				plugin.sendToBungeeServer(player, plugin.getServer().getMotd() + "Pits");
 			}
 
 			plugin.arena.resetArena();

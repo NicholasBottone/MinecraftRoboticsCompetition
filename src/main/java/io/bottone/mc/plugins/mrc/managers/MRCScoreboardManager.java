@@ -16,7 +16,7 @@ public class MRCScoreboardManager {
 
 	public void updateScoreboards() {
 
-		MRCScoreboard sb = new MRCScoreboard(MRC.PREFIX + "Event");
+		MRCScoreboard sb = new MRCScoreboard(MRC.PREFIX + plugin.getServer().getMotd());
 
 		switch (plugin.gameState) {
 
@@ -87,7 +87,7 @@ public class MRCScoreboardManager {
 		}
 
 		for (Player player : plugin.players) {
-			sb = new MRCScoreboard(MRC.PREFIX + "Event");
+			sb = new MRCScoreboard(MRC.PREFIX + plugin.getServer().getMotd());
 
 			switch (plugin.gameState) {
 

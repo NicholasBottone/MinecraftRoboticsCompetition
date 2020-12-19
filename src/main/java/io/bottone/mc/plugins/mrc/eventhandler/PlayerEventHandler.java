@@ -52,6 +52,9 @@ public class PlayerEventHandler implements Listener {
 					if (!player.hasPermission("mrc.fta")) {
 						plugin.sendToBungeeServer(player, "MRC");
 						return;
+					} else {
+						player.teleport(plugin.stadiumStands);
+						return;
 					}
 				}
 			}
