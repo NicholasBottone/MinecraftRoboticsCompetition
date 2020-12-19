@@ -3,7 +3,6 @@ package io.bottone.mc.plugins.mrc.eventhandler;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,7 +11,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class ProjectileEventHandler implements Listener {
 
@@ -122,14 +120,10 @@ public class ProjectileEventHandler implements Listener {
 			plugin.playerData.get(event.getEntity().getShooter()).addMiss();
 
 	}
-	
+
 	public void onProjectileLaunch(ProjectileLaunchEvent event) {
 		// TODO: Nerf the long range velocity on bow class
-		if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player) {
-			if (event.getEntityType() == EntityType.ARROW && plugin.playerClasses.get(event.getEntity().getShooter()) == PlayerClass.BOW) {
-				plugin.getServer().broadcast("MRC Debug: Velocity = " + event.getEntity().getVelocity(), "mrc.fta");
-			}
-		}
+		plugin.l.info("MRC Debug: Velocity = " + event.getEntity().getVelocity());
 	}
 
 }
