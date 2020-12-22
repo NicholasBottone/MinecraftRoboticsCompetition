@@ -112,7 +112,7 @@ public class PlayerEventHandler implements Listener {
 				plugin.getServer().broadcastMessage(MRC.PREFIX + "Match aborted due to lack of players.");
 				plugin.gameState = GameState.LOBBY;
 				plugin.countdown = 20;
-				plugin.arena.resetArena();
+				plugin.arena.clearEntities();
 			}
 
 			return;
