@@ -38,7 +38,6 @@ public class MRCArenaManager {
 		plugin.hungPlayers.clear();
 		plugin.playerData.clear();
 		plugin.playerPositions.clear();
-		plugin.playerClasses.clear();
 
 		// Get rid of the holograms
 		if (plugin.redBayHolo != null) {

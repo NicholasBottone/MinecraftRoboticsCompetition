@@ -37,6 +37,8 @@ public class CountdownTick {
 		if (plugin.countdown <= 0 && !plugin.joinable) {
 			// Match starts.
 
+			plugin.arena.clearEntities();
+			
 			// Show title
 			MRCTitleManager.showInstantTitle(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "GO",
 					ChatColor.LIGHT_PURPLE + "Good luck!");
@@ -56,8 +58,6 @@ public class CountdownTick {
 					e.remove();
 				}
 			}
-
-			plugin.arena.clearEntities();
 
 			for (Player player : plugin.playerPositions.keySet()) {
 				Location position = plugin.playerPositions.get(player);

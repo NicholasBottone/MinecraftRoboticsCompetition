@@ -5,7 +5,7 @@
 
  MRC is a simulated version of the [FIRST Robotics Competition](https://www.firstinspires.org/robotics/frc) game [Infinite Recharge](https://www.youtube.com/watch?v=gmiYWTmFRVE) inside of Minecraft. This project is unofficial and not affiliated with FIRST.
 
- This project was designed for the [Bottone.io MC](https://mc.bottone.io) network, but it is now open source for anyone to use! You can connect to `mc.bottone.io` in Minecraft Java Edition or Bedrock Edition to play or test the MRC minigame online.
+ This project is designed for the [Bottone.io MC](https://mc.bottone.io) network, but it is now open source for anyone to use! You can connect to `mc.bottone.io` in Minecraft Java Edition or Bedrock Edition to play or test the MRC minigame online.  MRC is partnered with the [xRC Simulator](https://xrcsimulator.org) project.
  
 ## Requirements
  * This plugin is designed to be run on a server by itself. Do not attempt to run MRC minigames alongside other worlds/gamemodes on the same server. If you intent to run more than one world/gamemode on your network, you should use Bungeecord or Waterfall.
@@ -22,4 +22,4 @@
  * [WorldEdit](https://dev.bukkit.org/projects/worldedit) 7.1.0+
  
 ## License
-This project is licensed under GNU AGPLv3.  [Read about it here.](https://choosealicense.com/licenses/agpl-3.0/)
+This project is licensed under GNU AGPLv3.  [Read about it here.](https://choosealicense.com/licenses/agpl-3.0/)  In short, you are free to modify and distribute my repository, under the condition that you provide attribution and disclose your modified source under the same license.  I ask that you link back to this original repository if you choose to do this.
