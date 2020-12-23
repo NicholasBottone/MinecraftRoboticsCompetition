@@ -1,7 +1,7 @@
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NicholasBottone/MinecraftRoboticsCompetition/Java%20CI%20with%20Maven%20MASTER?style=plastic)
-![GitHub release version (latest by date)](https://img.shields.io/github/v/release/NicholasBottone/MinecraftRoboticsCompetition?style=plastic)
-![Repo License](https://img.shields.io/github/license/NicholasBottone/MinecraftRoboticsCompetition?style=plastic)
-![Discord](https://img.shields.io/discord/637407041048281098?label=xRC%20Sim%20Discord&style=plastic)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NicholasBottone/MinecraftRoboticsCompetition/Java%20CI%20with%20Maven%20MASTER?style=plastic)](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/actions)
+[![GitHub release version (latest by date)](https://img.shields.io/github/v/release/NicholasBottone/MinecraftRoboticsCompetition?style=plastic)](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/releases/latest)
+[![Repo License](https://img.shields.io/github/license/NicholasBottone/MinecraftRoboticsCompetition?style=plastic)](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/blob/master/LICENSE)
+[![Discord](https://img.shields.io/discord/637407041048281098?label=xRC%20Sim%20Discord&style=plastic)](https://discord.gg/mhc9tkB)
 
 # MinecraftRoboticsCompetition
  Spigot plugin for running MRC minigames. Designed and developed by Nicholas Bottone.
