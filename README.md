@@ -15,7 +15,7 @@
 ## Requirements
  * This plugin is designed to be run on a server by itself. Do not attempt to run MRC minigames alongside other worlds/gamemodes on the same server. If you intent to run more than one world/gamemode on your network, you should use Bungeecord or Waterfall.
  
- * This plugin is designed to be run on a specific pre-made world. It uses hardcoded location values, so it is important that you use the proper MRC arena world.
+ * This plugin is designed to be run on a specific pre-made world. It uses hardcoded location values, so it is important that you use the proper MRC arena world.  [Download here.](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/raw/master/MRC%20World.zip)
  
  * [Spigot](https://www.spigotmc.org/) (or any of its forks) 1.15.2+
    * [Paper](https://papermc.io/) (the high performance fork of Spigot) is recommended
@@ -26,7 +26,19 @@
  
  * [WorldEdit](https://dev.bukkit.org/projects/worldedit) 7.1.0+
  
- * OPTIONAL: The Resource Pack improves the MRC experience by providing custom textures and sound effects.  [Download from here.](https://www.dropbox.com/s/jtohhjjrjae4yjw/MRC_on_Bottone.io.zip?dl=1)
+ * OPTIONAL: The Resource Pack improves the MRC experience by providing custom textures and sound effects.  [Download here.](https://github.com/NicholasBottone/MinecraftRoboticsCompetition/raw/master/MRC%20Resource%20Pack.zip)
+
+## Commands
+ The plugin mostly is designed to run automated without any input via commands.  There are some commands that players can use instead of the signs, or for admins to do certain tasks.
+| Command | Description | Permission |
+| --- | --- | --- |
+| `/pos <redleft|redcenter|redright|blueleft|bluecenter|blueright>` | Claim a starting position in the match | (all players) |
+| `/class <bow|crossbow|snowball|instaclimb>` | Select a class in the match | (all players) |
+| `/pb` | Displays the player's personal best score | (all players) |
+| `/wr` | Display a list of the world records | (all players + console) |
+| `/reloadrecords` | Reloads the config.yml | `mrc.fta` |
  
 ## License
-This project is licensed under GNU AGPLv3.  [Read about it here.](https://choosealicense.com/licenses/agpl-3.0/)  In short, you are free to modify and distribute my repository, under the condition that you provide attribution and disclose your modified source under the same license.  I ask that you link back to this original repository if you choose to do this.
+ This project is licensed under GNU AGPLv3.  [Read about it here.](https://choosealicense.com/licenses/agpl-3.0/)  In short, you are free to modify and distribute my repository, under the condition that you provide attribution and disclose your modified source under the same license.  I ask that you link back to this original repository if you choose to do this.
+
+ Feel free to contribute to the project!  Fork this repository, commit your changes, then submit a pull request for your contributions to be reviewed.  Alternatively, you may submit and issue to report a bug or suggestion.
