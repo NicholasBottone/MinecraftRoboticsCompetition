@@ -30,13 +30,13 @@
 
 ## Commands
  The plugin mostly is designed to run automated without any input via commands.  There are some commands that players can use instead of the signs, or for admins to do certain tasks.
-| Command | Description | Permission |
-| --- | --- | --- |
-| `/pos <redleft|redcenter|redright|blueleft|bluecenter|blueright>` | Claim a starting position in the match | (all players) |
-| `/class <bow|crossbow|snowball|instaclimb>` | Select a class in the match | (all players) |
-| `/pb` | Displays the player's personal best score | (all players) |
-| `/wr` | Display a list of the world records | (all players + console) |
-| `/reloadrecords` | Reloads the config.yml | `mrc.fta` |
+| Command | Arguments | Description | Permission |
+| --- | --- | --- | --- |
+| `/pos` | `redleft`, `redcenter`, `redright`, `blueleft`, `bluecenter`, `blueright` | Claim a starting position in the match | (all players) |
+| `/class` | `bow`, `crossbow`, `snowball`, `instaclimb` | Select a class in the match | (all players) |
+| `/pb` | | Displays the player's personal best score | (all players) |
+| `/wr` | | Display a list of the world records | (all players + console) |
+| `/reloadrecords` | | Reloads the config.yml | `mrc.fta` |
  
 ## License
  This project is licensed under GNU AGPLv3.  [Read about it here.](https://choosealicense.com/licenses/agpl-3.0/)  In short, you are free to modify and distribute my repository, under the condition that you provide attribution and disclose your modified source under the same license.  I ask that you link back to this original repository if you choose to do this.
