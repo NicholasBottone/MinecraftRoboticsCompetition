@@ -21,6 +21,11 @@
 	</build>
 	<repositories>
 		<repository>
+			<id>mvnrepository</id>
+			<name>Maven Central Repository</name>
+			<url>https://repo1.maven.org/maven2/</url>
+		</repository>
+		<repository>
 			<id>spigot-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
@@ -62,6 +67,16 @@
 		    <artifactId>worldedit-bukkit</artifactId>
 		    <version>7.1.0</version>
 		    <scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.bottone.mc.plugins.mrc</groupId>
+			<artifactId>MRC</artifactId>
+			<version>21.4.28-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains</groupId>
+			<artifactId>annotations</artifactId>
+			<version>20.1.0</version>
 		</dependency>
 	</dependencies>
 </project>

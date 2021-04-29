@@ -133,7 +133,7 @@ public class IngameTick {
 	private static void determineMatchWinner(MRC plugin) {
 		if (plugin.redScore > plugin.blueScore) {
 			plugin.getServer().broadcastMessage(
-					MRC.PREFIX + ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!");
+					MRC.PREFIX + ChatColor.RED + ChatColor.BOLD + "RED ALLIANCE WINS!");
 			MRCTitleManager.showTitle(ChatColor.RED.toString() + ChatColor.BOLD + "RED ALLIANCE WINS!", " ");
 
 			if (plugin.econ != null && plugin.bluePlayers.size() >= plugin.redPlayers.size()
@@ -146,7 +146,7 @@ public class IngameTick {
 
 		} else if (plugin.blueScore > plugin.redScore) {
 			plugin.getServer().broadcastMessage(
-					MRC.PREFIX + ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!");
+					MRC.PREFIX + ChatColor.BLUE + ChatColor.BOLD + "BLUE ALLIANCE WINS!");
 			MRCTitleManager.showTitle(ChatColor.BLUE.toString() + ChatColor.BOLD + "BLUE ALLIANCE WINS!", " ");
 
 			if (plugin.econ != null && plugin.bluePlayers.size() <= plugin.redPlayers.size()
@@ -158,7 +158,7 @@ public class IngameTick {
 			}
 		} else {
 			plugin.getServer()
-					.broadcastMessage(MRC.PREFIX + ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!");
+					.broadcastMessage(MRC.PREFIX + ChatColor.WHITE + ChatColor.BOLD + "IT'S A TIE!");
 			MRCTitleManager.showTitle(ChatColor.WHITE.toString() + ChatColor.BOLD + "IT'S A TIE!", " ");
 
 			if (plugin.econ != null && plugin.players.size() >= 2 && (plugin.redScore + plugin.blueScore) >= 100) {

@@ -12,17 +12,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import io.bottone.mc.plugins.mrc.MRC;
+import org.jetbrains.annotations.NotNull;
 
 public class PersonalBestCommand implements CommandExecutor {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public PersonalBestCommand(MRC plugin) {
 		this.plugin = plugin;
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
 
 		if (!(sender instanceof Player)) {
 

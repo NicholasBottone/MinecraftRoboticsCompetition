@@ -11,17 +11,18 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import io.bottone.mc.plugins.mrc.MRC;
+import org.jetbrains.annotations.NotNull;
 
 public class WorldRecordCommand implements CommandExecutor {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public WorldRecordCommand(MRC plugin) {
 		this.plugin = plugin;
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
 		for (int i = 1; i <= 4; i++) {
 			sender.sendMessage(
 					MRC.PREFIX + i + ") " + plugin.worldRecordHolders[i - 1] + ": " + plugin.worldRecordScores[i - 1]);
