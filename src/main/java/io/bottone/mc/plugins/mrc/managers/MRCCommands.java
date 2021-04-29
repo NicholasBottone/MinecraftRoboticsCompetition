@@ -15,17 +15,19 @@ import io.bottone.mc.plugins.mrc.commands.SpectateCommand;
 import io.bottone.mc.plugins.mrc.commands.WorldRecordCommand;
 import io.bottone.mc.plugins.mrc.commands.TeamChatCommand;
 
+import java.util.Objects;
+
 public class MRCCommands {
 
 	public static void registerCommands(MRC plugin) {
 
-		plugin.getCommand("class").setExecutor(new ClassCommand(plugin));
-		plugin.getCommand("pb").setExecutor(new PersonalBestCommand(plugin));
-		plugin.getCommand("pos").setExecutor(new PositionCommand(plugin));
-		plugin.getCommand("reloadrecords").setExecutor(new ReloadCommand(plugin));
-		plugin.getCommand("spectate").setExecutor(new SpectateCommand(plugin));
-		plugin.getCommand("wr").setExecutor(new WorldRecordCommand(plugin));
-		plugin.getCommand("teamchat").setExecutor(new TeamChatCommand(plugin));
+		Objects.requireNonNull(plugin.getCommand("class")).setExecutor(new ClassCommand(plugin));
+		Objects.requireNonNull(plugin.getCommand("pb")).setExecutor(new PersonalBestCommand(plugin));
+		Objects.requireNonNull(plugin.getCommand("pos")).setExecutor(new PositionCommand(plugin));
+		Objects.requireNonNull(plugin.getCommand("reloadrecords")).setExecutor(new ReloadCommand(plugin));
+		Objects.requireNonNull(plugin.getCommand("spectate")).setExecutor(new SpectateCommand(plugin));
+		Objects.requireNonNull(plugin.getCommand("wr")).setExecutor(new WorldRecordCommand(plugin));
+		Objects.requireNonNull(plugin.getCommand("teamchat")).setExecutor(new TeamChatCommand(plugin));
 
 	}
 

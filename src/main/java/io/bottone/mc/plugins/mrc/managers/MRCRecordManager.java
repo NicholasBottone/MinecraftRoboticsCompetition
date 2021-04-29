@@ -14,9 +14,11 @@ import org.bukkit.entity.Player;
 
 import io.bottone.mc.plugins.mrc.MRC;
 
+import java.util.Objects;
+
 public class MRCRecordManager {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public MRCRecordManager(MRC plugin) {
 		this.plugin = plugin;
@@ -27,7 +29,8 @@ public class MRCRecordManager {
 		plugin.saveDefaultConfig();
 		plugin.reloadConfig();
 
-		plugin.personalBests = plugin.getConfig().getConfigurationSection("records.personalbests").getValues(false);
+		plugin.personalBests = Objects.requireNonNull(
+				plugin.getConfig().getConfigurationSection("records.personalbests")).getValues(false);
 		setRecordSkulls();
 	}
 
@@ -96,7 +99,6 @@ public class MRCRecordManager {
 			if (score > plugin.worldRecordScores[3]) {
 				plugin.worldRecordHolders[3] = playerName;
 				plugin.worldRecordScores[3] = score;
-				continue;
 			}
 		}
 
@@ -124,8 +126,7 @@ public class MRCRecordManager {
 		skull.setRotation(BlockFace.WEST);
 		skull.update();
 
-		// TODO: some sort of feature that shows player names/scores on the heads (low
-		// priority)
+		// TODO: some sort of feature that shows player names/scores on the heads (low priority)
 
 	}
 

@@ -38,13 +38,7 @@ public class MRCArenaManager {
 
 	public void resetArena() {
 		// Clear all lists
-		plugin.players.clear();
-		plugin.tempSpectators.clear();
-		plugin.redPlayers.clear();
-		plugin.bluePlayers.clear();
-		plugin.hungPlayers.clear();
-		plugin.playerData.clear();
-		plugin.playerPositions.clear();
+		clearAllLists();
 
 		// Get rid of the holograms
 		if (plugin.redBayHolo != null) {
@@ -62,6 +56,20 @@ public class MRCArenaManager {
 		clearEntities();
 
 		// Reset position signs
+		resetPositionSigns();
+	}
+
+	private void clearAllLists() {
+		plugin.players.clear();
+		plugin.tempSpectators.clear();
+		plugin.redPlayers.clear();
+		plugin.bluePlayers.clear();
+		plugin.hungPlayers.clear();
+		plugin.playerData.clear();
+		plugin.playerPositions.clear();
+	}
+
+	private void resetPositionSigns() {
 		plugin.redLeftSign.setLine(3, "Click to claim");
 		plugin.redCenterSign.setLine(3, "Click to claim");
 		plugin.redRightSign.setLine(3, "Click to claim");
