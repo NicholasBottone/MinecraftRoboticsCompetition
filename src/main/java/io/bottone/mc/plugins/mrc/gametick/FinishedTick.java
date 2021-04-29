@@ -25,33 +25,36 @@ public class FinishedTick {
 
 		if (plugin.countdown == 0) {
 
-			List<Player> playersToProcess = new ArrayList<>();
-
-			for (Player player : plugin.players) {
-				player.getInventory().clear();
-				player.teleport(plugin.positionSelect);
-				playersToProcess.add(player);
-			}
-			for (Player player : plugin.tempSpectators) {
-				player.getInventory().clear();
-				player.teleport(plugin.positionSelect);
-				playersToProcess.add(player);
-			}
-
-			plugin.arena.resetArena();
-			plugin.gameState = GameState.LOBBY;
-			plugin.joinable = true;
-
-			for (Player player : playersToProcess) {
-				PlayerEventHandler.onPlayerLogin(plugin, player);
-			}
-
+			resetArena(plugin);
 			return;
 
 		}
 
 		plugin.countdown--;
 
+	}
+
+	private static void resetArena(MRC plugin) {
+		List<Player> playersToProcess = new ArrayList<>();
+
+		for (Player player : plugin.players) {
+			player.getInventory().clear();
+			player.teleport(plugin.positionSelect);
+			playersToProcess.add(player);
+		}
+		for (Player player : plugin.tempSpectators) {
+			player.getInventory().clear();
+			player.teleport(plugin.positionSelect);
+			playersToProcess.add(player);
+		}
+
+		plugin.arena.resetArena();
+		plugin.gameState = GameState.LOBBY;
+		plugin.joinable = true;
+
+		for (Player player : playersToProcess) {
+			PlayerEventHandler.onPlayerLogin(plugin, player);
+		}
 	}
 
 }

@@ -1,9 +1,9 @@
 name: MRC
-version: 20.12.28
+version: 21.4.28-SNAPSHOT
 
 description: Runs Minecraft Robotics Competition matches.
 author: Nicholas Bottone
-website: https://mc.bottone.io
+website: https://secondrobotics.org/mrc
 
 main: io.bottone.mc.plugins.mrc.MRC
 database: false

@@ -19,21 +19,25 @@ public class LobbyTick {
 
 		if (plugin.players.size() >= 1) {
 			// We have player(s) ... start the countdown!
-			plugin.gameState = GameState.COUNTDOWN;
-			plugin.countdown = 20;
-
-			plugin.redScore = 0;
-			plugin.redPC = 0;
-			plugin.redEndgame = 0;
-			plugin.redBay = 5;
-			plugin.blueScore = 0;
-			plugin.bluePC = 0;
-			plugin.blueEndgame = 0;
-			plugin.blueBay = 5;
-
-			plugin.getServer().broadcastMessage(MRC.PREFIX + "Match initiating in 20 seconds!");
+			startPrematchCountdown(plugin);
 		}
 
+	}
+
+	private static void startPrematchCountdown(MRC plugin) {
+		plugin.gameState = GameState.COUNTDOWN;
+		plugin.countdown = 20;
+
+		plugin.redScore = 0;
+		plugin.redPC = 0;
+		plugin.redEndgame = 0;
+		plugin.redBay = 5;
+		plugin.blueScore = 0;
+		plugin.bluePC = 0;
+		plugin.blueEndgame = 0;
+		plugin.blueBay = 5;
+
+		plugin.getServer().broadcastMessage(MRC.PREFIX + "Match initiating in 20 seconds!");
 	}
 
 }
