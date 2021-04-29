@@ -174,4 +174,29 @@ public class MRCArenaManager {
 		player.getInventory().addItem(powercellStack);
 	}
 
+	public boolean canPickupArrow(Player player) {
+		int arrows = 0;
+		for (ItemStack item : player.getInventory().getContents()) {
+			//noinspection ConstantConditions
+			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL))
+				arrows += item.getAmount();
+		}
+
+		int maxArrows = 5;
+		switch (plugin.playerClasses.get(player)) {
+			case BOW:
+			case CROSSBOW:
+				maxArrows = 5;
+				break;
+			case SNOWBALL:
+				maxArrows = 3;
+				break;
+			case INSTACLIMB:
+				maxArrows = 4;
+				break;
+		}
+
+		return arrows < maxArrows;
+	}
+
 }

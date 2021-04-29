@@ -21,7 +21,7 @@ import io.bottone.mc.plugins.mrc.MRC;
 
 public class VehicleEventHandler implements Listener {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public VehicleEventHandler(MRC plugin) {
 

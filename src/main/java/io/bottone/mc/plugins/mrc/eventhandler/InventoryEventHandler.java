@@ -6,22 +6,21 @@
 
 package io.bottone.mc.plugins.mrc.eventhandler;
 
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.GameState;
+import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.inventory.ItemStack;
-
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class InventoryEventHandler implements Listener {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public InventoryEventHandler(MRC plugin) {
 
@@ -31,7 +30,8 @@ public class InventoryEventHandler implements Listener {
 
 	@EventHandler
 	public void onInventoryOpen(InventoryOpenEvent event) {
-		if (event.getPlayer().getGameMode() == GameMode.CREATIVE)
+		Player player = (Player) event.getPlayer();
+		if (player.getGameMode() == GameMode.CREATIVE)
 			return;
 
 		event.setCancelled(true);
@@ -39,46 +39,25 @@ public class InventoryEventHandler implements Listener {
 		if (plugin.gameState != GameState.INGAME)
 			return;
 
-		int arrows = 0;
-		for (ItemStack item : event.getPlayer().getInventory().getContents()) {
-			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL))
-				arrows += item.getAmount();
-		}
-
-		int maxArrows = 5;
-		switch (plugin.playerClasses.get(event.getPlayer())) {
-		case BOW:
-		case CROSSBOW:
-			maxArrows = 5;
-			break;
-		case SNOWBALL:
-			maxArrows = 3;
-			break;
-		case INSTACLIMB:
-			maxArrows = 4;
-			break;
-		}
-
-		if (arrows >= maxArrows) {
+		if (!plugin.arena.canPickupArrow(player))
 			return;
-		}
 
-		if (event.getInventory().contains(Material.RED_WOOL) && plugin.redPlayers.contains(event.getPlayer())
+		if (event.getInventory().contains(Material.RED_WOOL) && plugin.redPlayers.contains(player)
 				&& plugin.redBay > 0) {
 			plugin.redBay--;
-			if (plugin.playerClasses.get(event.getPlayer()) == PlayerClass.SNOWBALL)
-				plugin.arena.givePowerCells(event.getPlayer(), 1, Material.SNOWBALL);
+			if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL)
+				plugin.arena.givePowerCells(player, 1, Material.SNOWBALL);
 			else
-				plugin.arena.givePowerCells(event.getPlayer(), 1, Material.ARROW);
+				plugin.arena.givePowerCells(player, 1, Material.ARROW);
 		}
 
-		if (event.getInventory().contains(Material.BLUE_WOOL) && plugin.bluePlayers.contains(event.getPlayer())
+		if (event.getInventory().contains(Material.BLUE_WOOL) && plugin.bluePlayers.contains(player)
 				&& plugin.blueBay > 0) {
 			plugin.blueBay--;
-			if (plugin.playerClasses.get(event.getPlayer()) == PlayerClass.SNOWBALL)
-				plugin.arena.givePowerCells(event.getPlayer(), 1, Material.SNOWBALL);
+			if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL)
+				plugin.arena.givePowerCells(player, 1, Material.SNOWBALL);
 			else
-				plugin.arena.givePowerCells(event.getPlayer(), 1, Material.ARROW);
+				plugin.arena.givePowerCells(player, 1, Material.ARROW);
 		}
 
 		plugin.redBayLine.setText(plugin.redBay + " Power Cells");

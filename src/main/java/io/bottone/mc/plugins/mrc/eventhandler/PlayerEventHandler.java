@@ -26,7 +26,7 @@ import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class PlayerEventHandler implements Listener {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public PlayerEventHandler(MRC plugin) {
 
@@ -51,7 +51,9 @@ public class PlayerEventHandler implements Listener {
 
 		ItemStack item = new ItemStack(Material.IRON_DOOR, 1);
 		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Return to Hub");
+		if (meta != null) {
+			meta.setDisplayName(ChatColor.AQUA.toString() + ChatColor.BOLD + "Return to Hub");
+		}
 		item.setItemMeta(meta);
 		player.getInventory().setItem(4, item);
 
