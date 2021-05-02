@@ -6,62 +6,53 @@
 
 package io.bottone.mc.plugins.mrc.gametick;
 
-import java.util.logging.Level;
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.managers.*;
+import io.bottone.mc.plugins.mrc.event.MatchScheduleManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.event.MatchScheduleManager;
-import io.bottone.mc.plugins.mrc.managers.MRCArenaManager;
-import io.bottone.mc.plugins.mrc.managers.MRCCommands;
-import io.bottone.mc.plugins.mrc.managers.MRCEconomyConnector;
-import io.bottone.mc.plugins.mrc.managers.MRCEvents;
-import io.bottone.mc.plugins.mrc.managers.MRCScoreboardManager;
+import java.util.logging.Level;
 
 public class MRCInit {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public MRCInit(MRC plugin) {
 
 		this.plugin = plugin;
 
 		// Waits 5 seconds / 100 ticks for worlds to load before init.
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
 
-			@Override
-			public void run() {
+			loadLocations();
+			plugin.l.log(Level.INFO, "Locations loaded (1/7)");
 
-				loadLocations();
-				plugin.l.log(Level.INFO, "Locations loaded (1/7)");
+			MRCEconomyConnector.hookVault(plugin);
+			// Vault economy hooked (2/7)
 
-				MRCEconomyConnector.hookVault(plugin);
-				// Vault economy hooked (2/7)
+			MRCEvents.registerEvents(plugin);
+			plugin.l.log(Level.INFO, "Events registered (3/7)");
 
-				MRCEvents.registerEvents(plugin);
-				plugin.l.log(Level.INFO, "Events registered (3/7)");
+			MRCCommands.registerCommands(plugin);
+			plugin.l.log(Level.INFO, "Commands registered (4/7)");
 
-				MRCCommands.registerCommands(plugin);
-				plugin.l.log(Level.INFO, "Commands registered (4/7)");
+			plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+			plugin.l.log(Level.INFO, "Bungeecord hooked (5/7)");
 
-				plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-				plugin.l.log(Level.INFO, "Bungeecord hooked (5/7)");
+			plugin.arena = new MRCArenaManager(plugin);
+			plugin.scoreboard = new MRCScoreboardManager(plugin);
+			plugin.l.log(Level.INFO, "Arena and Scoreboard managers initialized (6/7)");
 
-				plugin.arena = new MRCArenaManager(plugin);
-				plugin.scoreboard = new MRCScoreboardManager(plugin);
-				plugin.l.log(Level.INFO, "Arena and Scoreboard managers initialized (6/7)");
+			plugin.schedule = new MatchScheduleManager(plugin);
+			plugin.l.log(Level.INFO, "Match schedule loaded (7/7)");
 
-				plugin.schedule = new MatchScheduleManager(plugin);
-				plugin.l.log(Level.INFO, "Match schedule loaded (7/7)");
-
-				plugin.l.log(Level.INFO, "Setup completed and MRC activated! Starting game tick.");
-				plugin.l.log(Level.INFO, "*** MRC IS IN EVENT MODE ***");
-				new MRCGameTick(plugin);
-
-			}
+			plugin.l.log(Level.INFO, "Setup completed and MRC activated! Starting game tick.");
+			plugin.l.log(Level.INFO, "*** MRC IS IN EVENT MODE ***");
+			new MRCGameTick(plugin);
 
 		}, 100);
 

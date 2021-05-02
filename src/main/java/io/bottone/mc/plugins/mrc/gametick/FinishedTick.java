@@ -21,28 +21,31 @@ public class FinishedTick {
 
 		if (plugin.countdown == 0) {
 
-			for (Player player : plugin.players) {
-				player.getInventory().clear();
-				player.teleport(plugin.stadiumStands);
-				plugin.sendToBungeeServer(player, plugin.getServer().getMotd() + "Pits");
-			}
-
-			plugin.arena.resetArena();
-			plugin.gameState = GameState.LOBBY;
-			plugin.joinable = true;
-
-			plugin.matchNumber++;
-			plugin.getServer().broadcastMessage(MRC.PREFIX + "Welcome to MRC Event match #" + plugin.matchNumber);
-			if (plugin.matches.containsKey(plugin.matchNumber))
-				plugin.matches.get(plugin.matchNumber).teleportPlayers(plugin.redPositionSelect,
-						plugin.bluePositionSelect, MRC.PREFIX);
-
+			resetArena(plugin);
 			return;
 
 		}
 
 		plugin.countdown--;
 
+	}
+
+	private static void resetArena(MRC plugin) {
+		for (Player player : plugin.players) {
+			player.getInventory().clear();
+			player.teleport(plugin.stadiumStands);
+			plugin.sendToBungeeServer(player, plugin.getServer().getMotd() + "Pits");
+		}
+
+		plugin.arena.resetArena();
+		plugin.gameState = GameState.LOBBY;
+		plugin.joinable = true;
+
+		plugin.matchNumber++;
+		plugin.getServer().broadcastMessage(MRC.PREFIX + "Welcome to MRC Event match #" + plugin.matchNumber);
+		if (plugin.matches.containsKey(plugin.matchNumber))
+			plugin.matches.get(plugin.matchNumber).teleportPlayers(plugin.redPositionSelect,
+					plugin.bluePositionSelect, MRC.PREFIX);
 	}
 
 }

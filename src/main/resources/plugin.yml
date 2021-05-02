@@ -1,9 +1,9 @@
 name: MRC-Event
-version: 20.12.28
+version: 21.5.1-SNAPSHOT
 
 description: Runs Minecraft Robotics Competition events.
 author: Nicholas Bottone
-website: https://mc.bottone.io
+website: https://secondrobotics.org/mrc
 
 main: io.bottone.mc.plugins.mrc.MRC
 database: false

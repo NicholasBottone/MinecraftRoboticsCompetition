@@ -14,7 +14,7 @@ import io.bottone.mc.plugins.mrc.enums.GameState;
 
 public class MRCScoreboardManager {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public MRCScoreboardManager(MRC plugin) {
 		this.plugin = plugin;
@@ -50,12 +50,12 @@ public class MRCScoreboardManager {
 			sb.put(8, ChatColor.BOLD + "Timer: " + plugin.countdown);
 			sb.put(7, " ");
 			sb.put(6, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
-			sb.put(5, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + plugin.redScore);
-			sb.put(4, ChatColor.RED.toString() + "Power Cells: " + plugin.redPC);
+			sb.put(5, ChatColor.RED + "Score: " + ChatColor.BOLD + plugin.redScore);
+			sb.put(4, ChatColor.RED + "Power Cells: " + plugin.redPC);
 			sb.put(3, "  ");
 			sb.put(2, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
-			sb.put(1, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + plugin.blueScore);
-			sb.put(0, ChatColor.BLUE.toString() + "Power Cells: " + plugin.bluePC);
+			sb.put(1, ChatColor.BLUE + "Score: " + ChatColor.BOLD + plugin.blueScore);
+			sb.put(0, ChatColor.BLUE + "Power Cells: " + plugin.bluePC);
 			break;
 
 		case FINISHED:
@@ -69,14 +69,14 @@ public class MRCScoreboardManager {
 			}
 			sb.put(11, " ");
 			sb.put(10, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
-			sb.put(9, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + plugin.redScore);
-			sb.put(8, ChatColor.RED.toString() + "Power Cells: " + plugin.redPC);
-			sb.put(7, ChatColor.RED.toString() + "Endgame: " + plugin.redEndgame);
+			sb.put(9, ChatColor.RED + "Score: " + ChatColor.BOLD + plugin.redScore);
+			sb.put(8, ChatColor.RED + "Power Cells: " + plugin.redPC);
+			sb.put(7, ChatColor.RED + "Endgame: " + plugin.redEndgame);
 			sb.put(6, "  ");
 			sb.put(5, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
-			sb.put(4, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + plugin.blueScore);
-			sb.put(3, ChatColor.BLUE.toString() + "Power Cells: " + plugin.bluePC);
-			sb.put(2, ChatColor.BLUE.toString() + "Endgame: " + plugin.blueEndgame);
+			sb.put(4, ChatColor.BLUE + "Score: " + ChatColor.BOLD + plugin.blueScore);
+			sb.put(3, ChatColor.BLUE + "Power Cells: " + plugin.bluePC);
+			sb.put(2, ChatColor.BLUE + "Endgame: " + plugin.blueEndgame);
 			sb.put(1, "   ");
 			sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 			break;
@@ -126,12 +126,12 @@ public class MRCScoreboardManager {
 						+ "% inners");
 				sb.put(8, " ");
 				sb.put(7, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
-				sb.put(6, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + plugin.redScore);
-				sb.put(5, ChatColor.RED.toString() + "Power Cells: " + plugin.redPC);
+				sb.put(6, ChatColor.RED + "Score: " + ChatColor.BOLD + plugin.redScore);
+				sb.put(5, ChatColor.RED + "Power Cells: " + plugin.redPC);
 				sb.put(4, "  ");
 				sb.put(3, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
-				sb.put(2, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + plugin.blueScore);
-				sb.put(1, ChatColor.BLUE.toString() + "Power Cells: " + plugin.bluePC);
+				sb.put(2, ChatColor.BLUE + "Score: " + ChatColor.BOLD + plugin.blueScore);
+				sb.put(1, ChatColor.BLUE + "Power Cells: " + plugin.bluePC);
 				break;
 
 			case FINISHED:
@@ -150,14 +150,14 @@ public class MRCScoreboardManager {
 						+ "% inners");
 				sb.put(11, " ");
 				sb.put(10, ChatColor.RED.toString() + ChatColor.BOLD + "Red Alliance");
-				sb.put(9, ChatColor.RED.toString() + "Score: " + ChatColor.BOLD + plugin.redScore);
-				sb.put(8, ChatColor.RED.toString() + "Power Cells: " + plugin.redPC);
-				sb.put(7, ChatColor.RED.toString() + "Endgame: " + plugin.redEndgame);
+				sb.put(9, ChatColor.RED + "Score: " + ChatColor.BOLD + plugin.redScore);
+				sb.put(8, ChatColor.RED + "Power Cells: " + plugin.redPC);
+				sb.put(7, ChatColor.RED + "Endgame: " + plugin.redEndgame);
 				sb.put(6, "  ");
 				sb.put(5, ChatColor.BLUE.toString() + ChatColor.BOLD + "Blue Alliance");
-				sb.put(4, ChatColor.BLUE.toString() + "Score: " + ChatColor.BOLD + plugin.blueScore);
-				sb.put(3, ChatColor.BLUE.toString() + "Power Cells: " + plugin.bluePC);
-				sb.put(2, ChatColor.BLUE.toString() + "Endgame: " + plugin.blueEndgame);
+				sb.put(4, ChatColor.BLUE + "Score: " + ChatColor.BOLD + plugin.blueScore);
+				sb.put(3, ChatColor.BLUE + "Power Cells: " + plugin.bluePC);
+				sb.put(2, ChatColor.BLUE + "Endgame: " + plugin.blueEndgame);
 				sb.put(1, "   ");
 				sb.put(0, ChatColor.GREEN + "mc.bottone.io");
 				break;

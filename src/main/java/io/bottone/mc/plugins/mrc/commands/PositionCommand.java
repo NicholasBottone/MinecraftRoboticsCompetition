@@ -18,17 +18,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import io.bottone.mc.plugins.mrc.MRC;
+import org.jetbrains.annotations.NotNull;
 
 public class PositionCommand implements CommandExecutor {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public PositionCommand(MRC plugin) {
 		this.plugin = plugin;
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
 		if (!(sender instanceof Player)) {
 
 			sender.sendMessage(MRC.PREFIX + "Must be a player to do that!");
@@ -76,71 +77,90 @@ public class PositionCommand implements CommandExecutor {
 			}
 
 			if (plugin.playerPositions.containsValue(pos)) {
-				if (plugin.playerPositions.get(player).equals(pos)) {
-					player.sendMessage(MRC.PREFIX + "Unclaimed your position.");
-					removeOldPosSel(player);
-					plugin.spectators.add(player);
-					player.setAllowFlight(false);
-					player.getInventory().setArmorContents(null);
-					return true;
-				}
-
-				player.sendMessage(MRC.PREFIX + "That spot is already taken!");
+				handlePositionTaken(player, pos);
 				return true;
 			}
-			removeOldPosSel(player);
-			plugin.playerPositions.put(player, pos);
-			Color team;
-			if (args[0].toLowerCase().startsWith("red")) {
-				plugin.redPlayers.add(player);
-				team = Color.RED;
-			} else {
-				plugin.bluePlayers.add(player);
-				team = Color.BLUE;
-			}
-			sign.setLine(3, player.getName());
-			sign.update();
 
-			plugin.players.add(player);
-			plugin.spectators.remove(player);
-
-			player.setAllowFlight(false);
-
-			// Give players their colored armor
-			ItemStack armor = new ItemStack(Material.LEATHER_BOOTS);
-			LeatherArmorMeta lameta = (LeatherArmorMeta) armor.getItemMeta();
-			lameta.setColor(team);
-			armor.setItemMeta(lameta);
-			player.getInventory().setBoots(armor);
-
-			armor = new ItemStack(Material.LEATHER_LEGGINGS);
-			lameta = (LeatherArmorMeta) armor.getItemMeta();
-			lameta.setColor(team);
-			armor.setItemMeta(lameta);
-			player.getInventory().setLeggings(armor);
-
-			armor = new ItemStack(Material.LEATHER_HELMET);
-			lameta = (LeatherArmorMeta) armor.getItemMeta();
-			lameta.setColor(team);
-			armor.setItemMeta(lameta);
-			player.getInventory().setHelmet(armor);
-
-			armor = new ItemStack(Material.LEATHER_CHESTPLATE);
-			lameta = (LeatherArmorMeta) armor.getItemMeta();
-			lameta.setColor(team);
-			armor.setItemMeta(lameta);
-			player.getInventory().setChestplate(armor);
-
-			player.sendMessage(MRC.PREFIX + "Claimed a position in the upcoming match.");
-			return true;
+			claimNewPosition(args, player, pos, sign);
 
 		} else {
 
 			player.sendMessage(MRC.PREFIX + "You can't do that right now!");
-			return true;
 
 		}
+		return true;
 
+	}
+
+	private void claimNewPosition(String[] args, Player player, Location pos, Sign sign) {
+		removeOldPosSel(player);
+		plugin.playerPositions.put(player, pos);
+		Color team;
+		if (args[0].toLowerCase().startsWith("red")) {
+			plugin.redPlayers.add(player);
+			team = Color.RED;
+		} else {
+			plugin.bluePlayers.add(player);
+			team = Color.BLUE;
+		}
+		sign.setLine(3, player.getName());
+		sign.update();
+
+		plugin.players.add(player);
+		plugin.spectators.remove(player);
+
+		player.setAllowFlight(false);
+
+		// Give players their colored armor
+		giveColoredTeamArmor(player, team);
+
+		player.sendMessage(MRC.PREFIX + "Claimed a position in the upcoming match.");
+	}
+
+	private void handlePositionTaken(Player player, Location pos) {
+		if (plugin.playerPositions.get(player).equals(pos)) {
+			player.sendMessage(MRC.PREFIX + "Unclaimed your position.");
+			removeOldPosSel(player);
+			plugin.spectators.add(player);
+			player.setAllowFlight(false);
+			player.getInventory().setArmorContents(null);
+		} else {
+			player.sendMessage(MRC.PREFIX + "That spot is already taken!");
+		}
+	}
+
+	private void giveColoredTeamArmor(Player player, Color team) {
+		ItemStack armor = new ItemStack(Material.LEATHER_BOOTS);
+		LeatherArmorMeta lameta = (LeatherArmorMeta) armor.getItemMeta();
+		if (lameta != null) {
+			lameta.setColor(team);
+		}
+		armor.setItemMeta(lameta);
+		player.getInventory().setBoots(armor);
+
+		armor = new ItemStack(Material.LEATHER_LEGGINGS);
+		lameta = (LeatherArmorMeta) armor.getItemMeta();
+		if (lameta != null) {
+			lameta.setColor(team);
+		}
+		armor.setItemMeta(lameta);
+		player.getInventory().setLeggings(armor);
+
+		armor = new ItemStack(Material.LEATHER_HELMET);
+		lameta = (LeatherArmorMeta) armor.getItemMeta();
+		if (lameta != null) {
+			lameta.setColor(team);
+		}
+		armor.setItemMeta(lameta);
+		player.getInventory().setHelmet(armor);
+
+		armor = new ItemStack(Material.LEATHER_CHESTPLATE);
+		lameta = (LeatherArmorMeta) armor.getItemMeta();
+		if (lameta != null) {
+			lameta.setColor(team);
+		}
+		armor.setItemMeta(lameta);
+		player.getInventory().setChestplate(armor);
 	}
 
 	private void removeOldPosSel(Player player) {

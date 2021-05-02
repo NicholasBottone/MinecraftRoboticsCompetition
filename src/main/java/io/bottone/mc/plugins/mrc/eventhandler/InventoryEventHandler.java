@@ -6,22 +6,26 @@
 
 package io.bottone.mc.plugins.mrc.eventhandler;
 
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.GameState;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Dropper;
+import org.bukkit.block.ShulkerBox;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.inventory.ItemStack;
 
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.enums.PlayerClass;
+import java.util.Objects;
 
 public class InventoryEventHandler implements Listener {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public InventoryEventHandler(MRC plugin) {
 
@@ -31,7 +35,9 @@ public class InventoryEventHandler implements Listener {
 
 	@EventHandler
 	public void onInventoryOpen(InventoryOpenEvent event) {
-		if (event.getPlayer().getGameMode() == GameMode.CREATIVE)
+
+		Player player = (Player) event.getPlayer();
+		if (player.getGameMode() == GameMode.CREATIVE)
 			return;
 
 		event.setCancelled(true);
@@ -39,50 +45,86 @@ public class InventoryEventHandler implements Listener {
 		if (plugin.gameState != GameState.INGAME)
 			return;
 
-		int arrows = 0;
-		for (ItemStack item : event.getPlayer().getInventory().getContents()) {
-			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL))
-				arrows += item.getAmount();
-		}
-
-		int maxArrows = 5;
-		switch (plugin.playerClasses.get(event.getPlayer())) {
-		case BOW:
-		case CROSSBOW:
-			maxArrows = 5;
-			break;
-		case SNOWBALL:
-			maxArrows = 3;
-			break;
-		case INSTACLIMB:
-			maxArrows = 4;
-			break;
-		}
-
-		if (arrows >= maxArrows) {
+		if (event.getInventory().getHolder() instanceof Dispenser ||
+				event.getInventory().getHolder() instanceof Dropper) {
+			takeCellFromLoadingBay(event, player);
 			return;
 		}
 
-		if (event.getInventory().contains(Material.RED_WOOL) && plugin.redPlayers.contains(event.getPlayer())
+		if (event.getInventory().getHolder() instanceof ShulkerBox) {
+			dumpInLowGoal(event, player);
+		}
+
+	}
+
+	private void dumpInLowGoal(InventoryOpenEvent event, Player player) {
+
+		int powerCells = plugin.arena.getPowerCellCount(player);
+
+		if (event.getInventory().contains(Material.RED_WOOL) && powerCells > 0) {
+			// Score power cells in the low goal for the red alliance
+			for (int i = 0; i < powerCells; i++) {
+				if (plugin.redPlayers.contains(player)) {
+					plugin.playerData.get(player).addLower(plugin.countdown > 135);
+				}
+
+				plugin.redScore += (plugin.countdown > 135) ? 2 : 1;
+				plugin.world.playSound(Objects.requireNonNull(event.getInventory().getLocation()),
+						Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 100, 1);
+				plugin.redPC++;
+
+				if (plugin.blueBay < 15) {
+					plugin.blueBay++;
+				} else {
+					plugin.arena.spawnRandomPC();
+				}
+			}
+		}
+
+		if (event.getInventory().contains(Material.BLUE_WOOL) && powerCells > 0) {
+			// Score power cells in the low goal for the blue alliance
+			for (int i = 0; i < powerCells; i++) {
+				if (plugin.bluePlayers.contains(player)) {
+					plugin.playerData.get(player).addLower(plugin.countdown > 135);
+				}
+
+				plugin.blueScore += (plugin.countdown > 135) ? 2 : 1;
+				plugin.world.playSound(Objects.requireNonNull(event.getInventory().getLocation()),
+						Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 100, 1);
+				plugin.bluePC++;
+
+				if (plugin.redBay < 15) {
+					plugin.redBay++;
+				} else {
+					plugin.arena.spawnRandomPC();
+				}
+			}
+		}
+
+		// Remove power cells from inventory
+		plugin.arena.clearPowerCellsFromPlayer(player);
+
+	}
+
+	private void takeCellFromLoadingBay(InventoryOpenEvent event, Player player) {
+
+		if (!plugin.arena.canPickupPowerCell(player))
+			return;
+
+		if (event.getInventory().contains(Material.RED_WOOL) && plugin.redPlayers.contains(player)
 				&& plugin.redBay > 0) {
 			plugin.redBay--;
-			if (plugin.playerClasses.get(event.getPlayer()) == PlayerClass.SNOWBALL)
-				plugin.arena.givePowerCells(event.getPlayer(), 1, Material.SNOWBALL);
-			else
-				plugin.arena.givePowerCells(event.getPlayer(), 1, Material.ARROW);
+			plugin.arena.givePowerCells(player, 1);
+			plugin.redBayLine.setText(plugin.redBay + " Power Cells");
 		}
 
-		if (event.getInventory().contains(Material.BLUE_WOOL) && plugin.bluePlayers.contains(event.getPlayer())
+		if (event.getInventory().contains(Material.BLUE_WOOL) && plugin.bluePlayers.contains(player)
 				&& plugin.blueBay > 0) {
 			plugin.blueBay--;
-			if (plugin.playerClasses.get(event.getPlayer()) == PlayerClass.SNOWBALL)
-				plugin.arena.givePowerCells(event.getPlayer(), 1, Material.SNOWBALL);
-			else
-				plugin.arena.givePowerCells(event.getPlayer(), 1, Material.ARROW);
+			plugin.arena.givePowerCells(player, 1);
+			plugin.blueBayLine.setText(plugin.blueBay + " Power Cells");
 		}
 
-		plugin.redBayLine.setText(plugin.redBay + " Power Cells");
-		plugin.blueBayLine.setText(plugin.blueBay + " Power Cells");
 	}
 
 	@EventHandler

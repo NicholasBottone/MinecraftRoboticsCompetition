@@ -7,5 +7,5 @@
 package io.bottone.mc.plugins.mrc.enums;
 
 public enum PlayerClass {
-	BOW, CROSSBOW, SNOWBALL, INSTACLIMB
+	BOW, CROSSBOW, SNOWBALL, INSTACLIMB, TRIDENT
 }

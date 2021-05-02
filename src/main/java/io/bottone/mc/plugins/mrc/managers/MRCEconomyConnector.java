@@ -29,13 +29,13 @@ public class MRCEconomyConnector {
 		} else {
 
 			// Hook Vault economy
-
-			RegisteredServiceProvider<Economy> rspe = plugin.getServer().getServicesManager()
+			RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager()
 					.getRegistration(Economy.class);
-			plugin.econ = rspe.getProvider();
-			if (plugin.econ == null) {
+
+			if (economyProvider == null) {
 				plugin.l.log(Level.WARNING, "Unable to hook with Vault economy, disabling economy based functions!");
 			} else {
+				plugin.econ = economyProvider.getProvider();
 				plugin.l.log(Level.INFO,
 						"MRC successfully hooked to Vault economy: " + plugin.econ.getName() + " (2/7)");
 			}

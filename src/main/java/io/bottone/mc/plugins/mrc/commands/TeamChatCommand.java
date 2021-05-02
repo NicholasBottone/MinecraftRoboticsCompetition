@@ -13,17 +13,18 @@ import org.bukkit.entity.Player;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import net.md_5.bungee.api.ChatColor;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamChatCommand implements CommandExecutor {
 	
-	private MRC plugin;
+	private final MRC plugin;
 
 	public TeamChatCommand(MRC plugin) {
 		this.plugin = plugin;
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
 		if (!(sender instanceof Player)) {
 
 			sender.sendMessage(MRC.PREFIX + "Must be a player to do that!");
@@ -36,7 +37,7 @@ public class TeamChatCommand implements CommandExecutor {
 		
 		Player player = (Player) sender;
 		
-		String message = ChatColor.GREEN + "[Team Chat] " + player.getName() + " " + ChatColor.RESET + String.join(" ", args);
+		String message = ChatColor.GREEN + "[Team Chat] " + player.getDisplayName() + " " + ChatColor.RESET + String.join(" ", args);
 		
 		if (plugin.redPlayers.contains(player)) {
 			for (Player p : plugin.redPlayers) {
