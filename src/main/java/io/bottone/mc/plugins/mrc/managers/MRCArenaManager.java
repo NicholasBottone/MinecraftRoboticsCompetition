@@ -6,14 +6,6 @@
 
 package io.bottone.mc.plugins.mrc.managers;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -25,8 +17,15 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
-
 import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.PlayerClass;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class MRCArenaManager {
 
@@ -164,7 +163,20 @@ public class MRCArenaManager {
 				arrowStack);
 	}
 
-	public void givePowerCells(HumanEntity player, int number, Material material) {
+	public void givePowerCells(Player player, int number) {
+		Material material;
+		switch (plugin.playerClasses.get(player)) {
+			case SNOWBALL:
+				material = Material.SNOWBALL;
+				break;
+			case TRIDENT:
+				material = Material.TRIDENT;
+				break;
+			default:
+				material = Material.ARROW;
+				break;
+		}
+
 		ItemStack powerCellStack = new ItemStack(material, number);
 
 		ItemMeta meta = powerCellStack.getItemMeta();
@@ -173,6 +185,11 @@ public class MRCArenaManager {
 		}
 		powerCellStack.setItemMeta(meta);
 
+		if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT && plugin.countdown <= 30) {
+			// tridents should have riptide during endgame
+			powerCellStack.addEnchantment(Enchantment.RIPTIDE, 1);
+		}
+
 		player.getInventory().addItem(powerCellStack);
 	}
 
@@ -180,7 +197,8 @@ public class MRCArenaManager {
 		int powerCells = 0;
 		for (ItemStack item : player.getInventory().getContents()) {
 			//noinspection ConstantConditions
-			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL))
+			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL)
+					|| item.getType() == Material.TRIDENT)
 				powerCells += item.getAmount();
 		}
 		return powerCells;
@@ -195,6 +213,7 @@ public class MRCArenaManager {
 			case CROSSBOW:
 				maxPowerCells = 5;
 				break;
+			case TRIDENT:
 			case SNOWBALL:
 				maxPowerCells = 3;
 				break;
@@ -209,6 +228,7 @@ public class MRCArenaManager {
 	public void clearPowerCellsFromPlayer(Player player) {
 		player.getInventory().remove(Material.ARROW);
 		player.getInventory().remove(Material.SNOWBALL);
+		player.getInventory().remove(Material.TRIDENT);
 	}
 
 }

@@ -66,6 +66,9 @@ public class ClassCommand implements CommandExecutor {
 		case "snowball":
 			plugin.playerClasses.put(player, PlayerClass.SNOWBALL);
 			break;
+		case "trident":
+			plugin.playerClasses.put(player, PlayerClass.TRIDENT);
+				break;
 		default:
 			return false;
 		}

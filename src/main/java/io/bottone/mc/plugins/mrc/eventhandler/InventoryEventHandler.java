@@ -8,7 +8,6 @@ package io.bottone.mc.plugins.mrc.eventhandler;
 
 import io.bottone.mc.plugins.mrc.MRC;
 import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -115,24 +114,14 @@ public class InventoryEventHandler implements Listener {
 		if (event.getInventory().contains(Material.RED_WOOL) && plugin.redPlayers.contains(player)
 				&& plugin.redBay > 0) {
 			plugin.redBay--;
-			if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL)
-				plugin.arena.givePowerCells(player, 1, Material.SNOWBALL);
-			else
-				plugin.arena.givePowerCells(player, 1, Material.ARROW);
-
+			plugin.arena.givePowerCells(player, 1);
 			plugin.redBayLine.setText(plugin.redBay + " Power Cells");
 		}
 
 		if (event.getInventory().contains(Material.BLUE_WOOL) && plugin.bluePlayers.contains(player)
 				&& plugin.blueBay > 0) {
 			plugin.blueBay--;
-			if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL) {
-				plugin.arena.givePowerCells(player, 1, Material.SNOWBALL);
-			}
-			else {
-				plugin.arena.givePowerCells(player, 1, Material.ARROW);
-			}
-
+			plugin.arena.givePowerCells(player, 1);
 			plugin.blueBayLine.setText(plugin.blueBay + " Power Cells");
 		}
 

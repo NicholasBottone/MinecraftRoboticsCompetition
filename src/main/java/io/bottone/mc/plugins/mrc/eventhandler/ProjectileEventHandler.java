@@ -137,7 +137,8 @@ public class ProjectileEventHandler implements Listener {
 		if (shooter instanceof Player) {
 
 			if (plugin.playerClasses.get(shooter) == PlayerClass.BOW
-					|| plugin.playerClasses.get(shooter) == PlayerClass.INSTACLIMB) {
+					|| plugin.playerClasses.get(shooter) == PlayerClass.INSTACLIMB
+					|| plugin.playerClasses.get(shooter) == PlayerClass.TRIDENT) {
 				Vector v = event.getEntity().getVelocity();
 				if (plugin.redPlayers.contains(shooter)) {
 					if (((Player) shooter).getLocation().getZ() < -12) {

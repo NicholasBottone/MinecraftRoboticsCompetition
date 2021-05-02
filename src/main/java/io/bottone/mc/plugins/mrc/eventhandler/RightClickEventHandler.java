@@ -6,17 +6,17 @@
 
 package io.bottone.mc.plugins.mrc.eventhandler;
 
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.GameState;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.enums.PlayerClass;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
@@ -76,9 +76,20 @@ public class RightClickEventHandler implements Listener {
 		player.getInventory().remove(Material.ACACIA_DOOR);
 		player.getInventory().remove(Material.BOW);
 		player.getInventory().remove(Material.CROSSBOW);
-		if (plugin.playerClasses.get(player) == PlayerClass.INSTACLIMB) {
-			// Instant hang, award points for hang
-			awardPointsForHang(player);
+		switch (plugin.playerClasses.get(player)) {
+			case INSTACLIMB:
+				// Instant hang, award points for hang
+				awardPointsForHang(player);
+				break;
+			case TRIDENT:
+				// Enchant all tridents with riptide
+				for (ItemStack item : player.getInventory().getContents()) {
+					//noinspection ConstantConditions
+					if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL)
+							|| item.getType() == Material.TRIDENT)
+						item.addEnchantment(Enchantment.RIPTIDE, 1);
+				}
+				break;
 		}
 	}
 

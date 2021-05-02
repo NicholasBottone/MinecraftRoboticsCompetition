@@ -53,6 +53,10 @@ public class MRCPlayerData {
 		return shots;
 	}
 
+	public int getMisses() {
+		return shots - (inners + outers + lowers);
+	}
+
 	public int getInners() {
 		return inners;
 	}
@@ -71,13 +75,13 @@ public class MRCPlayerData {
 
 	@Override
 	public String toString() {
-		return String.format("%s: %d pts, %d%% acc (%dI/%dO/%dL)", playerName, pointsContributed, getAccuracyPercent(),
-				getInners(), getOuters(), getLowers());
+		return String.format("%s: %d pts, %d%% acc (%dI / %dO / %dL / %dM)", playerName, pointsContributed,
+				getAccuracyPercent(), getInners(), getOuters(), getLowers(), getMisses());
 	}
 
 	public int getAccuracyPercent() {
 		// 100 represents 100%
-		return (int) (((inners + outers) / (double) shots) * 100);
+		return (int) (((inners + outers + lowers) / (double) shots) * 100);
 	}
 
 	public int getInnersPercent() {

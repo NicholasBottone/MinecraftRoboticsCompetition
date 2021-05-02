@@ -6,6 +6,11 @@
 
 package io.bottone.mc.plugins.mrc.gametick;
 
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.GameState;
+import io.bottone.mc.plugins.mrc.managers.MRCPlayerData;
+import io.bottone.mc.plugins.mrc.managers.MRCTitleManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,14 +21,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
-
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.enums.PlayerClass;
-import io.bottone.mc.plugins.mrc.managers.MRCPlayerData;
-import io.bottone.mc.plugins.mrc.managers.MRCTitleManager;
 
 public class CountdownTick {
 
@@ -102,10 +99,7 @@ public class CountdownTick {
 			plugin.playerData.put(player, new MRCPlayerData(player.getName()));
 
 			// Give players their 3 starting power cells
-			if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL)
-				plugin.arena.givePowerCells(player, 3, Material.SNOWBALL);
-			else
-				plugin.arena.givePowerCells(player, 3, Material.ARROW);
+			plugin.arena.givePowerCells(player, 3);
 
 			// Teleport players to their positions
 			player.teleport(position);
@@ -166,20 +160,18 @@ public class CountdownTick {
 				crossbow.setItemMeta(crossbowMeta);
 				player.getInventory().addItem(crossbow);
 				break;
-			case SNOWBALL: // intentionally blank
-				break;
-			}
+			} // SNOWBALL and TRIDENT classes will be given their items when the game starts
 
 			// Teleport players to their positions
 			player.teleport(position);
 			plugin.world.spawnEntity(position, EntityType.BOAT).addPassenger(player);
 
 			if (plugin.redPlayers.contains(player)) {
-				player.sendMessage(
-						MRC.PREFIX + "You are competing on the " + ChatColor.RED + ChatColor.BOLD + "RED ALLIANCE");
+				player.sendMessage(String.format("%sYou are competing on the %s%sRED ALLIANCE",
+								MRC.PREFIX, ChatColor.RED, ChatColor.BOLD));
 			} else {
-				player.sendMessage(MRC.PREFIX + "You are competing on the " + ChatColor.BLUE + ChatColor.BOLD
-						+ "BLUE ALLIANCE");
+				player.sendMessage(String.format("%sYou are competing on the %s%sBLUE ALLIANCE",
+						MRC.PREFIX, ChatColor.BLUE, ChatColor.BOLD));
 			}
 
 		}
@@ -196,8 +188,8 @@ public class CountdownTick {
 		for (Player player : plugin.bluePlayers) {
 			blueString.append(player.getName()).append(" ");
 		}
-		plugin.getServer().broadcastMessage(
-				MRC.PREFIX + ChatColor.RED + redString + ChatColor.WHITE + "VS " + ChatColor.BLUE + blueString);
+		plugin.getServer().broadcastMessage(String.format("%s%s%s%sVS %s%s",
+						MRC.PREFIX, ChatColor.RED, redString, ChatColor.WHITE, ChatColor.BLUE, blueString));
 
 		plugin.joinable = false;
 		plugin.countdown = 10;

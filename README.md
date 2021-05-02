@@ -33,7 +33,7 @@
 | Command | Arguments | Description | Permission |
 | --- | --- | --- | --- |
 | `/pos` | `redleft`, `redcenter`, `redright`, `blueleft`, `bluecenter`, `blueright` | Claim a starting position in the match | (all players) |
-| `/class` | `bow`, `crossbow`, `snowball`, `instaclimb` | Select a class in the match | (all players) |
+| `/class` | `bow`, `crossbow`, `snowball`, `instaclimb`, `trident` | Select a class in the match | (all players) |
 | `/pb` | | Displays the player's personal best score | (all players) |
 | `/wr` | | Display a list of the world records | (all players + console) |
 | `/reloadrecords` | | Reloads the config.yml | `mrc.fta` |

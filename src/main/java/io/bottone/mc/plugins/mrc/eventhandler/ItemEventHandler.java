@@ -47,11 +47,15 @@ public class ItemEventHandler implements Listener {
 		Player player = (Player) event.getEntity();
 
 		if (!plugin.arena.canPickupPowerCell(player)) {
+			// if inventory is full, do not pickup
 			event.setCancelled(true);
-		} else if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL) {
+			return;
+		}
+
+		if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL ||
+				plugin.playerClasses.get(player) == PlayerClass.TRIDENT) {
 			event.setCancelled(true);
-			plugin.arena.givePowerCells(player, event.getItem().getItemStack().getAmount(),
-					Material.SNOWBALL);
+			plugin.arena.givePowerCells(player, event.getItem().getItemStack().getAmount());
 			event.getItem().remove();
 		}
 
