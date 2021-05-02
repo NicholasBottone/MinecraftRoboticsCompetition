@@ -12,7 +12,8 @@ import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Chest;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Dropper;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,7 +46,8 @@ public class InventoryEventHandler implements Listener {
 		if (plugin.gameState != GameState.INGAME)
 			return;
 
-		if (event.getInventory().getHolder() instanceof Chest) {
+		if (event.getInventory().getHolder() instanceof Dispenser ||
+				event.getInventory().getHolder() instanceof Dropper) {
 			takeCellFromLoadingBay(event, player);
 			return;
 		}
