@@ -6,17 +6,14 @@
 
 package io.bottone.mc.plugins.mrc.gametick;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.GameState;
+import io.bottone.mc.plugins.mrc.managers.MRCPlayerData;
+import io.bottone.mc.plugins.mrc.managers.MRCTitleManager;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.managers.MRCTitleManager;
 
 public class IngameTick {
 
@@ -121,7 +118,6 @@ public class IngameTick {
 		for (Player p : plugin.playerData.keySet()) {
 			MRCPlayerData pd = plugin.playerData.get(p);
 			plugin.getServer().broadcastMessage(MRC.PREFIX + pd);
-			plugin.records.submitScore(p, pd.getPointsContributed());
 		}
 	}
 
