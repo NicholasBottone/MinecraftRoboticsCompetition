@@ -170,8 +170,8 @@ public class MRCArenaManager {
 				material = Material.SNOWBALL;
 				break;
 			case TRIDENT:
-				material = Material.TRIDENT;
-				break;
+				giveTridentPowerCells(player, number);
+				return;
 			default:
 				material = Material.ARROW;
 				break;
@@ -185,12 +185,26 @@ public class MRCArenaManager {
 		}
 		powerCellStack.setItemMeta(meta);
 
-		if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT && !player.isInsideVehicle()) {
-			// tridents should have riptide during endgame
-			powerCellStack.addEnchantment(Enchantment.RIPTIDE, 1);
-		}
-
 		player.getInventory().addItem(powerCellStack);
+	}
+
+	private void giveTridentPowerCells(Player player, int number) {
+		for (int i = 0; i < number; i++) {
+			ItemStack powerCellStack = new ItemStack(Material.TRIDENT, 1);
+
+			ItemMeta meta = powerCellStack.getItemMeta();
+			if (meta != null) {
+				meta.setDisplayName("Power Cell");
+			}
+			powerCellStack.setItemMeta(meta);
+
+			if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT && !player.isInsideVehicle()) {
+				// tridents should have riptide during endgame
+				powerCellStack.addEnchantment(Enchantment.RIPTIDE, 1);
+			}
+
+			player.getInventory().addItem(powerCellStack);
+		}
 	}
 
 	public int getPowerCellCount(Player player) {
