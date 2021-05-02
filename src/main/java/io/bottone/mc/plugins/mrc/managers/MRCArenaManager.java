@@ -197,8 +197,8 @@ public class MRCArenaManager {
 		int powerCells = 0;
 		for (ItemStack item : player.getInventory().getContents()) {
 			//noinspection ConstantConditions
-			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL)
-					|| item.getType() == Material.TRIDENT)
+			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL ||
+					item.getType() == Material.TRIDENT))
 				powerCells += item.getAmount();
 		}
 		return powerCells;
