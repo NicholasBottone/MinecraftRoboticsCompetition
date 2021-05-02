@@ -84,16 +84,26 @@ public class CountdownTick {
 		plugin.countdown = 150;
 		plugin.getServer().broadcastMessage(MRC.PREFIX + "Let the match begin!");
 
-		for (Player player : plugin.players) {
+		// Prepare all players for the match
+		preparePlayersForMatch(plugin);
+
+		// Spawn initial power cells on the field
+		spawnFieldPowerCells(plugin);
+
+		// Setup the loading bay chest holograms
+		setupLoadingBayHolograms(plugin);
+	}
+
+	private static void preparePlayersForMatch(MRC plugin) {
+		for (Player player : plugin.playerPositions.keySet()) {
+			Location position = plugin.playerPositions.get(player);
+
+			// Kill player's old boat
 			Entity e = player.getVehicle();
 			if (e != null) {
 				plugin.killedBoats.add(e.getUniqueId());
 				e.remove();
 			}
-		}
-
-		for (Player player : plugin.playerPositions.keySet()) {
-			Location position = plugin.playerPositions.get(player);
 
 			// Init player data
 			plugin.playerData.put(player, new MRCPlayerData(player.getName()));
@@ -101,23 +111,13 @@ public class CountdownTick {
 			// Give players their 3 starting power cells
 			plugin.arena.givePowerCells(player, 3);
 
-			// Teleport players to their positions
+			// Teleport players to their positions and spawn new boat
 			player.teleport(position);
 			plugin.world.spawnEntity(position, EntityType.BOAT).addPassenger(player);
 		}
+	}
 
-		// Spawn initial power cells on the field
-		ItemStack arrowStack = new ItemStack(Material.ARROW);
-		ItemMeta meta = arrowStack.getItemMeta();
-		if (meta != null) {
-			meta.setDisplayName("Power Cell");
-		}
-		arrowStack.setItemMeta(meta);
-		for (Location loc : plugin.powerCellSpots) {
-			plugin.world.dropItem(loc, arrowStack).setVelocity(new Vector(0, 0, 0));
-		}
-
-		// Setup the loading bay chest holograms
+	private static void setupLoadingBayHolograms(MRC plugin) {
 		plugin.redBayHolo = HologramsAPI.createHologram(plugin, plugin.redBayLoc);
 		plugin.blueBayHolo = HologramsAPI.createHologram(plugin, plugin.blueBayLoc);
 
@@ -128,53 +128,23 @@ public class CountdownTick {
 		plugin.blueBayHolo.appendItemLine(new ItemStack(Material.ARROW));
 	}
 
+	private static void spawnFieldPowerCells(MRC plugin) {
+		ItemStack arrowStack = new ItemStack(Material.ARROW);
+		ItemMeta meta = arrowStack.getItemMeta();
+		if (meta != null) {
+			meta.setDisplayName("Power Cell");
+		}
+		arrowStack.setItemMeta(meta);
+		for (Location loc : plugin.powerCellSpots) {
+			plugin.world.dropItem(loc, arrowStack).setVelocity(new Vector(0, 0, 0));
+		}
+	}
+
 	private static void startFinalCountdown(MRC plugin) {
 		plugin.arena.clearEntities();
 
-		for (Player player : plugin.playerPositions.keySet()) {
-			Location position = plugin.playerPositions.get(player);
-
-			// Clear inventories
-			player.getInventory().remove(Material.IRON_DOOR);
-
-			// Give players their power cell shooters
-			switch (plugin.playerClasses.get(player)) {
-			case INSTACLIMB:
-			case BOW:
-				ItemStack bow = new ItemStack(Material.BOW, 1);
-				ItemMeta bowMeta = bow.getItemMeta();
-				if (bowMeta != null) {
-					bowMeta.setUnbreakable(true);
-					bowMeta.setDisplayName("Power Cell Shooter");
-				}
-				bow.setItemMeta(bowMeta);
-				player.getInventory().addItem(bow);
-				break;
-			case CROSSBOW:
-				ItemStack crossbow = new ItemStack(Material.CROSSBOW, 1);
-				ItemMeta crossbowMeta = crossbow.getItemMeta();
-				if (crossbowMeta != null) {
-					crossbowMeta.setUnbreakable(true);
-					crossbowMeta.setDisplayName("Power Cell Shooter");
-				}
-				crossbow.setItemMeta(crossbowMeta);
-				player.getInventory().addItem(crossbow);
-				break;
-			} // SNOWBALL and TRIDENT classes will be given their items when the game starts
-
-			// Teleport players to their positions
-			player.teleport(position);
-			plugin.world.spawnEntity(position, EntityType.BOAT).addPassenger(player);
-
-			if (plugin.redPlayers.contains(player)) {
-				player.sendMessage(String.format("%sYou are competing on the %s%sRED ALLIANCE",
-								MRC.PREFIX, ChatColor.RED, ChatColor.BOLD));
-			} else {
-				player.sendMessage(String.format("%sYou are competing on the %s%sBLUE ALLIANCE",
-						MRC.PREFIX, ChatColor.BLUE, ChatColor.BOLD));
-			}
-
-		}
+		// Prepare players for moving to the field
+		preparePlayersForField(plugin);
 
 		// Play sound
 		plugin.world.playSound(plugin.redRight, Sound.BLOCK_NOTE_BLOCK_BASS, 100, 1);
@@ -193,6 +163,57 @@ public class CountdownTick {
 
 		plugin.joinable = false;
 		plugin.countdown = 10;
+	}
+
+	private static void preparePlayersForField(MRC plugin) {
+		for (Player player : plugin.playerPositions.keySet()) {
+			Location position = plugin.playerPositions.get(player);
+
+			// Clear inventories
+			player.getInventory().remove(Material.IRON_DOOR);
+
+			// Give players their power cell shooters
+			givePlayerShooters(plugin, player);
+
+			// Teleport players to their positions
+			player.teleport(position);
+			plugin.world.spawnEntity(position, EntityType.BOAT).addPassenger(player);
+
+			if (plugin.redPlayers.contains(player)) {
+				player.sendMessage(String.format("%sYou are competing on the %s%sRED ALLIANCE",
+								MRC.PREFIX, ChatColor.RED, ChatColor.BOLD));
+			} else {
+				player.sendMessage(String.format("%sYou are competing on the %s%sBLUE ALLIANCE",
+						MRC.PREFIX, ChatColor.BLUE, ChatColor.BOLD));
+			}
+
+		}
+	}
+
+	private static void givePlayerShooters(MRC plugin, Player player) {
+		switch (plugin.playerClasses.get(player)) {
+		case INSTACLIMB:
+		case BOW:
+			ItemStack bow = new ItemStack(Material.BOW, 1);
+			ItemMeta bowMeta = bow.getItemMeta();
+			if (bowMeta != null) {
+				bowMeta.setUnbreakable(true);
+				bowMeta.setDisplayName("Power Cell Shooter");
+			}
+			bow.setItemMeta(bowMeta);
+			player.getInventory().addItem(bow);
+			break;
+		case CROSSBOW:
+			ItemStack crossbow = new ItemStack(Material.CROSSBOW, 1);
+			ItemMeta crossbowMeta = crossbow.getItemMeta();
+			if (crossbowMeta != null) {
+				crossbowMeta.setUnbreakable(true);
+				crossbowMeta.setDisplayName("Power Cell Shooter");
+			}
+			crossbow.setItemMeta(crossbowMeta);
+			player.getInventory().addItem(crossbow);
+			break;
+		} // SNOWBALL and TRIDENT classes will be given their items when the game starts
 	}
 
 }
