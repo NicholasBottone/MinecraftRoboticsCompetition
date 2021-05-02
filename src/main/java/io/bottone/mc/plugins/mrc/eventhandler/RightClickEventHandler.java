@@ -85,8 +85,8 @@ public class RightClickEventHandler implements Listener {
 				// Enchant all tridents with riptide
 				for (ItemStack item : player.getInventory().getContents()) {
 					//noinspection ConstantConditions
-					if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL)
-							|| item.getType() == Material.TRIDENT)
+					if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL
+							|| item.getType() == Material.TRIDENT))
 						item.addEnchantment(Enchantment.RIPTIDE, 1);
 				}
 				break;

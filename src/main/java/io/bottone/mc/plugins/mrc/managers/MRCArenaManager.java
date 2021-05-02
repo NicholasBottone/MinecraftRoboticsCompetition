@@ -185,7 +185,7 @@ public class MRCArenaManager {
 		}
 		powerCellStack.setItemMeta(meta);
 
-		if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT && plugin.countdown <= 30) {
+		if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT && !player.isInsideVehicle()) {
 			// tridents should have riptide during endgame
 			powerCellStack.addEnchantment(Enchantment.RIPTIDE, 1);
 		}
