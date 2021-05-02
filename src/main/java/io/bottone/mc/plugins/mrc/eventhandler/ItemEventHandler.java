@@ -6,22 +6,21 @@
 
 package io.bottone.mc.plugins.mrc.eventhandler;
 
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
-import org.bukkit.inventory.ItemStack;
-
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class ItemEventHandler implements Listener {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public ItemEventHandler(MRC plugin) {
 
@@ -35,7 +34,6 @@ public class ItemEventHandler implements Listener {
 			event.setCancelled(true);
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPickupArrow(PlayerPickupArrowEvent event) {
 		event.setCancelled(true);
@@ -46,32 +44,18 @@ public class ItemEventHandler implements Listener {
 		if (event.getItem().getItemStack().getType() != Material.ARROW || !(event.getEntity() instanceof HumanEntity))
 			return;
 
-		int arrows = 0;
-		for (ItemStack item : ((HumanEntity) event.getEntity()).getInventory().getContents()) {
-			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL))
-				arrows += item.getAmount();
+		Player player = (Player) event.getEntity();
+
+		if (!plugin.arena.canPickupPowerCell(player)) {
+			// if inventory is full, do not pickup
+			event.setCancelled(true);
+			return;
 		}
 
-		int maxArrows = 5;
-		switch (plugin.playerClasses.get(event.getEntity())) {
-		case BOW:
-		case CROSSBOW:
-			maxArrows = 5;
-			break;
-		case SNOWBALL:
-			maxArrows = 3;
-			break;
-		case INSTACLIMB:
-			maxArrows = 4;
-			break;
-		}
-
-		if (arrows >= maxArrows) {
+		if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL ||
+				plugin.playerClasses.get(player) == PlayerClass.TRIDENT) {
 			event.setCancelled(true);
-		} else if (plugin.playerClasses.get(event.getEntity()) == PlayerClass.SNOWBALL) {
-			event.setCancelled(true);
-			plugin.arena.givePowerCells((HumanEntity) event.getEntity(), event.getItem().getItemStack().getAmount(),
-					Material.SNOWBALL);
+			plugin.arena.givePowerCells(player, event.getItem().getItemStack().getAmount());
 			event.getItem().remove();
 		}
 

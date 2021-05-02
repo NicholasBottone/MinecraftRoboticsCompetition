@@ -22,7 +22,7 @@ import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class PlayerEventHandler implements Listener {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public PlayerEventHandler(MRC plugin) {
 

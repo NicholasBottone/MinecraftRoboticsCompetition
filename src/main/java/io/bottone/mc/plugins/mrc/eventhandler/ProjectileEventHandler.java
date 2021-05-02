@@ -23,7 +23,7 @@ import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class ProjectileEventHandler implements Listener {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public ProjectileEventHandler(MRC plugin) {
 
@@ -37,6 +37,7 @@ public class ProjectileEventHandler implements Listener {
 			return;
 
 		Location loc = event.getEntity().getLocation();
+		ProjectileSource shooter = event.getEntity().getShooter();
 
 		if (event.getHitBlock() != null) {
 
@@ -44,9 +45,9 @@ public class ProjectileEventHandler implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_TERRACOTTA) {
 				// OUTER PORT
 
-				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player
-						&& plugin.redPlayers.contains(event.getEntity().getShooter()))
-					plugin.playerData.get(event.getEntity().getShooter()).addOuter(plugin.countdown > 135);
+				if (shooter instanceof Player
+						&& plugin.redPlayers.contains(shooter))
+					plugin.playerData.get(shooter).addOuter(plugin.countdown > 135);
 
 				plugin.redScore += (plugin.countdown > 135) ? 4 : 2;
 				plugin.world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
@@ -63,9 +64,9 @@ public class ProjectileEventHandler implements Listener {
 			if (event.getHitBlock().getType() == Material.RED_CONCRETE_POWDER) {
 				// INNER PORT
 
-				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player
-						&& plugin.redPlayers.contains(event.getEntity().getShooter()))
-					plugin.playerData.get(event.getEntity().getShooter()).addInner(plugin.countdown > 135);
+				if (shooter instanceof Player
+						&& plugin.redPlayers.contains(shooter))
+					plugin.playerData.get(shooter).addInner(plugin.countdown > 135);
 
 				plugin.redScore += (plugin.countdown > 135) ? 6 : 3;
 				plugin.world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
@@ -84,9 +85,9 @@ public class ProjectileEventHandler implements Listener {
 			if (event.getHitBlock().getType() == Material.BLUE_TERRACOTTA) {
 				// OUTER PORT
 
-				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player
-						&& plugin.bluePlayers.contains(event.getEntity().getShooter()))
-					plugin.playerData.get(event.getEntity().getShooter()).addOuter(plugin.countdown > 135);
+				if (shooter instanceof Player
+						&& plugin.bluePlayers.contains(shooter))
+					plugin.playerData.get(shooter).addOuter(plugin.countdown > 135);
 
 				plugin.blueScore += (plugin.countdown > 135) ? 4 : 2;
 				plugin.world.playSound(loc, Sound.ENTITY_ARROW_HIT_PLAYER, 100, 1);
@@ -103,9 +104,9 @@ public class ProjectileEventHandler implements Listener {
 			if (event.getHitBlock().getType() == Material.BLUE_CONCRETE_POWDER) {
 				// INNER PORT
 
-				if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player
-						&& plugin.bluePlayers.contains(event.getEntity().getShooter()))
-					plugin.playerData.get(event.getEntity().getShooter()).addInner(plugin.countdown > 135);
+				if (shooter instanceof Player
+						&& plugin.bluePlayers.contains(shooter))
+					plugin.playerData.get(shooter).addInner(plugin.countdown > 135);
 
 				plugin.blueScore += (plugin.countdown > 135) ? 6 : 3;
 				plugin.world.playSound(loc, Sound.BLOCK_ANVIL_LAND, 100, 1);
@@ -125,18 +126,19 @@ public class ProjectileEventHandler implements Listener {
 		// MISSED SHOT
 		plugin.arena.spawnRandomPC();
 		event.getEntity().remove();
-		if (event.getEntity().getShooter() != null && event.getEntity().getShooter() instanceof Player)
-			plugin.playerData.get(event.getEntity().getShooter()).addMiss();
+		if (shooter instanceof Player)
+			plugin.playerData.get(shooter).addMiss();
 
 	}
 
 	@EventHandler
 	public void onProjectileLaunch(ProjectileLaunchEvent event) {
 		ProjectileSource shooter = event.getEntity().getShooter();
-		if (shooter != null && shooter instanceof Player) {
+		if (shooter instanceof Player) {
 
 			if (plugin.playerClasses.get(shooter) == PlayerClass.BOW
-					|| plugin.playerClasses.get(shooter) == PlayerClass.INSTACLIMB) {
+					|| plugin.playerClasses.get(shooter) == PlayerClass.INSTACLIMB
+					|| plugin.playerClasses.get(shooter) == PlayerClass.TRIDENT) {
 				Vector v = event.getEntity().getVelocity();
 				if (plugin.redPlayers.contains(shooter)) {
 					if (((Player) shooter).getLocation().getZ() < -12) {

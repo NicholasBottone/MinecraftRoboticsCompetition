@@ -1,9 +1,9 @@
 name: MRC-Pits
-version: 20.12.28
+version: 21.5.1-SNAPSHOT
 
 description: Runs the Minecraft Robotics Competition event pits.
 author: Nicholas Bottone
-website: https://mc.bottone.io
+website: https://secondrobotics.org/mrc
 
 main: io.bottone.mc.plugins.mrc.MRC
 database: false

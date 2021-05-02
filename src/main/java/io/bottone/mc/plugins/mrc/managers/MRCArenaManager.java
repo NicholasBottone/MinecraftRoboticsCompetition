@@ -6,14 +6,6 @@
 
 package io.bottone.mc.plugins.mrc.managers;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -25,12 +17,19 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
-
 import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.PlayerClass;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class MRCArenaManager {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public MRCArenaManager(MRC plugin) {
 		this.plugin = plugin;
@@ -38,13 +37,7 @@ public class MRCArenaManager {
 
 	public void resetArena() {
 		// Clear all lists
-		plugin.players.clear();
-		plugin.tempSpectators.clear();
-		plugin.redPlayers.clear();
-		plugin.bluePlayers.clear();
-		plugin.hungPlayers.clear();
-		plugin.playerData.clear();
-		plugin.playerPositions.clear();
+		clearAllLists();
 
 		// Get rid of the holograms
 		if (plugin.redBayHolo != null) {
@@ -62,6 +55,20 @@ public class MRCArenaManager {
 		clearEntities();
 
 		// Reset position signs
+		resetPositionSigns();
+	}
+
+	private void clearAllLists() {
+		plugin.players.clear();
+		plugin.tempSpectators.clear();
+		plugin.redPlayers.clear();
+		plugin.bluePlayers.clear();
+		plugin.hungPlayers.clear();
+		plugin.playerData.clear();
+		plugin.playerPositions.clear();
+	}
+
+	private void resetPositionSigns() {
 		plugin.redLeftSign.setLine(3, "Click to claim");
 		plugin.redCenterSign.setLine(3, "Click to claim");
 		plugin.redRightSign.setLine(3, "Click to claim");
@@ -109,7 +116,6 @@ public class MRCArenaManager {
 		} catch (WorldEditException ex) {
 			plugin.l.severe("Could not WorldEdit paste blank!");
 			ex.printStackTrace();
-			return;
 		}
 
 	}
@@ -139,7 +145,6 @@ public class MRCArenaManager {
 		} catch (WorldEditException ex) {
 			plugin.l.severe("Could not WorldEdit paste vines!");
 			ex.printStackTrace();
-			return;
 		}
 
 	}
@@ -149,21 +154,95 @@ public class MRCArenaManager {
 		ItemStack arrowStack = new ItemStack(Material.ARROW);
 
 		ItemMeta meta = arrowStack.getItemMeta();
-		meta.setDisplayName("Power Cell");
+		if (meta != null) {
+			meta.setDisplayName("Power Cell");
+		}
 		arrowStack.setItemMeta(meta);
 
 		plugin.world.dropItemNaturally(new Location(plugin.world, MRC.random(-40, -24), 76, MRC.random(-19, 22)),
 				arrowStack);
 	}
 
-	public void givePowerCells(HumanEntity player, int number, Material material) {
-		ItemStack powercellStack = new ItemStack(material, number);
+	public void givePowerCells(Player player, int number) {
+		Material material;
+		switch (plugin.playerClasses.get(player)) {
+			case SNOWBALL:
+				material = Material.SNOWBALL;
+				break;
+			case TRIDENT:
+				giveTridentPowerCells(player, number);
+				return;
+			default:
+				material = Material.ARROW;
+				break;
+		}
 
-		ItemMeta meta = powercellStack.getItemMeta();
-		meta.setDisplayName("Power Cell");
-		powercellStack.setItemMeta(meta);
+		ItemStack powerCellStack = new ItemStack(material, number);
 
-		player.getInventory().addItem(powercellStack);
+		ItemMeta meta = powerCellStack.getItemMeta();
+		if (meta != null) {
+			meta.setDisplayName("Power Cell");
+		}
+		powerCellStack.setItemMeta(meta);
+
+		player.getInventory().addItem(powerCellStack);
+	}
+
+	private void giveTridentPowerCells(Player player, int number) {
+		for (int i = 0; i < number; i++) {
+			ItemStack powerCellStack = new ItemStack(Material.TRIDENT, 1);
+
+			ItemMeta meta = powerCellStack.getItemMeta();
+			if (meta != null) {
+				meta.setDisplayName("Power Cell");
+			}
+			powerCellStack.setItemMeta(meta);
+
+			if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT && !player.isInsideVehicle()) {
+				// tridents should have riptide during endgame
+				powerCellStack.addEnchantment(Enchantment.RIPTIDE, 1);
+			}
+
+			player.getInventory().addItem(powerCellStack);
+		}
+	}
+
+	public int getPowerCellCount(Player player) {
+		int powerCells = 0;
+		for (ItemStack item : player.getInventory().getContents()) {
+			//noinspection ConstantConditions
+			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL ||
+					item.getType() == Material.TRIDENT))
+				powerCells += item.getAmount();
+		}
+		return powerCells;
+	}
+
+	public boolean canPickupPowerCell(Player player) {
+		int powerCells = getPowerCellCount(player);
+
+		int maxPowerCells = 5;
+		switch (plugin.playerClasses.get(player)) {
+			case BOW:
+			case CROSSBOW:
+				maxPowerCells = 5;
+				break;
+			case TRIDENT:
+			case SNOWBALL:
+				maxPowerCells = 3;
+				break;
+			case INSTACLIMB:
+				maxPowerCells = 4;
+				break;
+		}
+
+		return powerCells < maxPowerCells;
+	}
+
+	public void clearPowerCellsFromPlayer(Player player) {
+		player.getInventory().remove(Material.ARROW);
+		player.getInventory().remove(Material.SNOWBALL);
+		player.getInventory().remove(Material.TRIDENT);
 	}
 
 }

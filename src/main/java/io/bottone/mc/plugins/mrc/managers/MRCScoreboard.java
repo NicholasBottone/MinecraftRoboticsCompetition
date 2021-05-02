@@ -12,13 +12,15 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.Objects;
+
 public class MRCScoreboard {
 
-	private Scoreboard s;
-	private Objective o1;
+	private final Scoreboard s;
+	private final Objective o1;
 
 	public MRCScoreboard(String title) {
-		s = Bukkit.getScoreboardManager().getNewScoreboard();
+		s = Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard();
 
 		o1 = s.registerNewObjective("dashboard1", "dummy", title);
 		o1.setDisplaySlot(DisplaySlot.SIDEBAR);

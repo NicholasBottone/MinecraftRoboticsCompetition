@@ -6,58 +6,52 @@
 
 package io.bottone.mc.plugins.mrc.gametick;
 
-import java.util.logging.Level;
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.managers.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.managers.MRCArenaManager;
-import io.bottone.mc.plugins.mrc.managers.MRCCommands;
-import io.bottone.mc.plugins.mrc.managers.MRCEconomyConnector;
-import io.bottone.mc.plugins.mrc.managers.MRCEvents;
-import io.bottone.mc.plugins.mrc.managers.MRCScoreboardManager;
+import java.util.logging.Level;
 
 public class MRCInit {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public MRCInit(MRC plugin) {
 
 		this.plugin = plugin;
 
 		// Waits 5 seconds / 100 ticks for worlds to load before init.
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
 
-			@Override
-			public void run() {
+			loadLocations();
+			plugin.l.log(Level.INFO, "Locations loaded (1/6)");
 
-				loadLocations();
-				plugin.l.log(Level.INFO, "Locations loaded (1/6)");
+			MRCEconomyConnector.hookVault(plugin);
+			// Vault economy hooked (2/6)
 
-				MRCEconomyConnector.hookVault(plugin);
-				// Vault economy hooked (2/6)
+			MRCEvents.registerEvents(plugin);
+			plugin.l.log(Level.INFO, "Events registered (3/6)");
 
-				MRCEvents.registerEvents(plugin);
-				plugin.l.log(Level.INFO, "Events registered (3/6)");
+			MRCCommands.registerCommands(plugin);
+			plugin.l.log(Level.INFO, "Commands registered (4/6)");
 
-				MRCCommands.registerCommands(plugin);
-				plugin.l.log(Level.INFO, "Commands registered (4/6)");
+			plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+			plugin.l.log(Level.INFO, "Bungeecord hooked (5/6)");
 
-				plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-				plugin.l.log(Level.INFO, "Bungeecord hooked (5/6)");
+			plugin.arena = new MRCArenaManager(plugin);
+			plugin.scoreboard = new MRCScoreboardManager(plugin);
+			plugin.l.log(Level.INFO, "Arena and Scoreboard managers initialized (6/6)");
 
-				plugin.arena = new MRCArenaManager(plugin);
-				plugin.scoreboard = new MRCScoreboardManager(plugin);
-				plugin.l.log(Level.INFO, "Arena and Scoreboard managers initialized (6/6)");
+			plugin.l.log(Level.INFO, "Setup completed and MRC activated! Starting game tick.");
+			plugin.l.log(Level.INFO, "*** MRC IS RUNNING IN EVENT PITS MODE ***");
+			new MRCGameTick(plugin);
 
-				plugin.l.log(Level.INFO, "Setup completed and MRC activated! Starting game tick.");
-				plugin.l.log(Level.INFO, "*** MRC IS RUNNING IN EVENT PITS MODE ***");
-				new MRCGameTick(plugin);
-
-			}
+			plugin.l.log(Level.INFO, "Setup completed and MRC activated! Starting game tick.");
+			new MRCGameTick(plugin);
 
 		}, 100);
 

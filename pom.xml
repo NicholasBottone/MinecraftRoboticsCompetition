@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.bottone.mc.plugins.mrc</groupId>
 	<artifactId>MRC-Pits</artifactId>
-	<version>20.12.28</version>
+	<version>21.5.1-SNAPSHOT</version>
 	<name>MinecraftRoboticsCompetition-Pits</name>
 	<build>
 		<plugins>
@@ -20,6 +20,11 @@
 		</plugins>
 	</build>
 	<repositories>
+		<repository>
+			<id>mvnrepository</id>
+			<name>Maven Central Repository</name>
+			<url>https://repo1.maven.org/maven2/</url>
+		</repository>
 		<repository>
 			<id>spigot-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -62,6 +67,11 @@
 		    <artifactId>worldedit-bukkit</artifactId>
 		    <version>7.1.0</version>
 		    <scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains</groupId>
+			<artifactId>annotations</artifactId>
+			<version>20.1.0</version>
 		</dependency>
 	</dependencies>
 </project>
