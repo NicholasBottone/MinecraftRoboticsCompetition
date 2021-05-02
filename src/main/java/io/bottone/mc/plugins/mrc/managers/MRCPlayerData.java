@@ -12,6 +12,7 @@ public class MRCPlayerData {
 	private int shots = 0;
 	private int inners = 0;
 	private int outers = 0;
+	private int lowers = 0;
 	private int pointsContributed = 0;
 
 	public MRCPlayerData(String playerName) {
@@ -20,6 +21,12 @@ public class MRCPlayerData {
 
 	public void addMiss() {
 		shots++;
+	}
+
+	public void addLower(boolean auto) {
+		shots++;
+		lowers++;
+		pointsContributed += auto ? 2 : 1;
 	}
 
 	public void addInner(boolean auto) {
@@ -54,14 +61,18 @@ public class MRCPlayerData {
 		return outers;
 	}
 
+	public int getLowers() {
+		return lowers;
+	}
+
 	public int getPointsContributed() {
 		return pointsContributed;
 	}
 
 	@Override
 	public String toString() {
-		return playerName + ": " + pointsContributed + " pts, " + getAccuracyPercent() + "% acc, " + getInnersPercent()
-				+ "% inners";
+		return String.format("%s: %d pts, %d%% acc (%dI/%dO/%dL)", playerName, pointsContributed, getAccuracyPercent(),
+				getInners(), getOuters(), getLowers());
 	}
 
 	public int getAccuracyPercent() {

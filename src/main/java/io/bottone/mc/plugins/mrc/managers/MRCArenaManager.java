@@ -30,7 +30,7 @@ import io.bottone.mc.plugins.mrc.MRC;
 
 public class MRCArenaManager {
 
-	private MRC plugin;
+	private final MRC plugin;
 
 	public MRCArenaManager(MRC plugin) {
 		this.plugin = plugin;
@@ -117,7 +117,6 @@ public class MRCArenaManager {
 		} catch (WorldEditException ex) {
 			plugin.l.severe("Could not WorldEdit paste blank!");
 			ex.printStackTrace();
-			return;
 		}
 
 	}
@@ -147,7 +146,6 @@ public class MRCArenaManager {
 		} catch (WorldEditException ex) {
 			plugin.l.severe("Could not WorldEdit paste vines!");
 			ex.printStackTrace();
-			return;
 		}
 
 	}
@@ -157,7 +155,9 @@ public class MRCArenaManager {
 		ItemStack arrowStack = new ItemStack(Material.ARROW);
 
 		ItemMeta meta = arrowStack.getItemMeta();
-		meta.setDisplayName("Power Cell");
+		if (meta != null) {
+			meta.setDisplayName("Power Cell");
+		}
 		arrowStack.setItemMeta(meta);
 
 		plugin.world.dropItemNaturally(new Location(plugin.world, MRC.random(-40, -24), 76, MRC.random(-19, 22)),
@@ -165,38 +165,50 @@ public class MRCArenaManager {
 	}
 
 	public void givePowerCells(HumanEntity player, int number, Material material) {
-		ItemStack powercellStack = new ItemStack(material, number);
+		ItemStack powerCellStack = new ItemStack(material, number);
 
-		ItemMeta meta = powercellStack.getItemMeta();
-		meta.setDisplayName("Power Cell");
-		powercellStack.setItemMeta(meta);
+		ItemMeta meta = powerCellStack.getItemMeta();
+		if (meta != null) {
+			meta.setDisplayName("Power Cell");
+		}
+		powerCellStack.setItemMeta(meta);
 
-		player.getInventory().addItem(powercellStack);
+		player.getInventory().addItem(powerCellStack);
 	}
 
-	public boolean canPickupArrow(Player player) {
-		int arrows = 0;
+	public int getPowerCellCount(Player player) {
+		int powerCells = 0;
 		for (ItemStack item : player.getInventory().getContents()) {
 			//noinspection ConstantConditions
 			if (item != null && (item.getType() == Material.ARROW || item.getType() == Material.SNOWBALL))
-				arrows += item.getAmount();
+				powerCells += item.getAmount();
 		}
+		return powerCells;
+	}
 
-		int maxArrows = 5;
+	public boolean canPickupPowerCell(Player player) {
+		int powerCells = getPowerCellCount(player);
+
+		int maxPowerCells = 5;
 		switch (plugin.playerClasses.get(player)) {
 			case BOW:
 			case CROSSBOW:
-				maxArrows = 5;
+				maxPowerCells = 5;
 				break;
 			case SNOWBALL:
-				maxArrows = 3;
+				maxPowerCells = 3;
 				break;
 			case INSTACLIMB:
-				maxArrows = 4;
+				maxPowerCells = 4;
 				break;
 		}
 
-		return arrows < maxArrows;
+		return powerCells < maxPowerCells;
+	}
+
+	public void clearPowerCellsFromPlayer(Player player) {
+		player.getInventory().remove(Material.ARROW);
+		player.getInventory().remove(Material.SNOWBALL);
 	}
 
 }

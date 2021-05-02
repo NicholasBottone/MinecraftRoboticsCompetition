@@ -46,7 +46,7 @@ public class ItemEventHandler implements Listener {
 
 		Player player = (Player) event.getEntity();
 
-		if (!plugin.arena.canPickupArrow(player)) {
+		if (!plugin.arena.canPickupPowerCell(player)) {
 			event.setCancelled(true);
 		} else if (plugin.playerClasses.get(player) == PlayerClass.SNOWBALL) {
 			event.setCancelled(true);
