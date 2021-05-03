@@ -170,41 +170,41 @@ public class MRCArenaManager {
 				material = Material.SNOWBALL;
 				break;
 			case TRIDENT:
-				giveTridentPowerCells(player, number);
-				return;
+				material = Material.TRIDENT;
+				break;
 			default:
 				material = Material.ARROW;
 				break;
 		}
 
-		ItemStack powerCellStack = new ItemStack(material, number);
+		ItemStack powerCellStack;
+
+		if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT) {
+			// If trident class, add new tridents to existing item stack
+			powerCellStack = getTridentItemStack(player);
+			if (powerCellStack != null) {
+				powerCellStack.setAmount(powerCellStack.getAmount() + number);
+				return;
+			} else {
+				powerCellStack = new ItemStack(material, number);
+			}
+		} else {
+			powerCellStack = new ItemStack(material, number);
+		}
 
 		ItemMeta meta = powerCellStack.getItemMeta();
 		if (meta != null) {
 			meta.setDisplayName("Power Cell");
+			meta.setUnbreakable(true);
 		}
 		powerCellStack.setItemMeta(meta);
 
-		player.getInventory().addItem(powerCellStack);
-	}
-
-	private void giveTridentPowerCells(Player player, int number) {
-		for (int i = 0; i < number; i++) {
-			ItemStack powerCellStack = new ItemStack(Material.TRIDENT, 1);
-
-			ItemMeta meta = powerCellStack.getItemMeta();
-			if (meta != null) {
-				meta.setDisplayName("Power Cell");
-			}
-			powerCellStack.setItemMeta(meta);
-
-			if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT && !player.isInsideVehicle()) {
-				// tridents should have riptide during endgame
-				powerCellStack.addEnchantment(Enchantment.RIPTIDE, 1);
-			}
-
-			player.getInventory().addItem(powerCellStack);
+		if (plugin.playerClasses.get(player) == PlayerClass.TRIDENT && !player.isInsideVehicle()) {
+			// tridents should have riptide during endgame
+			powerCellStack.addEnchantment(Enchantment.RIPTIDE, 1);
 		}
+
+		player.getInventory().addItem(powerCellStack);
 	}
 
 	public int getPowerCellCount(Player player) {
@@ -237,6 +237,16 @@ public class MRCArenaManager {
 		}
 
 		return powerCells < maxPowerCells;
+	}
+
+	public ItemStack getTridentItemStack(Player player) {
+		for (ItemStack item : player.getInventory().getContents()) {
+			//noinspection ConstantConditions
+			if (item != null && item.getType() == Material.TRIDENT) {
+				return item;
+			}
+		}
+		return null;
 	}
 
 	public void clearPowerCellsFromPlayer(Player player) {

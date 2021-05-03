@@ -6,20 +6,22 @@
 
 package io.bottone.mc.plugins.mrc.eventhandler;
 
+import io.bottone.mc.plugins.mrc.MRC;
+import io.bottone.mc.plugins.mrc.enums.GameState;
+import io.bottone.mc.plugins.mrc.enums.PlayerClass;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
-
-import io.bottone.mc.plugins.mrc.MRC;
-import io.bottone.mc.plugins.mrc.enums.GameState;
-import io.bottone.mc.plugins.mrc.enums.PlayerClass;
 
 public class ProjectileEventHandler implements Listener {
 
@@ -136,23 +138,42 @@ public class ProjectileEventHandler implements Listener {
 		ProjectileSource shooter = event.getEntity().getShooter();
 		if (shooter instanceof Player) {
 
+			// Nerf far projectile shots from bow, instaclimb, and trident classes
 			if (plugin.playerClasses.get(shooter) == PlayerClass.BOW
 					|| plugin.playerClasses.get(shooter) == PlayerClass.INSTACLIMB
 					|| plugin.playerClasses.get(shooter) == PlayerClass.TRIDENT) {
-				Vector v = event.getEntity().getVelocity();
-				if (plugin.redPlayers.contains(shooter)) {
-					if (((Player) shooter).getLocation().getZ() < -12) {
-						v.setY(0.25);
-					}
-				} else {
-					if (((Player) shooter).getLocation().getZ() > 15) {
-						v.setY(0.25);
+				nerfProjectileShot(event, (Player) shooter);
+			}
+
+			// Allow proper multi-stacks of tridents
+			if (event.getEntity().getType() == EntityType.TRIDENT) {
+				ItemStack itemStack = plugin.arena.getTridentItemStack((Player) shooter);
+				if (itemStack != null) {
+					int tridents = itemStack.getAmount();
+					if (tridents > 1) {
+						Bukkit.getServer().getScheduler().runTask(plugin, () -> {
+							plugin.arena.givePowerCells((Player) shooter, tridents - 1);
+						});
 					}
 				}
-				event.getEntity().setVelocity(v);
 			}
 
 		}
+	}
+
+	private void nerfProjectileShot(ProjectileLaunchEvent event, Player shooter) {
+		Vector v = event.getEntity().getVelocity();
+		// If the shot is behind the line on the far side of the field, nerf the shot
+		if (plugin.redPlayers.contains(shooter)) {
+			if (shooter.getLocation().getZ() < -12) {
+				v.setY(0.25);
+			}
+		} else {
+			if (shooter.getLocation().getZ() > 15) {
+				v.setY(0.25);
+			}
+		}
+		event.getEntity().setVelocity(v);
 	}
 
 }
